@@ -1,0 +1,35 @@
+# R / RStudio
+.Rhistory
+.RData
+.Rdata
+.Ruserdata
+.Rproj.user/
+*.Rproj
+.Renviron
+.httr-oauth
+/*_cache/
+/cache/
+*.utf8.md
+*.knit.md
+rsconnect/
+renv/library/
+renv/staging/
+
+# Rendered outputs (keep sources; commit final PDF deliberately with `git add -f`)
+report/*.html
+report/*_files/
+*.log
+*.aux
+*.out
+*.toc
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Raw phone exports / screenshots may contain location traces or personal info.
+# Keep them local; commit only the cleaned, de-identified CSV in data/processed/.
+data/raw/*
+!data/raw/.gitkeep
