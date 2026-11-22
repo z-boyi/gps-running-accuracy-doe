@@ -34,7 +34,7 @@
   Signed percentage distance error, one value per app per lap:
   $$e = 100 \times \frac{d_{recorded} - d_{true}}{d_{true}} \ (\%).$$
   Positive values of $e$ mean the app over-records the distance and negative values mean it under-records. This signed error is the response of the factorial model. It is kept distinct from the absolute percentage error $|e|$, which is used only for accuracy comparisons (see Tentative analysis). The "% error" columns of our data sheet already follow this definition.
-    - True distance: lane 1 = 400 m, lane 8 ≈ 453 m.
+    - True distance $d_{true}$: the data sheet uses the nominal lengths 400 m (lane 1) and 453 m (lane 8). These are the lengths of the official measurement lines (0.30 m from the kerb in lane 1, 0.20 m from the inner line in other lanes) on a standard track with 1.22 m lanes; with 1.25 m lanes, lane 8 would be about 454.3 m. Before the analysis we will verify this track's lane width and lap lengths (track markings or facility documentation, plus a measuring-wheel check of lanes 1 and 8 along the line we walked), use the verified values as $d_{true}$, and report a sensitivity analysis over the plausible range. A 1 m change in $d_{true}$ shifts $e$ by only about 0.25 percentage points, which is small compared with the 10 m display resolution.
     - Data collection protocol:
         - Open both apps and wait 60 s for a GPS lock before starting.
         - Phone position: each member carried their own phone in their usual way, in the hand or in a front trouser pocket. No written rule fixed the hand side, screen orientation or pocket, and these were not recorded.
