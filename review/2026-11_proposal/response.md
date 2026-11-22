@@ -9,7 +9,7 @@ The original proposal is kept unchanged in `report/proposal.pdf`. The revision i
 
 | # | Topic | Accepted? | Status |
 |---|---|---|---|
-| 1 | Standardize phone position within blocks | Yes | Planned |
+| 1 | Standardize phone position within blocks | Yes | Addressed in proposal v2 |
 | 2 | Walking and jogging instructions | Yes | Planned |
 | 3 | Definition of the signed response | Yes | Planned |
 | 4 | Verified true distance | Yes | Planned |

@@ -12,7 +12,7 @@
     - Four two-level factors:
         - App: Strava vs. Keep.
         - Lane: 1 vs. 8.
-        - Placement: hand vs. front pocket.
+        - Placement: hand vs. front pocket (as carried in practice; see protocol and limitations).
         - Pace: walking vs. jogging.
     - $2^4 = 16$ treatment combinations; both apps record simultaneously.
 - Experimental units:
@@ -37,6 +37,7 @@
     - True distance: lane 1 = 400 m, lane 8 ≈ 453 m.
     - Data collection protocol:
         - Open both apps and wait 60 s for a GPS lock before starting.
+        - Phone position: each member carried their own phone in their usual way, in the hand or in a front trouser pocket. No written rule fixed the hand side, screen orientation or pocket, and these were not recorded.
         - Start both apps at the finish line, walk or jog one lap in the assigned lane, walk as close to the inner line of the lane as practical, and stop both apps when crossing the same line.
         - Record each app's distance at its finest available resolution (exported activity data where possible), and screenshot the summary.
         - Log block, lap order, lane, placement, pace, start time and weather on a shared sheet.
@@ -138,3 +139,7 @@ Darren
     - Summarize treatment means, standard deviations, and absolute percentage errors.
     - Present main-effect, interaction, and paired app comparison plots.
     - Check residual-versus-fitted, normal Q–Q, and residual-versus-lap-order plots. Because the error is discrete (10 m display resolution), the Q–Q plot will be stepped; we judge it for gross departures only.
+
+## Limitations:
+
+- Phone position within a placement level was not standardized. Each member's habitual way of carrying the phone is partly absorbed by the block, but any lap-to-lap inconsistency adds noise to the placement comparison. A future study should fix, within each block, the hand used, the phone orientation (upright, screen up in the hand; screen facing the body in the pocket) and the pocket, and record them.
