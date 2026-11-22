@@ -13,3 +13,4 @@ math[display="block"] { margin: 0.4em 0; }
 .schedules { display: flex; gap: 1.6em; margin: 0.6em 0; }
 .schedules pre { margin: 0; font-size: 8.5pt; }
 .revised { }
+.subtitle { text-align: center; font-style: italic; margin: -1em 0 1.2em; }

@@ -1,5 +1,7 @@
 # STAT 404 Group Project Proposal
 
+<p class="subtitle">Revised after reviewer comments; data collection completed 6–13 November 2026</p>
+
 ## Research Question:
 
 - How do running apps, lane, phone placement, and pace affect GPS distance accuracy, and do these factors interact?
@@ -115,6 +117,16 @@ Darren
 </pre>
 </div>
 
+## Data collected:
+
+- All 32 laps and 64 app readings were recorded (`data/gps_track_data_log.csv`).
+- Every block followed its randomized run order exactly.
+- Dates and weather: Phoebe (partly cloudy) and Boyi (sunny) ran all laps on 12 November, and Darren ran all laps on 13 November (light rain). Jenny ran laps 1, 2 and 6 on 6 November (light rain) and the other five laps on 12 November (partly cloudy).
+    - Because each block was mostly run on a single day, day and weather are confounded with block and are absorbed by the block effect.
+    - Jenny's 6 November laps were all walking laps, so within her block, day and weather are partly confounded with pace.
+- Both apps display distance to 0.01 km (10 m). Each reading therefore carries a rounding error of up to ±5 m (±1.25% of 400 m, ±1.10% of 453 m), and the error takes only a few discrete values.
+- Start times were not logged, so run-order diagnostics use lap order.
+
 ## Tentative analysis:
 
 - Named statistical model(s):
@@ -125,4 +137,4 @@ Darren
     - Test factorial effects and report estimates with 95% confidence intervals.
     - Summarize treatment means, standard deviations, and absolute percentage errors.
     - Present main-effect, interaction, and paired app comparison plots.
-    - Check residual-versus-fitted, normal Q–Q, and residual-versus-trial-order plots.
+    - Check residual-versus-fitted, normal Q–Q, and residual-versus-lap-order plots. Because the error is discrete (10 m display resolution), the Q–Q plot will be stepped; we judge it for gross departures only.
