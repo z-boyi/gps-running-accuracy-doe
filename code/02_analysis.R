@@ -1,37 +1,65 @@
 # 02_analysis.R
-# Planned analysis (skeleton - to be completed once data are collected).
+# Signed percentage error: does each app over- or under-record, and which
+# factors and interactions matter? (proposal v2, aims 1 and 2)
 #
-# Response: percentage distance error  e = (d_recorded - d_true) / d_true
-#   d_true = 400 m (lane 1), ~453 m (lane 8)
-#
-# Model: factorial linear mixed-effects model
-#   fixed:  block + app * lane * placement * pace
-#   random: lap nested within block (the two app readings in a lap are paired)
+# Input : data/processed/gps_runs.csv  (made by code/00_clean_data.R)
+# Output: tables in results/, plots in figures/
+# Run from the repository root:  Rscript code/02_analysis.R
 
-library(lme4)
-library(lmerTest)   # F tests with Satterthwaite df
-library(ggplot2)
+suppressPackageStartupMessages({
+  library(lme4)
+  library(lmerTest)   # F tests with Satterthwaite df
+  library(emmeans)    # estimated marginal means with 95% CIs
+  library(ggplot2)
+})
 
-dat <- read.csv("data/processed/gps_runs.csv", stringsAsFactors = TRUE)
+dir.create("results", showWarnings = FALSE)
+dir.create("figures", showWarnings = FALSE)
 
-dat$true_distance_m <- ifelse(dat$lane == 1, 400, 453)
-dat$error_pct <- 100 * (dat$recorded_distance_m - dat$true_distance_m) / dat$true_distance_m
-dat$lap_id <- interaction(dat$block, dat$lap_order)
-dat[c("block", "app", "lane", "placement", "pace")] <-
-  lapply(dat[c("block", "app", "lane", "placement", "pace")], factor)
+# ---- 1. Data ---------------------------------------------------------------
 
-# Effect coding so factorial effects are interpretable
+dat <- read.csv("data/processed/gps_runs.csv")
+
+# Treat every design variable as a factor (lane 1/8 is a category, not a number)
+dat$block     <- factor(dat$block, levels = c("Phoebe", "Boyi", "Jenny", "Darren"))
+dat$app       <- factor(dat$app, levels = c("Keep", "Strava"))
+dat$lane      <- factor(dat$lane)
+dat$placement <- factor(dat$placement, levels = c("hand", "pocket"))
+dat$pace      <- factor(dat$pace, levels = c("walk", "jog"))
+dat$lap_id    <- factor(dat$lap_id)
+
+# Sum-to-zero (effect) coding, so each factorial effect is a deviation
+# from the overall mean and the ANOVA tests match the usual 2^k effects
 options(contrasts = c("contr.sum", "contr.poly"))
 
-fit <- lmer(error_pct ~ block + app * lane * placement * pace + (1 | lap_id),
-            data = dat)
+# ---- 2. Descriptive summaries ----------------------------------------------
 
-anova(fit)                       # factorial effect tests
-confint(fit, method = "Wald")    # 95% CIs for fixed effects
+# n, mean and SD of the signed error, and MAPE = mean of |e|, for each group
+summarise_e <- function(formula) {
+  out <- aggregate(formula, data = dat, FUN = function(e)
+    round(c(n = length(e), mean = mean(e), sd = sd(e), mape = mean(abs(e))), 2))
+  out <- do.call(data.frame, out)   # turn the matrix column into ordinary columns
+  names(out) <- sub("error_pct.", "", names(out), fixed = TRUE)
+  out
+}
 
-# Descriptive summaries: means, SDs, mean absolute error by treatment
-aggregate(cbind(error_pct, abs_error = abs(error_pct)) ~ app + lane + placement + pace,
-          data = dat, FUN = function(x) c(mean = mean(x), sd = sd(x)))
+by_app   <- summarise_e(error_pct ~ app)
+by_block <- summarise_e(error_pct ~ block + app)
+by_cell  <- summarise_e(error_pct ~ app + lane + placement + pace)
+print(by_app)
+print(by_block)
 
-# TODO: main-effect & interaction plots, paired app comparison plot
-# TODO: diagnostics - residual vs fitted, normal Q-Q, residual vs lap order
+write.csv(by_app,   "results/summary_by_app.csv",       row.names = FALSE)
+write.csv(by_block, "results/summary_by_block_app.csv", row.names = FALSE)
+write.csv(by_cell,  "results/summary_by_treatment.csv", row.names = FALSE)
+
+# Raw data plot: every reading, by block and app
+p_raw <- ggplot(dat, aes(x = block, y = error_pct, colour = app)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(position = position_jitterdodge(jitter.width = 0.15,
+                                             jitter.height = 0, seed = 1),
+             size = 2, alpha = 0.8) +
+  labs(x = "Block (member and phone)", y = "Signed error e (%)", colour = "App",
+       title = "All 64 readings: error by block and app") +
+  theme_bw()
+ggsave("figures/01_raw_error_by_block.png", p_raw, width = 6, height = 4, dpi = 200)

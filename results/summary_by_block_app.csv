@@ -1,0 +1,9 @@
+"block","app","n","mean","sd","mape"
+"Phoebe","Keep",8,2.46,2.61,3.09
+"Boyi","Keep",8,2.06,2.91,2.94
+"Jenny","Keep",8,1.98,3.7,2.61
+"Darren","Keep",8,-1.82,2.95,2.21
+"Phoebe","Strava",8,5.48,2.49,5.48
+"Boyi","Strava",8,6.07,2.6,6.07
+"Jenny","Strava",8,-0.65,1.44,1.03
+"Darren","Strava",8,-0.37,2.11,1.77
