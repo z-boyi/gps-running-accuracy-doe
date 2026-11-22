@@ -27,9 +27,9 @@ Specifically, we aim to:
 | **Randomization** | 8 lane × placement × pace combinations randomized independently within each block in R (`set.seed(404)`) |
 | **Replication** | Each combination observed once per block → 8 laps/person, 32 laps, **64 app readings** |
 
-**Response:** percentage distance error
+**Response:** signed percentage distance error (positive = the app over-records)
 
-$$e = \frac{d_{\text{recorded}} - d_{\text{true}}}{d_{\text{true}}}, \qquad d_{\text{true}} = 400\text{ m (lane 1)},\ \approx 453\text{ m (lane 8)}$$
+$$e = 100 \times \frac{d_{\text{recorded}} - d_{\text{true}}}{d_{\text{true}}}, \qquad d_{\text{true}} = 400.00\text{ m (lane 1)},\ 453.03\text{ m (lane 8)}$$
 
 **Protocol:** open both apps and wait 60 s for GPS lock; start both apps at the finish line; complete one lap on the inside of the assigned lane; stop both at the same line; record distance at the finest available resolution and screenshot the summary; log block, lap order, conditions, start time and weather.
 
