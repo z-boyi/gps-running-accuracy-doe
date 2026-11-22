@@ -146,6 +146,8 @@ Darren
     - Test factorial effects and report estimates with 95% confidence intervals.
     - Summarize treatment means and standard deviations of $e$, and MAPE with 95% confidence intervals.
     - Present main-effect, interaction, and paired app comparison plots.
+    - Plot the paired Strava − Keep differences separately for each block to check whether app effects are consistent across phones, as the additive block term assumes.
+    - Sensitivity analysis: refit the model with an app × block interaction (3 df, leaving 21 within-lap residual df) and compare it with the additive model; if the interaction is important, interpret the app effects block by block.
     - Check residual-versus-fitted, normal Q–Q, and residual-versus-lap-order plots. Because the error is discrete (10 m display resolution), the Q–Q plot will be stepped; we judge it for gross departures only.
 
 ## Limitations:

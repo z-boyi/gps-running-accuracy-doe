@@ -15,7 +15,7 @@ The original proposal is kept unchanged in `report/proposal.pdf`. The revision i
 | 4 | Verified true distance | Yes | Addressed in proposal v2 |
 | 5 | Absolute error measure and its uncertainty | Yes | Addressed in proposal v2 |
 | 6 | Which interactions | Yes | Addressed in proposal v2 |
-| 7 | Additive block assumption for app effects | Yes | Planned |
+| 7 | Additive block assumption for app effects | Yes | Addressed in proposal v2 |
 
 ## 1. Standardize phone position within blocks
 
