@@ -94,3 +94,45 @@ print(anova_add)
 print(VarCorr(fit_add))       # lap-to-lap SD and residual SD
 
 write.csv(round(as.data.frame(anova_add), 4), "results/anova_additive_model.csv")
+
+# ---- 4. Is the app effect the same on every phone? (review comment 7) -------
+
+# Paired difference within each lap: Strava minus Keep
+wide <- reshape(dat[, c("lap_id", "block", "app", "error_pct")],
+                idvar = c("lap_id", "block"), timevar = "app", direction = "wide")
+wide$diff <- wide$error_pct.Strava - wide$error_pct.Keep
+
+p_diff <- ggplot(wide, aes(x = block, y = diff)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  # light box plot underneath; outliers hidden because every point is drawn
+  geom_boxplot(width = 0.4, outlier.shape = NA, fill = "grey90", colour = "grey60") +
+  geom_point(position = position_jitter(width = 0.1, height = 0, seed = 1),
+             size = 2, alpha = 0.7) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.4, colour = "red") +
+  labs(x = "Block (member and phone)", y = "Strava - Keep (percentage points)",
+       title = "Paired app difference in each lap, by block",
+       subtitle = "Box: quartiles, grey line = median; red bar = mean. Above 0: Strava records more") +
+  theme_bw()
+ggsave("figures/02_app_difference_by_block.png", p_diff, width = 6, height = 4, dpi = 200)
+
+# Sensitivity model: add the app x block interaction (3 df)
+fit_int <- lmer(error_pct ~ block * app + app * lane * placement * pace + (1 | lap_id),
+                data = dat)
+
+# Likelihood-ratio test of the 3 extra terms (refit with ML to compare)
+lrt <- anova(fit_add, fit_int, refit = TRUE)
+print(lrt)
+
+anova_int <- anova(fit_int)
+print(anova_int)
+write.csv(round(as.data.frame(anova_int), 4), "results/anova_final_model.csv")
+
+# App difference (Strava - Keep) within each block, with 95% CIs
+app_by_block <- confint(contrast(emmeans(fit_int, ~ app | block), "revpairwise"))
+print(app_by_block)
+app_by_block_df <- as.data.frame(app_by_block)
+app_by_block_df[, 3:7] <- round(app_by_block_df[, 3:7], 2)
+write.csv(app_by_block_df, "results/app_difference_by_block.csv", row.names = FALSE)
+
+# The interaction is clear, so fit_int is used as the final model from here on
+fit <- fit_int
