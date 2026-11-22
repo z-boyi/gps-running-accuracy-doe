@@ -13,7 +13,7 @@
         - App: Strava vs. Keep.
         - Lane: 1 vs. 8.
         - Placement: hand vs. front pocket (as carried in practice; see protocol and limitations).
-        - Pace: walking vs. jogging.
+        - Pace: walking vs. jogging (self-selected: each member's normal walk and an easy jog).
     - $2^4 = 16$ treatment combinations; both apps record simultaneously.
 - Experimental units:
     - Each separately recorded lap is a unit for lane, placement, and pace.
@@ -38,6 +38,7 @@
     - Data collection protocol:
         - Open both apps and wait 60 s for a GPS lock before starting.
         - Phone position: each member carried their own phone in their usual way, in the hand or in a front trouser pocket. No written rule fixed the hand side, screen orientation or pocket, and these were not recorded.
+        - Pace: no target speeds were set and lap times were not logged on the sheet. Lap durations will be taken from the saved app activities where available, to report the speed actually achieved in each lap.
         - Start both apps at the finish line, walk or jog one lap in the assigned lane, walk as close to the inner line of the lane as practical, and stop both apps when crossing the same line.
         - Record each app's distance at its finest available resolution (exported activity data where possible), and screenshot the summary.
         - Log block, lap order, lane, placement, pace, start time and weather on a shared sheet.
@@ -143,3 +144,4 @@ Darren
 ## Limitations:
 
 - Phone position within a placement level was not standardized. Each member's habitual way of carrying the phone is partly absorbed by the block, but any lap-to-lap inconsistency adds noise to the placement comparison. A future study should fix, within each block, the hand used, the phone orientation (upright, screen up in the hand; screen facing the body in the pocket) and the pocket, and record them.
+- Pace levels were self-selected, so achieved speeds may differ between members. The block effect absorbs each member's average speed, but the size of the walk–jog contrast may differ between blocks. A future study should give target ranges, for example walking at 4.5–5.5 km/h (about 4:20–5:20 per lap in lane 1) and jogging at 8–10 km/h (about 2:25–3:00 per lap in lane 1), and time every lap.
