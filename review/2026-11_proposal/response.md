@@ -21,7 +21,7 @@ The original proposal is kept unchanged in `report/proposal.pdf`. The revision i
 
 **Assessment.** Reasonable. Placement is a treatment factor, but variation *within* a level (switching hands, screen facing in or out, different pockets) adds noise and weakens the test of the placement effect.
 
-**Change.** Describe how the phone was carried in each placement during data collection, and state that hand side, orientation and pocket were not formally fixed or recorded. Report this as a limitation.
+**Change.** Explain in the protocol that phone position was deliberately left to each member, because people carry phones differently and members form the blocks; state that hand side, orientation and pocket were not recorded. List the consequences (extra within-block noise; placement effect averaged over personal styles) as a limitation.
 
 ## 2. Walking and jogging instructions
 
