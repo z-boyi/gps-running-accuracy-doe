@@ -63,3 +63,16 @@ p_raw <- ggplot(dat, aes(x = block, y = error_pct, colour = app)) +
        title = "All 64 readings: error by block and app") +
   theme_bw()
 ggsave("figures/01_raw_error_by_block.png", p_raw, width = 6, height = 4, dpi = 200)
+
+# ---- 3. Planned model: additive block --------------------------------------
+
+# Fixed: block + full 2^4 factorial of app, lane, placement, pace
+# Random: one intercept per lap, shared by its Strava and Keep readings
+fit_add <- lmer(error_pct ~ block + app * lane * placement * pace + (1 | lap_id),
+                data = dat)
+
+anova_add <- anova(fit_add)   # Type III F tests, Satterthwaite df
+print(anova_add)
+print(VarCorr(fit_add))       # lap-to-lap SD and residual SD
+
+write.csv(round(as.data.frame(anova_add), 4), "results/anova_additive_model.csv")
