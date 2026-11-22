@@ -40,7 +40,7 @@
         - Phone position: each member carried their own phone in their usual way, in the hand or in a front trouser pocket. No written rule fixed the hand side, screen orientation or pocket, and these were not recorded.
         - Pace: no target speeds were set and lap times were not logged on the sheet. Lap durations will be taken from the saved app activities where available, to report the speed actually achieved in each lap.
         - Start both apps at the finish line, walk or jog one lap in the assigned lane, walk as close to the inner line of the lane as practical, and stop both apps when crossing the same line.
-        - Record each app's distance at its finest available resolution (exported activity data where possible), and screenshot the summary.
+        - Record each app's distance at its finest available resolution (exported activity data where possible), and screenshot the summary. In practice both apps showed distance only to 0.01 km (10 m).
         - Log block, lap order, lane, placement, pace, start time and weather on a shared sheet.
 - Aims:
     - Estimate whether the apps systematically over- or under-record distance.
@@ -126,7 +126,7 @@ Darren
 - Dates and weather: Phoebe (partly cloudy) and Boyi (sunny) ran all laps on 12 November, and Darren ran all laps on 13 November (light rain). Jenny ran laps 1, 2 and 6 on 6 November (light rain) and the other five laps on 12 November (partly cloudy).
     - Because each block was mostly run on a single day, day and weather are confounded with block and are absorbed by the block effect.
     - Jenny's 6 November laps were all walking laps, so within her block, day and weather are partly confounded with pace.
-- Both apps display distance to 0.01 km (10 m). Each reading therefore carries a rounding error of up to ±5 m (±1.25% of 400 m, ±1.10% of 453 m), and the error takes only a few discrete values.
+- Both apps display distance only to 0.01 km (10 m); no finer value was available during recording. Each reading therefore carries a rounding error of up to ±5 m (±1.25% of 400 m, ±1.10% of 453 m), and the error takes only a few discrete values.
 - Start times were not logged, so run-order diagnostics use lap order.
 
 ## Tentative analysis:
