@@ -121,6 +121,7 @@ Darren
 
 ## Data collected:
 
+- Site: all four members ran on the same outdoor 400 m track, the Rashpal Dhillon Track & Field Oval at the University of British Columbia, Vancouver.
 - All 32 laps and 64 app readings were recorded (`data/gps_track_data_log.csv`).
 - Every block followed its randomized run order exactly.
 - Dates and weather: Phoebe (partly cloudy) and Boyi (sunny) ran all laps on 12 November, and Darren ran all laps on 13 November (light rain). Jenny ran laps 1, 2 and 6 on 6 November (light rain) and the other five laps on 12 November (partly cloudy).
