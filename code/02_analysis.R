@@ -159,3 +159,60 @@ invisible(dev.off())
 print(shapiro.test(dat$resid))                    # normality of residuals
 print(cor.test(dat$resid, dat$lap_order))         # trend over the session?
 print(bartlett.test(resid ~ block, data = dat))   # equal spread across blocks?
+
+# ---- 6. Estimated effects (aims 1 and 2) ------------------------------------
+
+# Estimated mean error, with 95% CI, for each level of the factors in `spec`.
+# Returns a plain data frame with a "level" column naming the level.
+em_table <- function(spec) {
+  em <- as.data.frame(confint(emmeans(fit, spec)))
+  vars <- all.vars(spec)
+  em$level <- if (length(vars) == 0) "overall" else
+    do.call(paste, c(lapply(vars, function(v) paste(v, em[[v]])), sep = ", "))
+  em[, c("level", "emmean", "SE", "df", "lower.CL", "upper.CL")]
+}
+
+# Aim 1: average signed error overall and for each app.
+# These average over the four blocks ("a typical phone in our study");
+# section 4 shows that the app difference changes sign between blocks.
+# Aim 2: mean error at each level of lane, placement and pace.
+means <- rbind(em_table(~ 1), em_table(~ app), em_table(~ lane),
+               em_table(~ placement), em_table(~ pace))
+means[, -1] <- round(means[, -1], 2)
+print(means)
+write.csv(means, "results/estimated_means.csv", row.names = FALSE)
+
+# Main-effect plot: estimated mean error at each level, with 95% CIs
+main <- means[means$level != "overall", ]
+main$factor <- sub(" .*", "", main$level)                 # e.g. "placement"
+main$value  <- factor(sub("^\\S+ ", "", main$level),      # e.g. "pocket"
+                      levels = unique(sub("^\\S+ ", "", main$level)))
+p_main <- ggplot(main, aes(x = value, y = emmean)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
+  facet_wrap(~ factor, scales = "free_x", nrow = 1) +
+  labs(x = NULL, y = "Estimated mean error e (%)",
+       title = "Main effects with 95% confidence intervals") +
+  theme_bw()
+ggsave("figures/04_main_effects.png", p_main, width = 8, height = 3.5, dpi = 200)
+
+# Interaction plots for the two-factor interactions of primary interest:
+# x-axis factor, line (trace) factor
+pairs_of_interest <- list(c("lane", "pace"), c("placement", "pace"),
+                          c("lane", "app"), c("pace", "app"))
+int_data <- do.call(rbind, lapply(pairs_of_interest, function(p) {
+  em <- as.data.frame(emmeans(fit, as.formula(paste("~", p[1], "*", p[2]))))
+  data.frame(panel = paste(p[1], "x", p[2]),
+             x = as.character(em[[p[1]]]), trace = as.character(em[[p[2]]]),
+             emmean = em$emmean)
+}))
+# keep the level order used in the data (walk before jog, etc.)
+int_data$x     <- factor(int_data$x, levels = unique(int_data$x))
+int_data$trace <- factor(int_data$trace, levels = unique(int_data$trace))
+p_int <- ggplot(int_data, aes(x = x, y = emmean, colour = trace, group = trace)) +
+  geom_point(size = 2) + geom_line() +
+  facet_wrap(~ panel, scales = "free_x") +
+  labs(x = NULL, y = "Estimated mean error e (%)", colour = "Line",
+       title = "Two-factor interactions (parallel lines = no interaction)") +
+  theme_bw()
+ggsave("figures/05_interactions.png", p_int, width = 8, height = 6, dpi = 200)
