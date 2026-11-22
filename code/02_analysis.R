@@ -216,3 +216,18 @@ p_int <- ggplot(int_data, aes(x = x, y = emmean, colour = trace, group = trace))
        title = "Two-factor interactions (parallel lines = no interaction)") +
   theme_bw()
 ggsave("figures/05_interactions.png", p_int, width = 8, height = 6, dpi = 200)
+
+# ---- 7. Sensitivity to the true lap length ----------------------------------
+
+# Our walked line may differ slightly from the official measurement line.
+# Shift d_true by -1 m and +1 m, refit the final model, and compare.
+for (shift in c(-1, 0, 1)) {
+  d_true <- dat$true_distance_m + shift
+  dat$e_shift <- 100 * (dat$recorded_distance_m - d_true) / d_true
+  m <- lmer(e_shift ~ block * app + app * lane * placement * pace + (1 | lap_id),
+            data = dat)
+  a <- anova(m)
+  cat(sprintf("d_true %+d m: overall mean e = %.2f%%, app x block p = %.4f, app p = %.4f\n",
+              shift, summary(emmeans(m, ~ 1))$emmean,
+              a["block:app", "Pr(>F)"], a["app", "Pr(>F)"]))
+}
