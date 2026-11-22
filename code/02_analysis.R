@@ -67,7 +67,25 @@ ggsave("figures/01_raw_error_by_block.png", p_raw, width = 6, height = 4, dpi = 
 # ---- 3. Planned model: additive block --------------------------------------
 
 # Fixed: block + full 2^4 factorial of app, lane, placement, pace
-# Random: one intercept per lap, shared by its Strava and Keep readings
+# Random: (1 | lap_id) = one random intercept for each of the 32 laps.
+#   In "(1 | lap_id)", "|" means "for each group of"; the 1 is an intercept.
+#   So every lap gets its own shift u_lap ~ N(0, sigma_lap^2), and the model
+#   estimates sigma_lap rather than 32 separate shifts.
+#
+# Why it is needed: both apps recorded the SAME lap at the same time, so the
+# two readings share that lap's conditions (the line actually walked, the
+# satellites at that moment, ...) beyond what block and treatments explain.
+# This is a split-plot structure:
+#   - whole plot = lap;  whole-plot factors = lane, placement, pace
+#     (each lap gets a different combination; they are compared between laps,
+#     so their error is lap-to-lap variation: 32 laps, 21 residual df)
+#   - sub-plot = app reading within a lap; sub-plot factor = app
+#     (compared within laps, so the lap shift cancels, as in a paired t test)
+# Dropping (1 | lap_id) and using lm() would treat the 64 readings as
+# independent (pseudo-replication): in the final model (section 4) the
+# placement p-value would fall from 0.08 to 0.04, a false "significant"
+# result, while the app test would lose the benefit of pairing. The term is kept because the design requires
+# it, whether or not it is significant in this data set.
 fit_add <- lmer(error_pct ~ block + app * lane * placement * pace + (1 | lap_id),
                 data = dat)
 

@@ -65,7 +65,9 @@ long$true_distance_m <- ifelse(long$lane == 1, 400.00, 453.03)
 long$error_pct <- 100 * (long$recorded_distance_m - long$true_distance_m) /
   long$true_distance_m
 
-# One id per lap; the two app readings of a lap share it
+# One id per lap, e.g. "Boyi_3"; the Strava and Keep readings of a lap share it.
+# lap_order alone (1-8) is not enough: Phoebe's lap 1 and Boyi's lap 1 are
+# different laps, so the id combines block and lap order (32 distinct laps).
 long$lap_id <- paste(long$block, long$lap_order, sep = "_")
 
 # ---- 4. Save ----------------------------------------------------------------
