@@ -133,8 +133,10 @@ Darren
 
 - Named statistical model(s):
     - A factorial linear mixed-effects model:
-        - Fixed effects: owner–phone block, four treatment factors, and their interactions.
+        - Fixed effects: owner–phone block and the full app × lane × placement × pace factorial, i.e. all four main effects and all two-, three- and four-factor interactions. The design supports this: between laps there are 32 − 1 − 3 − 7 = 21 residual df for lane, placement, pace and their interactions, and within laps 32 − 8 = 24 residual df for app and its interactions.
+        - Two-factor interactions of primary interest: lane × pace (curve radius and speed both affect how GPS samples the bends); app × lane and app × pace (the apps may smooth tracks differently on curves and at different speeds); placement × pace (arm swing while jogging may matter more for the hand position). Three- and four-factor interactions are reported as exploratory.
         - Random effect: lap nested within block, accounting for paired app readings.
+        - In R: `lmer(e ~ block + app * lane * placement * pace + (1 | lap_id))`.
         - This signed-error model addresses over- and under-recording; it does not by itself identify the most accurate setting.
     - Absolute error (accuracy):
         - Absolute percentage error $|e|$ for each app reading, and mean absolute percentage error, MAPE = mean of $|e|$ over the readings in a group.
