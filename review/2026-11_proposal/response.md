@@ -3,7 +3,7 @@
 The comments arrived after data collection had finished (6–13 November 2026), so they are handled in two ways:
 
 - **Analysis and reporting** (comments 3, 5, 6, 7): applied fully in the revised proposal.
-- **Data collection protocol** (comments 1, 2, 4): the laps cannot be re-run, so the revised proposal records what was actually done, adds what can still be done afterwards (for example measuring the track), and lists the rest as limitations.
+- **Data collection protocol** (comments 1, 2, 4): the laps cannot be re-run, so the revised proposal records what was actually done, explains why, adds what can still be done afterwards (using the track's lap lengths, lap durations from the apps), and lists the rest as limitations.
 
 The original proposal is kept unchanged in `report/proposal.pdf`. The revision is `report/proposal_v2.md`, rendered to `report/proposal_v2.pdf`. Each comment is addressed in its own commit, so the history shows how every change maps to a comment.
 
@@ -39,7 +39,7 @@ The original proposal is kept unchanged in `report/proposal.pdf`. The revision i
 
 **Assessment.** Reasonable. 400 m is the length of the measurement line in lane 1, and 453 m for lane 8 depends on the lane width. A bias in d_true passes into every error value and is confounded with the lane effect.
 
-**Change.** Check the lap lengths of lanes 1 and 8 on this track (official markings or track documentation, and a measuring-wheel check of the walked line), recompute e with the verified lengths, and report a sensitivity analysis over the plausible range of d_true.
+**Change.** Use this track's lap lengths (1.22 m lanes: 400.00 m in lane 1, 453.03 m in lane 8) as d_true, explain the small gap between the walked line and the measurement line, and add a sensitivity analysis with d_true shifted by ±1 m.
 
 ## 5. Absolute error measure and its uncertainty
 
