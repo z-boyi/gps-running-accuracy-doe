@@ -136,3 +136,26 @@ write.csv(app_by_block_df, "results/app_difference_by_block.csv", row.names = FA
 
 # The interaction is clear, so fit_int is used as the final model from here on
 fit <- fit_int
+
+# ---- 5. Model checking ------------------------------------------------------
+
+dat$fitted <- fitted(fit)
+dat$resid  <- resid(fit)
+
+png("figures/03_diagnostics.png", width = 9, height = 3.2, units = "in", res = 200)
+par(mfrow = c(1, 3))
+plot(dat$fitted, dat$resid, xlab = "Fitted value", ylab = "Residual",
+     main = "Residuals vs fitted")
+abline(h = 0, lty = 2)
+qqnorm(dat$resid, main = "Normal Q-Q of residuals")
+qqline(dat$resid)
+set.seed(1)   # fixed jitter so the figure is reproducible
+plot(jitter(dat$lap_order, 0.5), dat$resid, xlab = "Lap order within block",
+     ylab = "Residual", main = "Residuals vs lap order")
+abline(h = 0, lty = 2)
+invisible(dev.off())
+
+# Numerical companions to the plots
+print(shapiro.test(dat$resid))                    # normality of residuals
+print(cor.test(dat$resid, dat$lap_order))         # trend over the session?
+print(bartlett.test(resid ~ block, data = dat))   # equal spread across blocks?
