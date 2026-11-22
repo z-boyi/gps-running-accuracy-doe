@@ -27,7 +27,7 @@ The original proposal is kept unchanged in `report/proposal.pdf`. The revision i
 
 **Assessment.** Reasonable. "Walk" and "jog" mean different speeds for different people, so differences between members could be as large as the difference between the two levels.
 
-**Change.** State that pace was self-selected (each member's normal walk and easy jog), that lap times were not recorded, and that block absorbs each member's typical speed. Report this as a limitation and give the target ranges a future study should use.
+**Change.** Explain that pace was deliberately self-selected, consistent with members as blocks. Report achieved speeds from app lap durations, which exist for three of the four members. List the missing durations and the possibly different walk–jog contrast between members as limitations, and give target ranges for a future fixed-speed study.
 
 ## 3. Definition of the signed response
 

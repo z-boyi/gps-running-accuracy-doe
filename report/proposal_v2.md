@@ -38,7 +38,7 @@
     - Data collection protocol:
         - Open both apps and wait 60 s for a GPS lock before starting.
         - Phone position: by design, no common rule fixed the hand side, screen orientation or pocket. Each member carried their own phone in their usual way, because people differ in how they carry a phone and we want accuracy under normal use; members, each with their own phone and habits, therefore form the four blocks. Hand side, orientation and pocket were not recorded.
-        - Pace: no target speeds were set and lap times were not logged on the sheet. Lap durations will be taken from the saved app activities where available, to report the speed actually achieved in each lap.
+        - Pace: by design, no target speeds were set; each member walked and jogged at their own natural pace, consistent with treating members as blocks. Lap times were not logged on the sheet. Lap durations are available from the saved app activities for three of the four members and will be used to describe the achieved speeds.
         - Start both apps at the finish line, walk or jog one lap in the assigned lane, walk as close to the inner line of the lane as practical, and stop both apps when crossing the same line.
         - Record each app's distance at its finest available resolution (exported activity data where possible), and screenshot the summary. In practice both apps showed distance only to 0.01 km (10 m).
         - Log block, lap order, lane, placement, pace, start time and weather on a shared sheet.
@@ -153,4 +153,4 @@ Darren
 ## Limitations:
 
 - Phone position within a placement level was left to each member. The block effect absorbs each member's typical habit, but lap-to-lap inconsistency within a member adds noise to the placement comparison, and the placement effect is an average over four personal styles rather than the effect of one standard position. A study of a single standard position should fix and record the hand used, the phone orientation and the pocket.
-- Pace levels were self-selected, so achieved speeds may differ between members. The block effect absorbs each member's average speed, but the size of the walk–jog contrast may differ between blocks. A future study should give target ranges, for example walking at 4.5–5.5 km/h (about 4:20–5:20 per lap in lane 1) and jogging at 8–10 km/h (about 2:25–3:00 per lap in lane 1), and time every lap.
+- Pace levels were self-selected, so achieved speeds may differ between members, and lap durations are missing for one member. The block effect absorbs each member's average speed, but the size of the walk–jog contrast may differ between blocks. A future study comparing fixed speeds should give target ranges, for example walking at 4.5–5.5 km/h (about 4:20–5:20 per lap in lane 1) and jogging at 8–10 km/h (about 2:25–3:00 per lap in lane 1), and time every lap.
