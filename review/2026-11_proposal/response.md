@@ -13,7 +13,7 @@ The original proposal is kept unchanged in `report/proposal.pdf`. The revision i
 | 2 | Walking and jogging instructions | Yes | Addressed in proposal v2 |
 | 3 | Definition of the signed response | Yes | Addressed in proposal v2 |
 | 4 | Verified true distance | Yes | Addressed in proposal v2 |
-| 5 | Absolute error measure and its uncertainty | Yes | Planned |
+| 5 | Absolute error measure and its uncertainty | Yes | Addressed in proposal v2 |
 | 6 | Which interactions | Yes | Planned |
 | 7 | Additive block assumption for app effects | Yes | Planned |
 

@@ -45,7 +45,7 @@
 - Aims:
     - Estimate whether the apps systematically over- or under-record distance.
     - Identify which factors and interactions (e.g., lane × pace) influence the error.
-    - Identify the tested combination with the smallest typical absolute error.
+    - Compare the typical absolute error (MAPE, defined below) of the two apps, of the factor levels and of the tested combinations, with 95% confidence intervals. We will not declare a unique best combination from point estimates alone; settings whose intervals overlap are reported as not distinguishable.
 
 ## Design:
 
@@ -135,9 +135,14 @@ Darren
     - A factorial linear mixed-effects model:
         - Fixed effects: owner–phone block, four treatment factors, and their interactions.
         - Random effect: lap nested within block, accounting for paired app readings.
+        - This signed-error model addresses over- and under-recording; it does not by itself identify the most accurate setting.
+    - Absolute error (accuracy):
+        - Absolute percentage error $|e|$ for each app reading, and mean absolute percentage error, MAPE = mean of $|e|$ over the readings in a group.
+        - Estimate MAPE by app, by factor level and by treatment combination. Uncertainty: fit the same mixed model to $\log(|e| + 0.5)$ (the constant handles readings with zero error) and report back-transformed estimates with 95% confidence intervals; as a check, report bootstrap intervals that resample laps within each block, and repeat with other constants.
+        - With four readings per app × combination and a 10 m display resolution, combination-level intervals will be wide; this is stated when comparing combinations.
 - Specific methods, tables and plots:
     - Test factorial effects and report estimates with 95% confidence intervals.
-    - Summarize treatment means, standard deviations, and absolute percentage errors.
+    - Summarize treatment means and standard deviations of $e$, and MAPE with 95% confidence intervals.
     - Present main-effect, interaction, and paired app comparison plots.
     - Check residual-versus-fitted, normal Q–Q, and residual-versus-lap-order plots. Because the error is discrete (10 m display resolution), the Q–Q plot will be stepped; we judge it for gross departures only.
 
