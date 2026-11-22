@@ -11,7 +11,7 @@ The original proposal is kept unchanged in `report/proposal.pdf`. The revision i
 |---|---|---|---|
 | 1 | Standardize phone position within blocks | Yes | Addressed in proposal v2 |
 | 2 | Walking and jogging instructions | Yes | Addressed in proposal v2 |
-| 3 | Definition of the signed response | Yes | Planned |
+| 3 | Definition of the signed response | Yes | Addressed in proposal v2 |
 | 4 | Verified true distance | Yes | Planned |
 | 5 | Absolute error measure and its uncertainty | Yes | Planned |
 | 6 | Which interactions | Yes | Planned |

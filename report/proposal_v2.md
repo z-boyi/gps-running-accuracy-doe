@@ -31,9 +31,9 @@
 ## Objectives:
 
 - Measurement of the response (data collection):\
-  Distance percentage error = (recorded distance - true distance) / true distance,
-  $$e_r = \frac{d_{recorded} - d_{true}}{d_{true}},$$
-  one value per app per lap.
+  Signed percentage distance error, one value per app per lap:
+  $$e = 100 \times \frac{d_{recorded} - d_{true}}{d_{true}} \ (\%).$$
+  Positive values of $e$ mean the app over-records the distance and negative values mean it under-records. This signed error is the response of the factorial model. It is kept distinct from the absolute percentage error $|e|$, which is used only for accuracy comparisons (see Tentative analysis). The "% error" columns of our data sheet already follow this definition.
     - True distance: lane 1 = 400 m, lane 8 ≈ 453 m.
     - Data collection protocol:
         - Open both apps and wait 60 s for a GPS lock before starting.
