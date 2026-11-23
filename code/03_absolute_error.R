@@ -65,3 +65,49 @@ names(mape_block)[3] <- "mape"
 print(mape_block)
 write.csv(mape_block, "results/mape_by_block_app.csv", row.names = FALSE)
 
+# ---- 2. Model for log(|e| + 0.5) ---------------------------------------------
+
+# |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed
+# model as the signed error (including app x block, see 02_analysis.R). Back-transformed means are "typical" (median-like)
+# absolute errors, so they are smaller than MAPE.
+dat$log_abs <- log(dat$abs_e + 0.5)
+fit_abs <- lmer(log_abs ~ block * app + app * lane * placement * pace + (1 | lap_id),
+                data = dat)
+anova_abs <- anova(fit_abs)
+print(anova_abs)
+write.csv(round(as.data.frame(anova_abs), 4), "results/anova_log_abs_error.csv")
+
+back <- function(x) pmax(exp(x) - 0.5, 0)   # undo log(|e| + 0.5); |e| >= 0
+typical <- function(spec) {
+  em <- as.data.frame(confint(emmeans(fit_abs, spec)))
+  data.frame(em[, all.vars(spec), drop = FALSE],
+             typical_abs_e = back(em$emmean),
+             lower = back(em$lower.CL), upper = back(em$upper.CL))
+}
+typ_app  <- typical(~ app)
+typ_cell <- typical(~ app * lane * placement * pace)
+print(typ_app, digits = 3)
+write.csv(transform(typ_cell, typical_abs_e = round(typical_abs_e, 2),
+                    lower = round(lower, 2), upper = round(upper, 2)),
+          "results/typical_abs_error_by_treatment.csv", row.names = FALSE)
+
+# Check that the conclusion does not hinge on the constant 0.5
+for (k in c(0.25, 0.5, 1)) {
+  m <- lmer(log(abs_e + k) ~ block * app + app * lane * placement * pace + (1 | lap_id),
+            data = dat)
+  cat(sprintf("constant %.2f: app p = %.3f\n", k, anova(m)["app", "Pr(>F)"]))
+}
+
+# ---- 3. Plot: typical |e| for all 16 treatment combinations ------------------
+
+typ_cell$combo <- with(typ_cell, paste0("lane ", lane, ", ", placement, ", ", pace))
+p_cell <- ggplot(typ_cell, aes(x = typical_abs_e, y = combo, colour = app)) +
+  geom_pointrange(aes(xmin = lower, xmax = upper),
+                  position = position_dodge(width = 0.5)) +
+  labs(x = "Typical absolute error |e| (%), back-transformed, 95% CI",
+       y = NULL, colour = "App",
+       title = "Accuracy of each tested combination",
+       subtitle = "Intervals overlap widely: no single best combination") +
+  theme_bw()
+ggsave("figures/06_typical_abs_error_by_treatment.png", p_cell,
+       width = 7, height = 4.5, dpi = 200)

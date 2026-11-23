@@ -1,0 +1,17 @@
+"app","lane","placement","pace","typical_abs_e","lower","upper"
+"Keep","1","hand","walk",2.5,1,5.49
+"Strava","1","hand","walk",1.42,0.46,3.33
+"Keep","8","hand","walk",1.92,0.71,4.32
+"Strava","8","hand","walk",3.35,1.43,7.19
+"Keep","1","pocket","walk",5.06,2.28,10.59
+"Strava","1","pocket","walk",2.35,0.93,5.19
+"Keep","8","pocket","walk",2.06,0.78,4.61
+"Strava","8","pocket","walk",3.7,1.61,7.89
+"Keep","1","hand","jog",0.28,0,1.06
+"Strava","1","hand","jog",1.95,0.73,4.39
+"Keep","8","hand","jog",2.34,0.92,5.17
+"Strava","8","hand","jog",1.87,0.69,4.22
+"Keep","1","pocket","jog",0.41,0,1.32
+"Strava","1","pocket","jog",2.55,1.03,5.59
+"Keep","8","pocket","jog",3.61,1.56,7.71
+"Strava","8","pocket","jog",3.08,1.29,6.64
