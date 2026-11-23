@@ -7,6 +7,8 @@ A blocked 2⁴ factorial experiment measuring how **app choice, track lane, phon
 
 📖 **[Read the step-by-step guide to this experiment (English / 中文)](https://z-boyi.github.io/gps-running-accuracy-doe/docs/)**: how the design, data, model and conclusions fit together, with the figures and tables next to each explanation.
 
+📊 **[Final presentation slides (PDF)](report/presentation_slides.pdf)**
+
 ## Research question
 
 > How do running apps, lane, phone placement, and pace affect GPS distance accuracy, and do these factors interact?
@@ -83,7 +85,8 @@ Full results: [`report/results_summary.md`](report/results_summary.md).
 │   ├── proposal_v2.pdf      # built with build_proposal_v2.sh
 │   ├── proposal.css
 │   ├── build_proposal_v2.sh
-│   └── results_summary.md   # results and conclusions
+│   ├── results_summary.md   # results and conclusions
+│   └── presentation_slides.pdf  # final class presentation (5 slides)
 └── review/
     └── 2026-11_proposal/
         ├── reviewer_comments.md   # reviewer comments on the proposal, verbatim
