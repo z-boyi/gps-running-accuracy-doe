@@ -111,7 +111,7 @@ p_diff <- ggplot(wide, aes(x = block, y = diff)) +
   stat_summary(fun = mean, geom = "crossbar", width = 0.4, colour = "red") +
   labs(x = "Block (member and phone)", y = "Strava - Keep (percentage points)",
        title = "Paired app difference in each lap, by block",
-       subtitle = "Box: quartiles, grey line = median; red bar = mean. Above 0: Strava records more") +
+       subtitle = "Box = quartiles, grey line = median, red bar = mean.\nAbove 0: Strava records more than Keep") +
   theme_bw()
 ggsave("figures/02_app_difference_by_block.png", p_diff, width = 6, height = 4, dpi = 200)
 
