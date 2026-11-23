@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE_EN}}</title>
+<style>
+{{CSS}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="brand" data-lang="en">GPS running accuracy · DOE</span>
+  <span class="brand" data-lang="zh">GPS 跑步测距 · 实验设计</span>
+  <span class="spacer"></span>
+  <a class="repo" href="https://github.com/z-boyi/gps-running-accuracy-doe">GitHub</a>
+  <div class="switch" role="group" aria-label="Language">
+    <button type="button" data-set-lang="en">English</button>
+    <button type="button" data-set-lang="zh">中文</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="toc">
+    <nav data-lang="en"><p class="toc-title">Contents</p>{{TOC_EN}}</nav>
+    <nav data-lang="zh"><p class="toc-title">目录</p>{{TOC_ZH}}</nav>
+  </aside>
+  <main>
+    <article data-lang="en" lang="en"><h1>{{TITLE_EN}}</h1>{{BODY_EN}}</article>
+    <article data-lang="zh" lang="zh-CN"><h1>{{TITLE_ZH}}</h1>{{BODY_ZH}}</article>
+  </main>
+</div>
+<script>
+(function () {
+  var titles = { en: {{TITLE_EN_JS}}, zh: {{TITLE_ZH_JS}} };
+  function setLang(lang, save) {
+    if (lang !== "zh") lang = "en";
+    document.documentElement.setAttribute("data-current", lang);
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    document.title = titles[lang];
+    var buttons = document.querySelectorAll("[data-set-lang]");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute("aria-pressed", buttons[i].getAttribute("data-set-lang") === lang);
+    }
+    if (save) { try { localStorage.setItem("lang", lang); } catch (e) {} }
+  }
+  var fromUrl = new URLSearchParams(location.search).get("lang");
+  var saved = null;
+  try { saved = localStorage.getItem("lang"); } catch (e) {}
+  var browser = (navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
+  setLang(fromUrl || saved || browser, false);
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-set-lang]");
+    if (!b) return;
+    var lang = b.getAttribute("data-set-lang");
+    setLang(lang, true);
+    var url = new URL(location.href);
+    url.searchParams.set("lang", lang);
+    url.hash = "";
+    history.replaceState(null, "", url);
+    window.scrollTo(0, 0);
+  });
+})();
+</script>
+</body>
+</html>

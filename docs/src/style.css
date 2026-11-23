@@ -1,0 +1,56 @@
+:root { --ink:#1F2A30; --muted:#5B6B73; --green:#2E6B4F; --red:#B5452F; --tint:#F1F4F2; --line:#D9E0DC; }
+* { box-sizing: border-box; }
+html { font-size: 17px; scroll-padding-top: 72px; }
+body { margin: 0; color: var(--ink); line-height: 1.7;
+  font-family: -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Calibri, Arial, sans-serif; }
+
+/* Show only the current language */
+html[data-current="en"] [data-lang="zh"], html[data-current="zh"] [data-lang="en"] { display: none !important; }
+
+.topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px;
+  padding: 10px 24px; background: #fff; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 600; color: var(--green); }
+.spacer { flex: 1; }
+.repo { color: var(--muted); text-decoration: none; font-size: .9rem; }
+.repo:hover { color: var(--green); }
+.switch { display: flex; border: 1px solid var(--green); border-radius: 6px; overflow: hidden; }
+.switch button { font: inherit; font-size: .88rem; padding: 4px 12px; border: 0; background: #fff; color: var(--green); cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--green); color: #fff; }
+
+.layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); max-width: 1200px; margin: 0 auto; }
+.toc { position: sticky; top: 53px; align-self: start; max-height: calc(100vh - 53px); overflow-y: auto;
+  padding: 24px 12px 40px 24px; font-size: .86rem; line-height: 1.45; }
+.toc-title { font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-size: .78rem; }
+.toc ul { list-style: none; padding-left: 0; margin: 0; }
+.toc ul ul { padding-left: 14px; margin: 2px 0 6px; }
+.toc li { margin: 4px 0; }
+.toc a { color: var(--ink); text-decoration: none; }
+.toc > nav > ul > li > a { font-weight: 600; color: var(--green); }
+.toc a:hover { color: var(--red); }
+main { padding: 32px 40px 80px; max-width: 900px; }
+
+h1 { font-family: Cambria, Georgia, "Songti SC", "Noto Serif CJK SC", serif; font-size: 2rem; line-height: 1.3; margin: 0 0 .6em; }
+h2 { font-family: Cambria, Georgia, "Songti SC", "Noto Serif CJK SC", serif; color: var(--green); font-size: 1.45rem; margin-top: 2em; }
+h3 { color: var(--red); font-size: 1.12rem; margin-top: 1.6em; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2.4em 0 0; }
+p, li { margin: .5em 0; }
+a { color: var(--green); }
+strong { color: #10181c; }
+code { font-family: Menlo, Consolas, "Courier New", monospace; font-size: .88em; background: var(--tint); padding: .1em .35em; border-radius: 4px; }
+pre { background: var(--tint); padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .9rem; display: block; overflow-x: auto; }
+th { background: var(--green); color: #fff; text-align: left; padding: 8px 10px; white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background: #FAFBFA; }
+figure { margin: 1.6em 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+figure img { display: block; width: 100%; height: auto; }
+figcaption { margin-top: 8px; font-size: .88rem; color: var(--muted); }
+math[display="block"] { margin: 1em 0; font-size: 1.1em; }
+
+@media (max-width: 860px) {
+  .layout { display: block; }
+  .toc { position: static; max-height: 45vh; border-bottom: 1px solid var(--line); padding: 16px 20px; }
+  main { padding: 24px 20px 60px; }
+  .brand { display: none; }
+}

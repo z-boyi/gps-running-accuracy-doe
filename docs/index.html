@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Accurate Is Your Running App? Design, Analysis and Results of a GPS Distance Experiment</title>
+<style>
+:root { --ink:#1F2A30; --muted:#5B6B73; --green:#2E6B4F; --red:#B5452F; --tint:#F1F4F2; --line:#D9E0DC; }
+* { box-sizing: border-box; }
+html { font-size: 17px; scroll-padding-top: 72px; }
+body { margin: 0; color: var(--ink); line-height: 1.7;
+  font-family: -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Calibri, Arial, sans-serif; }
+
+/* Show only the current language */
+html[data-current="en"] [data-lang="zh"], html[data-current="zh"] [data-lang="en"] { display: none !important; }
+
+.topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px;
+  padding: 10px 24px; background: #fff; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 600; color: var(--green); }
+.spacer { flex: 1; }
+.repo { color: var(--muted); text-decoration: none; font-size: .9rem; }
+.repo:hover { color: var(--green); }
+.switch { display: flex; border: 1px solid var(--green); border-radius: 6px; overflow: hidden; }
+.switch button { font: inherit; font-size: .88rem; padding: 4px 12px; border: 0; background: #fff; color: var(--green); cursor: pointer; }
+.switch button[aria-pressed="true"] { background: var(--green); color: #fff; }
+
+.layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); max-width: 1200px; margin: 0 auto; }
+.toc { position: sticky; top: 53px; align-self: start; max-height: calc(100vh - 53px); overflow-y: auto;
+  padding: 24px 12px 40px 24px; font-size: .86rem; line-height: 1.45; }
+.toc-title { font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-size: .78rem; }
+.toc ul { list-style: none; padding-left: 0; margin: 0; }
+.toc ul ul { padding-left: 14px; margin: 2px 0 6px; }
+.toc li { margin: 4px 0; }
+.toc a { color: var(--ink); text-decoration: none; }
+.toc > nav > ul > li > a { font-weight: 600; color: var(--green); }
+.toc a:hover { color: var(--red); }
+main { padding: 32px 40px 80px; max-width: 900px; }
+
+h1 { font-family: Cambria, Georgia, "Songti SC", "Noto Serif CJK SC", serif; font-size: 2rem; line-height: 1.3; margin: 0 0 .6em; }
+h2 { font-family: Cambria, Georgia, "Songti SC", "Noto Serif CJK SC", serif; color: var(--green); font-size: 1.45rem; margin-top: 2em; }
+h3 { color: var(--red); font-size: 1.12rem; margin-top: 1.6em; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2.4em 0 0; }
+p, li { margin: .5em 0; }
+a { color: var(--green); }
+strong { color: #10181c; }
+code { font-family: Menlo, Consolas, "Courier New", monospace; font-size: .88em; background: var(--tint); padding: .1em .35em; border-radius: 4px; }
+pre { background: var(--tint); padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .9rem; display: block; overflow-x: auto; }
+th { background: var(--green); color: #fff; text-align: left; padding: 8px 10px; white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background: #FAFBFA; }
+figure { margin: 1.6em 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+figure img { display: block; width: 100%; height: auto; }
+figcaption { margin-top: 8px; font-size: .88rem; color: var(--muted); }
+math[display="block"] { margin: 1em 0; font-size: 1.1em; }
+
+@media (max-width: 860px) {
+  .layout { display: block; }
+  .toc { position: static; max-height: 45vh; border-bottom: 1px solid var(--line); padding: 16px 20px; }
+  main { padding: 24px 20px 60px; }
+  .brand { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="brand" data-lang="en">GPS running accuracy · DOE</span>
+  <span class="brand" data-lang="zh">GPS 跑步测距 · 实验设计</span>
+  <span class="spacer"></span>
+  <a class="repo" href="https://github.com/z-boyi/gps-running-accuracy-doe">GitHub</a>
+  <div class="switch" role="group" aria-label="Language">
+    <button type="button" data-set-lang="en">English</button>
+    <button type="button" data-set-lang="zh">中文</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="toc">
+    <nav data-lang="en"><p class="toc-title">Contents</p><ul>
+<li><a href="#en-the-project-in-one-paragraph"
+id="en-toc-the-project-in-one-paragraph">0. The project in one
+paragraph</a></li>
+<li><a href="#en-where-the-research-question-comes-from"
+id="en-toc-where-the-research-question-comes-from">1. Where the research
+question comes from</a></li>
+<li><a href="#en-experimental-design-each-choice-and-why"
+id="en-toc-experimental-design-each-choice-and-why">2. Experimental
+design: each choice and why</a>
+<ul>
+<li><a href="#en-treatment-factors-and-levels"
+id="en-toc-treatment-factors-and-levels">2.1 Treatment factors and
+levels</a></li>
+<li><a href="#en-blocking" id="en-toc-blocking">2.2 Blocking</a></li>
+<li><a href="#en-experimental-units-and-pairing"
+id="en-toc-experimental-units-and-pairing">2.3 Experimental units and
+pairing</a></li>
+<li><a href="#en-randomization" id="en-toc-randomization">2.4
+Randomization</a></li>
+<li><a href="#en-replication" id="en-toc-replication">2.5
+Replication</a></li>
+</ul></li>
+<li><a href="#en-the-response-how-we-measure-error"
+id="en-toc-the-response-how-we-measure-error">3. The response: how we
+measure error</a>
+<ul>
+<li><a href="#en-true-distance" id="en-toc-true-distance">3.1 True
+distance</a></li>
+<li><a href="#en-signed-percentage-error-e"
+id="en-toc-signed-percentage-error-e">3.2 Signed percentage error
+e</a></li>
+<li><a href="#en-absolute-error-e-and-mape"
+id="en-toc-absolute-error-e-and-mape">3.3 Absolute error |e| and
+MAPE</a></li>
+<li><a href="#en-limit-of-measurement-resolution"
+id="en-toc-limit-of-measurement-resolution">3.4 Limit of measurement
+resolution</a></li>
+</ul></li>
+<li><a href="#en-reviewer-comments-and-how-we-handled-them"
+id="en-toc-reviewer-comments-and-how-we-handled-them">4. Reviewer
+comments and how we handled them</a></li>
+<li><a href="#en-data-collection" id="en-toc-data-collection">5. Data
+collection</a></li>
+<li><a href="#en-data-preparation" id="en-toc-data-preparation">6. Data
+preparation</a></li>
+<li><a href="#en-look-at-the-data-first"
+id="en-toc-look-at-the-data-first">7. Look at the data first</a></li>
+<li><a href="#en-the-statistical-model"
+id="en-toc-the-statistical-model">8. The statistical model</a>
+<ul>
+<li><a href="#en-why-a-linear-mixed-model"
+id="en-toc-why-a-linear-mixed-model">8.1 Why a linear mixed
+model</a></li>
+<li><a href="#en-why-the-lap-random-effect-is-required"
+id="en-toc-why-the-lap-random-effect-is-required">8.2 Why the lap random
+effect is required</a></li>
+<li><a href="#en-effect-coding" id="en-toc-effect-coding">8.3 Effect
+coding</a></li>
+<li><a href="#en-f-tests-and-p-values"
+id="en-toc-f-tests-and-p-values">8.4 F-tests and p-values</a></li>
+<li><a
+href="#en-checking-an-assumption-is-the-app-effect-the-same-on-every-phone"
+id="en-toc-checking-an-assumption-is-the-app-effect-the-same-on-every-phone">8.5
+Checking an assumption: is the app effect the same on every
+phone?</a></li>
+</ul></li>
+<li><a href="#en-model-checking-do-the-assumptions-hold"
+id="en-toc-model-checking-do-the-assumptions-hold">9. Model checking: do
+the assumptions hold?</a></li>
+<li><a href="#en-estimated-effects-and-sensitivity-analysis"
+id="en-toc-estimated-effects-and-sensitivity-analysis">10. Estimated
+effects and sensitivity analysis</a>
+<ul>
+<li><a href="#en-estimated-marginal-means"
+id="en-toc-estimated-marginal-means">10.1 Estimated marginal
+means</a></li>
+<li><a href="#en-sensitivity-analysis-what-if-the-true-distance-is-off"
+id="en-toc-sensitivity-analysis-what-if-the-true-distance-is-off">10.2
+Sensitivity analysis: what if the true distance is off?</a></li>
+</ul></li>
+<li><a href="#en-accuracy-aim-3" id="en-toc-accuracy-aim-3">11. Accuracy
+(Aim 3)</a>
+<ul>
+<li><a href="#en-mape-with-bootstrap-confidence-intervals"
+id="en-toc-mape-with-bootstrap-confidence-intervals">11.1 MAPE with
+bootstrap confidence intervals</a></li>
+<li><a href="#en-model-for-log-absolute-error"
+id="en-toc-model-for-log-absolute-error">11.2 Model for log absolute
+error</a></li>
+<li><a href="#en-why-we-do-not-declare-a-best-combination"
+id="en-toc-why-we-do-not-declare-a-best-combination">11.3 Why we do not
+declare a “best combination”</a></li>
+</ul></li>
+<li><a href="#en-conclusions" id="en-toc-conclusions">12.
+Conclusions</a></li>
+<li><a href="#en-limitations-and-improvements"
+id="en-toc-limitations-and-improvements">13. Limitations and
+improvements</a></li>
+<li><a href="#en-what-each-slide-says"
+id="en-toc-what-each-slide-says">14. What each slide says</a></li>
+<li><a href="#en-key-numbers-at-a-glance"
+id="en-toc-key-numbers-at-a-glance">15. Key numbers at a glance</a></li>
+</ul></nav>
+    <nav data-lang="zh"><p class="toc-title">目录</p><ul>
+<li><a href="#zh-一句话概括" id="zh-toc-一句话概括">0.
+一句话概括</a></li>
+<li><a href="#zh-研究问题从哪里来" id="zh-toc-研究问题从哪里来">1.
+研究问题从哪里来</a></li>
+<li><a href="#zh-实验设计每个选择是什么为什么"
+id="zh-toc-实验设计每个选择是什么为什么">2.
+实验设计：每个选择是什么、为什么</a>
+<ul>
+<li><a href="#zh-处理因素treatment-factors和水平levels"
+id="zh-toc-处理因素treatment-factors和水平levels">2.1
+处理因素（treatment factors）和水平（levels）</a></li>
+<li><a href="#zh-区组block" id="zh-toc-区组block">2.2
+区组（block）</a></li>
+<li><a href="#zh-实验单位和配对" id="zh-toc-实验单位和配对">2.3
+实验单位和配对</a></li>
+<li><a href="#zh-随机化randomization"
+id="zh-toc-随机化randomization">2.4 随机化（randomization）</a></li>
+<li><a href="#zh-重复replication" id="zh-toc-重复replication">2.5
+重复（replication）</a></li>
+</ul></li>
+<li><a href="#zh-响应变量怎么衡量误差"
+id="zh-toc-响应变量怎么衡量误差">3. 响应变量：怎么衡量“误差”</a>
+<ul>
+<li><a href="#zh-真实距离" id="zh-toc-真实距离">3.1 真实距离</a></li>
+<li><a href="#zh-带符号百分比误差-e" id="zh-toc-带符号百分比误差-e">3.2
+带符号百分比误差 e</a></li>
+<li><a href="#zh-绝对误差-e-和-mape" id="zh-toc-绝对误差-e-和-mape">3.3
+绝对误差 |e| 和 MAPE</a></li>
+<li><a href="#zh-测量精度的限制" id="zh-toc-测量精度的限制">3.4
+测量精度的限制</a></li>
+</ul></li>
+<li><a href="#zh-审稿意见以及我们怎么处理"
+id="zh-toc-审稿意见以及我们怎么处理">4.
+审稿意见以及我们怎么处理</a></li>
+<li><a href="#zh-数据采集" id="zh-toc-数据采集">5. 数据采集</a></li>
+<li><a href="#zh-数据整理" id="zh-toc-数据整理">6. 数据整理</a></li>
+<li><a href="#zh-先看数据" id="zh-toc-先看数据">7. 先看数据</a></li>
+<li><a href="#zh-统计模型" id="zh-toc-统计模型">8. 统计模型</a>
+<ul>
+<li><a href="#zh-为什么用线性混合模型"
+id="zh-toc-为什么用线性混合模型">8.1 为什么用线性混合模型</a></li>
+<li><a href="#zh-为什么必须有每圈的随机效应"
+id="zh-toc-为什么必须有每圈的随机效应">8.2
+为什么必须有“每圈的随机效应”</a></li>
+<li><a href="#zh-效应编码" id="zh-toc-效应编码">8.3 效应编码</a></li>
+<li><a href="#zh-f-检验和-p-值" id="zh-toc-f-检验和-p-值">8.4 F 检验和 p
+值</a></li>
+<li><a href="#zh-检查假设app-效应在每部手机上一样吗"
+id="zh-toc-检查假设app-效应在每部手机上一样吗">8.5 检查假设：app
+效应在每部手机上一样吗</a></li>
+</ul></li>
+<li><a href="#zh-模型诊断模型的假设成立吗"
+id="zh-toc-模型诊断模型的假设成立吗">9.
+模型诊断：模型的假设成立吗</a></li>
+<li><a href="#zh-估计效应和敏感性分析"
+id="zh-toc-估计效应和敏感性分析">10. 估计效应和敏感性分析</a>
+<ul>
+<li><a href="#zh-估计边际均值" id="zh-toc-估计边际均值">10.1
+估计边际均值</a></li>
+<li><a href="#zh-敏感性分析真实距离不准会怎样"
+id="zh-toc-敏感性分析真实距离不准会怎样">10.2
+敏感性分析：真实距离不准会怎样</a></li>
+</ul></li>
+<li><a href="#zh-准确度分析aim-3" id="zh-toc-准确度分析aim-3">11.
+准确度分析（Aim 3）</a>
+<ul>
+<li><a href="#zh-mape-和-bootstrap-置信区间"
+id="zh-toc-mape-和-bootstrap-置信区间">11.1 MAPE 和 bootstrap
+置信区间</a></li>
+<li><a href="#zh-对数绝对误差模型" id="zh-toc-对数绝对误差模型">11.2
+对数绝对误差模型</a></li>
+<li><a href="#zh-为什么不宣布最佳组合"
+id="zh-toc-为什么不宣布最佳组合">11.3 为什么不宣布“最佳组合”</a></li>
+</ul></li>
+<li><a href="#zh-结论" id="zh-toc-结论">12. 结论</a></li>
+<li><a href="#zh-局限和改进方向" id="zh-toc-局限和改进方向">13.
+局限和改进方向</a></li>
+<li><a href="#zh-每页-slide-讲什么" id="zh-toc-每页-slide-讲什么">14.
+每页 slide 讲什么</a></li>
+<li><a href="#zh-关键数字速查" id="zh-toc-关键数字速查">15.
+关键数字速查</a></li>
+</ul></nav>
+  </aside>
+  <main>
+    <article data-lang="en" lang="en"><h1>How Accurate Is Your Running App? Design, Analysis and Results of a GPS Distance Experiment</h1><p>This page explains the <a
+href="https://github.com/z-boyi/gps-running-accuracy-doe">gps-running-accuracy-doe</a>
+repository. All numbers come from <code>report/results_summary.md</code>
+and the <code>results/</code> folder in the repo; plots are in
+<code>figures/</code>.</p>
+<hr />
+<h2 id="en-the-project-in-one-paragraph">0. The project in one
+paragraph</h2>
+<p>Four of us walked or jogged 32 laps, in random order, on the same
+track at UBC, each carrying our own phone with Strava and Keep recording
+at the same time. We compared the distance each app recorded with the
+true lap length. The conclusion: <strong>the apps over-record by about
+2% on average, and which app reads longer depends on whose phone it
+is</strong>. Lane, phone placement (hand or pocket) and pace (walk or
+jog) showed no clear effect at our sample size.</p>
+<hr />
+<h2 id="en-where-the-research-question-comes-from">1. Where the research
+question comes from</h2>
+<p><strong>Background</strong>: running apps measure distance with the
+phone’s GPS. GPS records a position every so often and joins the points
+together to compute a length. If the points are off, or too sparse on
+the curves, the computed distance comes out too long or too short.</p>
+<p><strong>Our three questions</strong> (the three aims in the
+proposal):</p>
+<ol type="1">
+<li><strong>Bias</strong>: do the apps systematically over- or
+under-record?</li>
+<li><strong>Factors</strong>: which factors, and which combinations of
+factors, affect the error?</li>
+<li><strong>Accuracy</strong>: which app and which setting is most
+accurate?</li>
+</ol>
+<p>Bias and accuracy are different things. Bias is the direction the
+errors lean on average; accuracy is how far each error is from zero. An
+app that is +5% on one lap and −5% on the next has zero average bias,
+but it is never accurate. So the two questions need different measures
+(Section 3).</p>
+<hr />
+<h2 id="en-experimental-design-each-choice-and-why">2. Experimental
+design: each choice and why</h2>
+<h3 id="en-treatment-factors-and-levels">2.1 Treatment factors and
+levels</h3>
+<p>A <strong>factor</strong> is something we deliberately change to
+study its effect; the different values it takes are its
+<strong>levels</strong>. We have 4 factors with 2 levels each:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Factor</th>
+<th>Two levels</th>
+<th>Why we chose it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>App</td>
+<td>Strava / Keep</td>
+<td>The main comparison we care about; two popular free apps</td>
+</tr>
+<tr class="even">
+<td>Lane</td>
+<td>1 / 8</td>
+<td>Lane 8 has wider curves. GPS errors arise mainly on curves, so
+curvature may matter</td>
+</tr>
+<tr class="odd">
+<td>Placement</td>
+<td>In hand / front pocket</td>
+<td>The two most common ways to carry a phone; the body may block the
+signal in a pocket</td>
+</tr>
+<tr class="even">
+<td>Pace</td>
+<td>Walk / jog</td>
+<td>Speed changes the spacing between GPS points, which affects how
+detailed the track is</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why only 2 levels per factor</strong>: this is a <strong>2⁴
+factorial design</strong> (2 to the power 4 = 16 combinations).
+Two-level designs estimate every main effect and every interaction with
+the fewest runs; this is the standard 2^k design from class. The cost is
+that we only learn whether the two levels differ, not how the response
+changes in between.</p>
+<p><strong>Why factorial instead of changing one factor at a
+time</strong>: in a factorial design every level of every factor is
+combined with every level of the others. This has two benefits. Every
+observation contributes to estimating every factor, which is efficient.
+And we can estimate <strong>interactions</strong>: whether the effect of
+one factor depends on the level of another. For example, “the pocket
+matters a lot when walking but little when jogging” is a placement ×
+pace interaction. One-factor-at-a-time experiments cannot detect
+interactions.</p>
+<h3 id="en-blocking">2.2 Blocking</h3>
+<p>A <strong>block</strong> is a group of runs that share a known source
+of variation that we are not studying. Comparisons are made within each
+block, so differences between blocks do not leak into the treatment
+comparisons.</p>
+<p>Our blocks = <strong>one member with their own phone</strong>, four
+in total: Phoebe, Boyi, Jenny, Darren.</p>
+<p>Why block: phones differ in GPS chips and antennas, and people differ
+in how they walk and carry the phone. These differences can be large,
+but they are not what we are studying. Without blocking they would
+become noise and make the app, lane and other effects harder to see. The
+data confirm the choice: the block effect is highly significant (p &lt;
+0.001).</p>
+<p><strong>Complete blocks</strong>: every block contains all 8 lap
+settings (lane × placement × pace), so each setting appears once for
+every member. Blocks and treatments are therefore <strong>not
+confounded</strong>: every treatment comparison is made in full within
+each member.</p>
+<p><strong>Why block is a fixed effect, not a random effect</strong>: we
+have only 4 blocks, and we care about these 4 specific phones; we are
+not trying to generalize to a population of all phones. Four levels are
+also too few to estimate a variance reliably. So block enters the model
+as an ordinary grouping variable (a fixed effect).</p>
+<h3 id="en-experimental-units-and-pairing">2.3 Experimental units and
+pairing</h3>
+<p>An <strong>experimental unit</strong> is the smallest unit that
+receives a treatment and gives an independent result. Our design has
+<strong>two sizes</strong> of unit:</p>
+<ul>
+<li><strong>A lap</strong> is the unit for lane, placement and pace.
+These are set for the whole lap: which lane, where the phone is, walk or
+jog.</li>
+<li><strong>One app reading within a lap</strong> is the unit for app.
+Strava and Keep were <strong>started and stopped together</strong> on
+every lap, so each lap gives two readings.</li>
+</ul>
+<p>Because both apps record the same lap at the same time, the two
+readings are <strong>paired</strong>: they share all of that lap’s
+conditions (same person, same phone, same line actually walked, same
+satellites at that moment). When we compare apps, the lap’s own
+deviation cancels in the Strava − Keep difference, so the comparison is
+more precise. This is the same idea as a paired t-test, which analyzes
+the difference within each pair. If each app had its own laps,
+lap-to-lap differences would mix into the app comparison, and we would
+need twice as many laps for less precision.</p>
+<p>A structure where some factors are set on large units and another
+factor is set on smaller units inside them is a <strong>split-plot
+design</strong>:</p>
+<ul>
+<li><strong>Whole plot</strong> = a lap; whole-plot factors = lane,
+placement, pace</li>
+<li><strong>Sub-plot</strong> = one app reading within a lap; sub-plot
+factor = app</li>
+</ul>
+<p>The key point of a split-plot design is that whole-plot factors must
+be compared against lap-to-lap variation, while the sub-plot factor is
+compared against within-lap variation. The two error sizes differ, and
+the model in Section 8 is built to reflect this.</p>
+<h3 id="en-randomization">2.4 Randomization</h3>
+<p>The <strong>order</strong> of each member’s 8 laps was randomized in
+R with <code>set.seed(404)</code>, separately for each member.</p>
+<p><strong>Why randomize</strong>: conditions can drift during a session
+in ways we cannot control: fatigue, falling battery, satellites moving
+across the sky. If laps ran in a fixed order (say all walks, then all
+jogs), such drift would be mixed up with pace, and we could not tell
+whether a change in error came from speed or from time. Random order
+spreads these drifts evenly over the treatments so they do not
+systematically favour any one. <code>set.seed(404)</code> fixes the
+random numbers, so anyone re-running the code gets the same order: the
+design is reproducible.</p>
+<p>All four members followed their random order
+<strong>exactly</strong>.</p>
+<p><strong>Example: Boyi’s random order</strong> (full table in
+<code>data/randomization_schedule.csv</code>)</p>
+<table>
+<thead>
+<tr class="header">
+<th>Lap</th>
+<th>Lane</th>
+<th>Placement</th>
+<th>Pace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>8</td>
+<td>hand</td>
+<td>walk</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1</td>
+<td>hand</td>
+<td>walk</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>1</td>
+<td>hand</td>
+<td>jog</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>8</td>
+<td>pocket</td>
+<td>jog</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>1</td>
+<td>pocket</td>
+<td>walk</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>1</td>
+<td>pocket</td>
+<td>jog</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>8</td>
+<td>hand</td>
+<td>jog</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>8</td>
+<td>pocket</td>
+<td>walk</td>
+</tr>
+</tbody>
+</table>
+<h3 id="en-replication">2.5 Replication</h3>
+<p>Each lap setting was run once per member, and there are 4 members, so
+each combination is replicated 4 times. In total 4 members × 8 laps =
+<strong>32 laps</strong>, and 2 readings per lap = <strong>64 app
+readings</strong>.</p>
+<p>No member repeated the same setting, so the error is estimated from
+the variation left over between members and settings. The
+<strong>degrees of freedom (df)</strong> available for testing are:</p>
+<ul>
+<li>Between laps: 32 laps − 1 (overall mean) − 3 (blocks) − 7 (lane,
+placement, pace and their interactions) = <strong>21</strong></li>
+<li>Within laps: 32 paired differences − 8 (app and its interactions
+with the other factors) = <strong>24</strong></li>
+</ul>
+<p>Degrees of freedom can be read as “how many independent pieces of
+information are left to estimate the error”. 21 and 24 are enough for
+testing.</p>
+<hr />
+<h2 id="en-the-response-how-we-measure-error">3. The response: how we
+measure error</h2>
+<h3 id="en-true-distance">3.1 True distance</h3>
+<p>The true distance is this track’s official lap length on the
+<strong>measurement line</strong>: <strong>400.00 m</strong> in lane 1
+and <strong>453.03 m</strong> in lane 8.</p>
+<p>Why 453.03 m for lane 8: lanes are 1.22 m wide. The measurement line
+is 0.30 m from the kerb in lane 1 and 0.20 m from the inner line in
+other lanes. So the lane 8 line is 7 × 1.22 − 0.10 = 8.44 m further out
+than lane 1’s. The two curves together make one full circle, so the lap
+is 2π × 8.44 ≈ 53.03 m longer; the straights are unchanged. Hence 453.03
+m.</p>
+<p>The line we actually walked may differ slightly from the measurement
+line, so we ran a <strong>sensitivity analysis</strong>: recompute
+everything with the true distance shifted by ±1 m and see whether
+conclusions change (Section 10).</p>
+<h3 id="en-signed-percentage-error-e">3.2 Signed percentage error e</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mn>100</mn><mo>×</mo><mfrac><mrow><mtext mathvariant="normal">app distance</mtext><mo>−</mo><mtext mathvariant="normal">true distance</mtext></mrow><mtext mathvariant="normal">true distance</mtext></mfrac></mrow><annotation encoding="application/x-tex">e = 100 \times \frac{\text{app distance} - \text{true distance}}{\text{true distance}}</annotation></semantics></math></p>
+<ul>
+<li>e &gt; 0: the app <strong>over-records</strong>; e &lt; 0: it
+<strong>under-records</strong>.</li>
+<li>Percent rather than metres: lane 8 is longer, so the same relative
+error is more metres there. Percent makes the two lanes comparable.</li>
+<li>Multiplying by 100 makes it a percentage. The original proposal’s
+formula left out the ×100; the reviewer pointed this out and it was
+corrected.</li>
+</ul>
+<p>The signed error e answers <strong>Aims 1 and 2</strong> (bias and
+factors).</p>
+<h3 id="en-absolute-error-e-and-mape">3.3 Absolute error |e| and
+MAPE</h3>
+<ul>
+<li><strong>|e|</strong>: the absolute value of e: only the size of the
+error, not its direction.</li>
+<li><strong>MAPE (mean absolute percentage error)</strong>: the average
+of |e| over a group of readings.</li>
+</ul>
+<p>These answer <strong>Aim 3</strong> (accuracy), for the reason in
+Section 1: averaging e lets positive and negative errors cancel, so it
+does not reflect accuracy. Reviewer comment 5 made exactly this
+point.</p>
+<h3 id="en-limit-of-measurement-resolution">3.4 Limit of measurement
+resolution</h3>
+<p>Both apps display distance only to 0.01 km, that is, <strong>in 10 m
+steps</strong>. The true value is rounded to the nearest 10 m, so every
+reading carries up to <strong>±5 m</strong> of rounding error: ±1.25% in
+lane 1 and ±1.10% in lane 8. That is about the same size as many of the
+effects we want to detect, and it is the biggest limitation of the
+study. It also means the error takes only a few discrete values, which
+makes the Q–Q plot look stepped (Section 9).</p>
+<hr />
+<h2 id="en-reviewer-comments-and-how-we-handled-them">4. Reviewer
+comments and how we handled them</h2>
+<p>After submitting the proposal we received 7 comments. The data had
+already been collected, so comments about <strong>analysis</strong> (3,
+5, 6, 7) were fully addressed, while comments about <strong>data
+collection</strong> (1, 2, 4) could not be redone; for those we describe
+what we actually did and list the consequences as limitations.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Comment</th>
+<th>What we did</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Standardize hand, phone orientation and pocket</td>
+<td>Not standardized; each member used their own habit. Stated honestly;
+blocking absorbs habit differences between members. Cost: the placement
+effect is an average over four personal styles; listed as a
+limitation</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Give practical walking and jogging speed ranges</td>
+<td>No target speeds; each member used their natural pace. Stated
+honestly, listed as a limitation, with suggested ranges for future
+work</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Multiply by 100; separate signed from absolute error</td>
+<td>Corrected (Sections 3.2 and 3.3)</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Verify this track’s true distance</td>
+<td>Used the track’s measured lap lengths, 400.00 / 453.03 m, plus a ±1
+m sensitivity analysis</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Define typical absolute error, give its uncertainty, don’t declare a
+unique best combination from point estimates</td>
+<td>MAPE with bootstrap intervals and a log model; no best combination
+declared (Section 11)</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Say which interactions are in the model</td>
+<td>Full 2⁴ structure, with the two-factor interactions of main interest
+and why</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>An additive block assumes the app effect is the same on every phone;
+plot app comparisons by block</td>
+<td>Plotted it, found the assumption fails, and adjusted the model.
+<strong>This is the most important step of the analysis</strong>
+(Section 8)</td>
+</tr>
+</tbody>
+</table>
+<p>Being honest about what we did not do matters: if asked, saying
+clearly “we did not standardize it, this is the cost, and this is how we
+would fix it” is much better than being vague.</p>
+<hr />
+<h2 id="en-data-collection">5. Data collection</h2>
+<ul>
+<li><strong>Site</strong>: the Rashpal Dhillon Track &amp; Field Oval at
+UBC; all four members used the same track, so the site is not a source
+of variation.</li>
+<li><strong>Dates and weather</strong>: Phoebe (partly cloudy) and Boyi
+(sunny) ran all laps on 12 November; Darren on 13 November (light rain);
+Jenny ran laps 1, 2 and 6 on 6 November (light rain) and the other five
+on 12 November (partly cloudy).</li>
+<li><strong>Why weather and date don’t distort the results</strong>:
+each member ran almost everything on one day, so weather and date
+differences fall inside the member block and are absorbed by the block
+effect. Statistically, weather is <strong>confounded</strong> with
+block: we cannot separate “phone/person” from “weather”, but since we
+are not studying the block effect, the other comparisons are
+unaffected.</li>
+<li><strong>One exception</strong>: Jenny’s three rainy laps on 6
+November happened to be all walking laps, so within her block weather is
+partly confounded with pace. This came from the random order by chance;
+pointing it out shows we understand the design.</li>
+<li><strong>Protocol</strong>: open both apps and wait 60 s for a GPS
+lock; start both at the finish line; walk or jog one lap in the assigned
+lane, close to the lane’s inner line; stop both when crossing the same
+line; record both distances and screenshot them.</li>
+<li><strong>Start times were not recorded</strong>, so checks for trends
+over time use lap order.</li>
+</ul>
+<hr />
+<h2 id="en-data-preparation">6. Data preparation</h2>
+<p>The raw sheet has one row per lap with the Strava and Keep readings
+side by side. Before analysis, the script
+<code>code/00_clean_data.R</code> does the following; the raw sheet is
+never edited by hand:</p>
+<ol type="1">
+<li><strong>Checks the data</strong>: 32 rows; 8 laps per member; each
+setting exactly once per member. This confirms the data match the
+design.</li>
+<li><strong>Reshapes wide to long</strong>: one row per app reading, 64
+rows. Mixed models need this format.</li>
+<li><strong>Converts units</strong>: km to m.</li>
+<li><strong>Recomputes the error</strong> using the exact 453.03 m for
+lane 8.</li>
+<li><strong>Gives each lap a unique id</strong> (<code>lap_id</code>,
+e.g. <code>Boyi_3</code>), shared by its two readings; this is how the
+model knows which readings are paired. Lap order 1–8 alone is not
+enough, because Phoebe’s lap 1 and Boyi’s lap 1 are different laps.</li>
+</ol>
+<p>Writing the preparation as a script means anyone can re-run it and
+get exactly the same data: the analysis is
+<strong>reproducible</strong>. <strong>First rows of the prepared data
+(<code>data/processed/gps_runs.csv</code>)</strong>: one row per
+reading; the two rows of a lap share <code>lap_id</code>.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>block</th>
+<th>lap_order</th>
+<th>lap_id</th>
+<th>lane</th>
+<th>placement</th>
+<th>pace</th>
+<th>app</th>
+<th>true_distance_m</th>
+<th>recorded_distance_m</th>
+<th>error_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Phoebe</td>
+<td>1</td>
+<td>Phoebe_1</td>
+<td>1</td>
+<td>hand</td>
+<td>jog</td>
+<td>Keep</td>
+<td>400</td>
+<td>410</td>
+<td>2.5</td>
+</tr>
+<tr class="even">
+<td>Phoebe</td>
+<td>1</td>
+<td>Phoebe_1</td>
+<td>1</td>
+<td>hand</td>
+<td>jog</td>
+<td>Strava</td>
+<td>400</td>
+<td>430</td>
+<td>7.5</td>
+</tr>
+<tr class="odd">
+<td>Phoebe</td>
+<td>2</td>
+<td>Phoebe_2</td>
+<td>1</td>
+<td>hand</td>
+<td>walk</td>
+<td>Keep</td>
+<td>400</td>
+<td>390</td>
+<td>−2.5</td>
+</tr>
+<tr class="even">
+<td>Phoebe</td>
+<td>2</td>
+<td>Phoebe_2</td>
+<td>1</td>
+<td>hand</td>
+<td>walk</td>
+<td>Strava</td>
+<td>400</td>
+<td>410</td>
+<td>2.5</td>
+</tr>
+<tr class="odd">
+<td>Phoebe</td>
+<td>3</td>
+<td>Phoebe_3</td>
+<td>8</td>
+<td>hand</td>
+<td>walk</td>
+<td>Keep</td>
+<td>453.03</td>
+<td>470</td>
+<td>3.746</td>
+</tr>
+<tr class="even">
+<td>Phoebe</td>
+<td>3</td>
+<td>Phoebe_3</td>
+<td>8</td>
+<td>hand</td>
+<td>walk</td>
+<td>Strava</td>
+<td>453.03</td>
+<td>490</td>
+<td>8.161</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="en-look-at-the-data-first">7. Look at the data first</h2>
+<p>Plotting all 64 readings by member and app
+(<code>figures/01_raw_error_by_block.png</code>) shows:</p>
+<ul>
+<li>Most readings are above 0: the apps generally over-record.</li>
+<li>On Phoebe’s and Boyi’s phones Strava is clearly higher than Keep; on
+Jenny’s it is the other way round; on Darren’s they are similar.</li>
+</ul>
+<p>Plotting before modelling shows what the data look like, reveals any
+outliers, and gives clues for checking model assumptions later. The
+pattern seen here, the app difference changing direction between
+members, turns out to be the key finding.</p>
+<figure>
+<img src="../figures/01_raw_error_by_block.png" style="width:100.0%"
+alt="Error of all 64 readings by member and app. The dashed line is zero error." />
+<figcaption aria-hidden="true">Error of all 64 readings by member and
+app. The dashed line is zero error.</figcaption>
+</figure>
+<hr />
+<h2 id="en-the-statistical-model">8. The statistical model</h2>
+<h3 id="en-why-a-linear-mixed-model">8.1 Why a linear mixed model</h3>
+<p>The idea of a <strong>linear model</strong>: each reading = overall
+mean + shifts caused by each factor + random error. The model estimates
+how big each shift is and whether it is clearly larger than random
+variation.</p>
+<p>A <strong>mixed model</strong> contains two kinds of effects:</p>
+<ul>
+<li><strong>Fixed effects</strong>: factors whose specific values we
+want to estimate: app, lane, placement, pace, block.</li>
+<li><strong>Random effects</strong>: things whose individual values we
+don’t care about, only how much they vary. Here: each lap’s own
+shift.</li>
+</ul>
+<p>The model in R:</p>
+<div class="sourceCode" id="en-cb1"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb1-1"><a href="#en-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(e <span class="sc">~</span> block <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id))</span></code></pre></div>
+<p>Term by term:</p>
+<ul>
+<li><code>e ~ ...</code>: explain the error e with the terms on the
+right.</li>
+<li><code>block</code>: each member has their own average level (fixed
+effect).</li>
+<li><code>app * lane * placement * pace</code>: <code>*</code> means
+“main effects plus all interactions”: 4 main effects, 6 two-factor, 4
+three-factor and 1 four-factor interaction, 15 terms in total, i.e. the
+full 2⁴ factorial structure.</li>
+<li><code>(1 | lap_id)</code>: a <strong>random intercept</strong>. Read
+the bar as “for each group of”; the <code>1</code> is an intercept (a
+level shift). Each lap gets its own random shift, drawn from a normal
+distribution with mean 0, and the model estimates the standard deviation
+of those shifts.</li>
+</ul>
+<h3 id="en-why-the-lap-random-effect-is-required">8.2 Why the lap random
+effect is required</h3>
+<p>A reading can be split into: overall mean + block + treatment effects
++ <strong>this lap’s shift</strong> + the reading’s own error.</p>
+<p>“This lap’s shift” is whatever is specific to that lap after removing
+block and treatments: the satellite geometry at the time, how close to
+the inner line the person actually walked, whether they had to step
+around someone. It has nothing to do with the treatments, but
+<strong>both readings of the lap share it</strong>, so they are not
+independent. Example: on Darren’s lap 4, Strava read −2.9% and Keep
+−7.3%; both are clearly low, probably because that lap as a whole came
+out short.</p>
+<p>Without this term, an ordinary linear regression (<code>lm</code>)
+would treat the 64 readings as 64 independent runs. But lane, placement
+and pace are applied to laps, and there are only 32 independent laps.
+This is <strong>pseudo-replication</strong>: treating repeated
+measurements of one unit as independent replicates, which understates
+the error and overstates significance. With our data, dropping the
+random effect changes the placement p-value from 0.081 to 0.042, a false
+“significant” result, while the app comparison gets weaker (p from 0.015
+to 0.032) because the pairing is no longer used.</p>
+<p>In our data a test of the lap random effect alone gives p = 0.15, so
+lap-to-lap differences are modest. It is kept anyway because it is
+<strong>dictated by the design</strong> (the split-plot structure) and
+was decided before looking at the data. Dropping it because it is not
+significant would mean choosing the model by looking at the data.</p>
+<h3 id="en-effect-coding">8.3 Effect coding</h3>
+<p>The model uses <strong>effect coding (sum-to-zero
+contrasts)</strong>: each effect is how far a level sits above or below
+the overall mean, and the two levels’ effects add to zero. This matches
+the +1/−1 definition of effects for 2^k designs in class. With
+interactions in the model, this coding gives the tests (Type III ANOVA)
+a clear meaning.</p>
+<h3 id="en-f-tests-and-p-values">8.4 F-tests and p-values</h3>
+<p><strong>ANOVA (analysis of variance)</strong> splits the total
+variation in the data among the factors. For each factor it computes an
+<strong>F statistic</strong> = variation explained by the factor ÷
+random-error variation. The larger F is, the more the factor’s effect
+exceeds random noise.</p>
+<p><strong>p-value</strong>: if the factor truly had no effect, the
+probability of getting an F at least this large from random variation
+alone. A small p (usually &lt; 0.05) means “no effect” is hard to
+believe, and the effect is called <strong>statistically
+significant</strong>.</p>
+<p>Keep in mind:</p>
+<ul>
+<li>p &gt; 0.05 does <strong>not</strong> mean “no effect”; it means
+“not detected at this sample size”. With small samples, real but small
+effects can go undetected.</li>
+<li>A p-value says nothing about how large an effect is. Size comes from
+the <strong>estimate and its confidence interval</strong>.</li>
+</ul>
+<p>In a mixed model the denominator degrees of freedom for F-tests are
+computed with the <strong>Satterthwaite approximation</strong> (R
+package lmerTest); they agree with the 21 and 24 from the split-plot
+structure in Section 2.5.</p>
+<h3
+id="en-checking-an-assumption-is-the-app-effect-the-same-on-every-phone">8.5
+Checking an assumption: is the app effect the same on every phone?</h3>
+<p>In the model above, <code>block</code> is <strong>additive</strong>:
+it assumes each member’s readings are shifted up or down as a whole, so
+the Strava − Keep difference is the same on every phone. Reviewer
+comment 7 asked us to check this.</p>
+<p><strong>How we checked</strong>: for each lap, compute Strava − Keep
+and plot the differences by member
+(<code>figures/02_app_difference_by_block.png</code>, the plot on slide
+4).</p>
+<p><strong>Result</strong>:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Member</th>
+<th>Strava − Keep (percentage points)</th>
+<th>95% confidence interval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Phoebe</td>
+<td>+3.02</td>
+<td>0.73 to 5.30</td>
+</tr>
+<tr class="even">
+<td>Boyi</td>
+<td>+4.01</td>
+<td>1.72 to 6.30</td>
+</tr>
+<tr class="odd">
+<td>Jenny</td>
+<td><strong>−2.63</strong></td>
+<td>−4.92 to −0.34</td>
+</tr>
+<tr class="even">
+<td>Darren</td>
+<td>+1.45</td>
+<td>−0.83 to 3.74</td>
+</tr>
+</tbody>
+</table>
+<p>Strava reads longer on three phones, and Keep reads longer on
+Jenny’s: <strong>the direction reverses</strong>. The medians in the box
+plot show the same pattern, so a few outliers are not driving it.</p>
+<figure>
+<img src="../figures/02_app_difference_by_block.png"
+style="width:100.0%"
+alt="Strava − Keep for every lap, by member. Box = quartiles, grey line = median, red bar = mean; above 0 means Strava reads longer." />
+<figcaption aria-hidden="true">Strava − Keep for every lap, by member.
+Box = quartiles, grey line = median, red bar = mean; above 0 means
+Strava reads longer.</figcaption>
+</figure>
+<p><strong>Adjusting the model</strong>: add an app × block interaction,
+which lets each phone have its own app difference:</p>
+<div class="sourceCode" id="en-cb2"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb2-1"><a href="#en-cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(e <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id))</span></code></pre></div>
+<p><strong>Likelihood-ratio test (LRT)</strong>: compares how well two
+models fit. The likelihood measures how probable the observed data are
+under a model. The model with the interaction has a clearly higher
+likelihood: test statistic χ² = 22.4 on 3 df (4 − 1 = 3 extra
+parameters), p &lt; 0.001. The F-test for app × block in the new model
+gives p = 0.002, the same conclusion. For an LRT between models with
+different fixed effects, both are refitted by <strong>ML (maximum
+likelihood)</strong> instead of the default REML; R handles this
+automatically.</p>
+<p><strong>Why add the interaction? Not just because of the
+p-value</strong>: the original model assumed the app difference is the
+same on every phone; following the reviewer’s comment we checked that
+assumption, saw that the difference varies a lot and even reverses
+direction on Jenny’s phone, so the model has to let it vary by phone.
+The test only confirms that what we saw is not random noise. This is
+what the rubric calls “model adjusted if necessary”: <strong>planned
+model → check assumption → find a violation → adjust the model → explain
+why</strong>.</p>
+<p><strong>How to read the app main effect after adding the
+interaction</strong>: averaged over the four phones, Strava records
+about 1.5 percentage points more than Keep (p = 0.015). But since the
+direction differs between phones, we put more weight on the
+block-by-block results and do not say “Strava always reads longer”.</p>
+<p>In the final model the lap-to-lap SD is about 1.45 percentage points
+and the residual SD about 2.20.</p>
+<hr />
+<h2 id="en-model-checking-do-the-assumptions-hold">9. Model checking: do
+the assumptions hold?</h2>
+<p>A linear model assumes the errors average zero, have equal variance
+across groups, are roughly normal, and are independent.
+<strong>Residuals</strong> = observed value − model prediction; we use
+them to check these assumptions
+(<code>figures/03_diagnostics.png</code>):</p>
+<ol type="1">
+<li><strong>Residuals vs fitted values</strong>: look for curvature (the
+model is missing something) or a funnel shape (variance changes with the
+predicted value). Result: random scatter, no problem.</li>
+<li><strong>Normal Q–Q plot</strong>: compares the quantiles of the
+residuals with those of a normal distribution; points along the line
+mean roughly normal. Result: close to the line (Shapiro–Wilk normality
+test p = 0.67, normality not rejected). It is slightly stepped because
+readings come in 10 m steps.</li>
+<li><strong>Residuals vs lap order</strong>: look for a trend as laps go
+on, e.g. fatigue or battery. Result: no trend (correlation −0.05, p =
+0.71). This also suggests the randomization did its job.</li>
+</ol>
+<p>We also checked whether the residual spread is the same for all four
+members (Bartlett test p = 0.96): equal variances.</p>
+<figure>
+<img src="../figures/03_diagnostics.png" style="width:100.0%"
+alt="Model diagnostics: residuals vs fitted, normal Q–Q plot, residuals vs lap order." />
+<figcaption aria-hidden="true">Model diagnostics: residuals vs fitted,
+normal Q–Q plot, residuals vs lap order.</figcaption>
+</figure>
+<p>The largest residual is Jenny’s lap 1 Keep reading (+10%, residual
++4.5). It is a single point and does not change the conclusions.</p>
+<p><strong>Why no transformation (such as Box-Cox)</strong>:
+transformations fix unequal variance or non-normal residuals. The
+diagnostics show neither problem, so there is no reason to transform.
+Box-Cox also needs all values positive, and the signed error has
+negative values. Leaving e untransformed keeps the intuitive
+“over-records by so many percentage points” interpretation.</p>
+<hr />
+<h2 id="en-estimated-effects-and-sensitivity-analysis">10. Estimated
+effects and sensitivity analysis</h2>
+<h3 id="en-estimated-marginal-means">10.1 Estimated marginal means</h3>
+<p><strong>Estimated marginal means (emmeans)</strong>: the model’s
+estimate of the mean error at one level, averaging over the other
+factors. For example, the estimate for “hand” averages over lane, pace,
+app and block. Unlike a raw average, it is based on the model and comes
+with a correct confidence interval.</p>
+<p><strong>95% confidence interval (CI)</strong>: a range likely to
+contain the true value. If the experiment were repeated many times, 95%
+of intervals computed this way would cover the true value. An interval
+that excludes 0 means the effect is significant at the 5% level.
+Narrower intervals mean more precise estimates.</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Estimated mean error</th>
+<th>95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Overall</strong></td>
+<td><strong>+1.90%</strong></td>
+<td>1.12% to 2.68%</td>
+</tr>
+<tr class="even">
+<td>Keep</td>
+<td>+1.17%</td>
+<td>0.23% to 2.11%</td>
+</tr>
+<tr class="odd">
+<td>Strava</td>
+<td>+2.63%</td>
+<td>1.69% to 3.57%</td>
+</tr>
+<tr class="even">
+<td>Lane 1 / lane 8</td>
+<td>1.64% / 2.16%</td>
+<td>p = 0.50</td>
+</tr>
+<tr class="odd">
+<td>Hand / pocket</td>
+<td>1.21% / 2.59%</td>
+<td>p = 0.08</td>
+</tr>
+<tr class="even">
+<td>Walk / jog</td>
+<td>1.88% / 1.92%</td>
+<td>p = 0.95</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="../figures/04_main_effects.png" style="width:100.0%"
+alt="Estimated mean error at each factor level with 95% confidence intervals." />
+<figcaption aria-hidden="true">Estimated mean error at each factor level
+with 95% confidence intervals.</figcaption>
+</figure>
+<ul>
+<li><strong>Answer to Aim 1</strong>: overall +1.90%, with an interval
+excluding 0: the apps systematically over-record, by about 8 m per 400 m
+lap. One plausible reason is that GPS points jitter randomly, so the
+zig-zag line through them is longer than the true path.</li>
+<li><strong>Answer to Aim 2</strong>: block and app × block have by far
+the largest effects (p ≤ 0.002). Lane and pace: no effect detected at
+our sample size. Placement: weak evidence (pocket about 1.4 percentage
+points higher than hand, p = 0.08, interval includes 0), not enough to
+conclude.</li>
+<li>All 11 interactions among the treatment factors have p &gt; 0.12,
+none detected. In the interaction plot
+(<code>figures/05_interactions.png</code>) two pairs of lines cross
+(lane × pace and placement × pace), but the tests are not significant,
+so the crossing is most likely noise.</li>
+</ul>
+<figure>
+<img src="../figures/05_interactions.png" style="width:100.0%"
+alt="The four two-factor interactions of main interest. Parallel lines mean no interaction." />
+<figcaption aria-hidden="true">The four two-factor interactions of main
+interest. Parallel lines mean no interaction.</figcaption>
+</figure>
+<p><strong>Power</strong>: with a small sample, a test has a low chance
+of detecting a real effect. We have only 4 readings per app × setting,
+plus the 10 m resolution, so power is limited and “not detected” must be
+read with care.</p>
+<h3 id="en-sensitivity-analysis-what-if-the-true-distance-is-off">10.2
+Sensitivity analysis: what if the true distance is off?</h3>
+<p>Shift the true distance by −1 m and +1 m, recompute the error and
+refit the model:</p>
+<table>
+<thead>
+<tr class="header">
+<th>True distance</th>
+<th>Overall mean error</th>
+<th>app × block p</th>
+<th>app p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>−1 m</td>
+<td>2.14%</td>
+<td>0.0018</td>
+<td>0.0147</td>
+</tr>
+<tr class="even">
+<td>As measured</td>
+<td>1.90%</td>
+<td>0.0018</td>
+<td>0.0147</td>
+</tr>
+<tr class="odd">
+<td>+1 m</td>
+<td>1.66%</td>
+<td>0.0018</td>
+<td>0.0147</td>
+</tr>
+</tbody>
+</table>
+<p>The overall mean moves by only about ±0.24 percentage points and
+every p-value is unchanged. Shifting the true distance is almost the
+same as subtracting one constant from every error; the tests compare
+differences, so the constant cancels and only the overall mean moves. So
+a small gap between the walked line and the measurement line does not
+affect the conclusions.</p>
+<p><strong>Sensitivity analysis</strong> in general: change an uncertain
+assumption and see whether the conclusion holds. If it does, the
+conclusion does not depend on that assumption.</p>
+<hr />
+<h2 id="en-accuracy-aim-3">11. Accuracy (Aim 3)</h2>
+<h3 id="en-mape-with-bootstrap-confidence-intervals">11.1 MAPE with
+bootstrap confidence intervals</h3>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>MAPE</th>
+<th>95% bootstrap CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Keep</td>
+<td>2.71%</td>
+<td>1.97% to 3.53%</td>
+</tr>
+<tr class="even">
+<td>Strava</td>
+<td>3.58%</td>
+<td>2.95% to 4.22%</td>
+</tr>
+<tr class="odd">
+<td>Strava − Keep</td>
+<td>0.87 percentage points</td>
+<td><strong>−0.11 to 1.76</strong></td>
+</tr>
+</tbody>
+</table>
+<p>MAPE is just an average with no ready-made formula for its confidence
+interval, so we use the <strong>bootstrap</strong> to estimate its
+variability:</p>
+<ol type="1">
+<li><strong>Within each member</strong>, draw 8 laps <strong>with
+replacement</strong> from that member’s 8 laps (some laps are drawn
+twice, some not at all).</li>
+<li>For every lap drawn, take <strong>both</strong> its Strava and Keep
+readings, keeping the pairs together.</li>
+<li>Compute each app’s MAPE on this new sample.</li>
+<li>Repeat 5000 times; the middle 95% of the 5000 results is the
+confidence interval.</li>
+</ol>
+<p>Resampling within members keeps the “4 blocks × 8 laps” structure;
+resampling whole laps keeps the pairing. The bootstrap idea: treat the
+sample as a miniature of the population and see how the statistic varies
+when we resample from it.</p>
+<p><strong>Conclusion</strong>: Keep has the lower MAPE, but the
+interval for the difference includes 0, so <strong>we cannot
+statistically tell which app is more accurate</strong>. We say “Keep has
+a lower observed MAPE, but the difference is not significant”, not “Keep
+is more accurate”.</p>
+<p>MAPE also depends on the phone: Strava’s MAPE is about 5.5% and 6.1%
+on Phoebe’s and Boyi’s phones but only 1.0% and 1.8% on Jenny’s and
+Darren’s. Once again the phone matters more than the app.</p>
+<h3 id="en-model-for-log-absolute-error">11.2 Model for log absolute
+error</h3>
+<p>To compare accuracy across factors and the 16 combinations at once,
+we need a model. But |e| cannot go straight into a linear model: it is
+always ≥ 0, skewed, and often exactly 0. So we model <strong>log(|e| +
+0.5)</strong>:</p>
+<ul>
+<li>The log makes the distribution more symmetric.</li>
+<li>Adding 0.5 avoids log(0) = −infinity. With 0.25 or 1 instead, the
+app p-value is 0.16, 0.14 or 0.12: same conclusion.</li>
+<li>Same structure as the final model, including app × block.</li>
+<li>Results are <strong>back-transformed</strong> to percent:
+exp(estimate) − 0.5. Averaging on the log scale and back-transforming
+gives a “typical” absolute error close to the <strong>median</strong>,
+so it is smaller than MAPE: Keep 1.83% (1.32–2.47), Strava 2.44%
+(1.80–3.26).</li>
+</ul>
+<p>Results:</p>
+<ul>
+<li>App not significant (p = 0.14), consistent with the bootstrap.</li>
+<li>App × block significant (p = 0.03): accuracy also depends on the
+phone.</li>
+<li>The app × lane × pace three-factor interaction is highly significant
+(p &lt; 0.001); for example, Keep was especially accurate when jogging
+in lane 1. But 17 terms were tested, each cell has only 4 readings, and
+a three-factor interaction is hard to interpret. The more tests you run,
+the more likely one comes out “significant” by chance; this is the
+<strong>multiple comparisons</strong> problem. So this result is treated
+as <strong>exploratory</strong>, a lead for a future experiment, not a
+conclusion.</li>
+</ul>
+<h3 id="en-why-we-do-not-declare-a-best-combination">11.3 Why we do not
+declare a “best combination”</h3>
+<p>The typical absolute error and interval for all 16 combinations (2
+apps × 8 settings) are plotted in
+<code>figures/06_typical_abs_error_by_treatment.png</code>. The
+intervals overlap heavily. With only 4 readings per app per setting,
+picking the smallest point estimate would very likely be picking luck.
+Reviewer comment 5 explicitly asked us not to do this. Our conclusion:
+<strong>there is no statistically distinguishable single best
+combination</strong>.</p>
+<figure>
+<img src="../figures/06_typical_abs_error_by_treatment.png"
+style="width:100.0%"
+alt="Typical absolute error (back-transformed from the log model) with 95% confidence intervals for the 16 combinations." />
+<figcaption aria-hidden="true">Typical absolute error (back-transformed
+from the log model) with 95% confidence intervals for the 16
+combinations.</figcaption>
+</figure>
+<hr />
+<h2 id="en-conclusions">12. Conclusions</h2>
+<ol type="1">
+<li><strong>Bias</strong>: the apps over-record by about 1.9% on average
+(95% CI 1.1%–2.7%), roughly 8 m per 400 m.</li>
+<li><strong>The phone matters more than the app</strong>: which app
+reads longer depends on the phone; Strava is longer on three phones and
+Keep on one.</li>
+<li><strong>Lane, placement, pace</strong>: no clear effect detected at
+our sample size; the pocket may over-record slightly, but the evidence
+is weak.</li>
+<li><strong>Accuracy</strong>: Keep has the lower MAPE (2.7% vs 3.6%),
+but the difference is not significant; there is no single best
+combination.</li>
+</ol>
+<p><strong>What it means for an ordinary runner</strong>: on a 400 m
+lap, seeing 0.41 km is normal. Switching apps will not necessarily make
+the reading more accurate; the phone may matter more.</p>
+<hr />
+<h2 id="en-limitations-and-improvements">13. Limitations and
+improvements</h2>
+<ul>
+<li><strong>10 m display resolution</strong>: rounding error
+(±1.1%–1.25%) is about as large as many effects, so small effects cannot
+be detected. Improvement: export the GPS track files and compute
+distance from the raw coordinates.</li>
+<li><strong>Only 4 phones and one track</strong>: the conclusions cannot
+be generalized directly to all phones and sites. Improvement: more phone
+models.</li>
+<li><strong>Phone position and pace were not standardized</strong>: the
+placement and pace effects are averages over four personal habits, and
+lap-to-lap inconsistency within a member adds noise; lap times are
+missing for one member. Improvement: specify the hand, screen
+orientation and pocket, set target speeds (e.g. walking 4.5–5.5 km/h,
+jogging 8–10 km/h), and time every lap.</li>
+<li><strong>Weather and date confounded with block</strong>: Jenny’s
+three rainy laps were all walks. Improvement: each member completes all
+laps on the same day in similar conditions.</li>
+<li><strong>Few replicates per combination</strong>: 4 readings per
+cell, so comparisons between combinations have low power.</li>
+</ul>
+<hr />
+<h2 id="en-what-each-slide-says">14. What each slide says</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>Core message</th>
+<th>Key numbers</th>
+<th>Sections here</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1 Formulation</td>
+<td>Three aims; 4 factors and why; member-phone blocks; signed
+percentage error</td>
+<td>400.00 / 453.03 m</td>
+<td>1, 2.1, 2.2, 3</td>
+</tr>
+<tr class="even">
+<td>2 Design (1)</td>
+<td>2⁴ factorial in 4 complete blocks; both apps on the same lap →
+paired; split-plot</td>
+<td>4 / 32 / 64; df 21 and 24</td>
+<td>2.1–2.5</td>
+</tr>
+<tr class="odd">
+<td>3 Design (2)</td>
+<td>Blocking, randomization, data collection, known constraints</td>
+<td>set.seed(404); ±5 m</td>
+<td>2.2, 2.4, 3.4, 5</td>
+</tr>
+<tr class="even">
+<td>4 Analysis</td>
+<td>Planned model → check whether the app effect varies by phone → add
+app × block → diagnostics</td>
+<td>+3.0 / +4.0 / −2.6 / +1.5; χ² = 22.4, p &lt; 0.001</td>
+<td>8, 9, 10.2</td>
+</tr>
+<tr class="odd">
+<td>5 Conclusions</td>
+<td>Answers to the three aims; limitations and next steps</td>
+<td>+1.9%; MAPE 2.7% vs 3.6%</td>
+<td>10–13</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="en-key-numbers-at-a-glance">15. Key numbers at a glance</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Number</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Overall mean error</td>
+<td>+1.90% (95% CI 1.12–2.68)</td>
+</tr>
+<tr class="even">
+<td>Keep / Strava mean error</td>
+<td>+1.17% / +2.63%</td>
+</tr>
+<tr class="odd">
+<td>Strava − Keep (Phoebe / Boyi / Jenny / Darren)</td>
+<td>+3.02 / +4.01 / −2.63 / +1.45 percentage points</td>
+</tr>
+<tr class="even">
+<td>App × block</td>
+<td>LRT χ² = 22.4, df = 3, p &lt; 0.001; F-test p = 0.002</td>
+</tr>
+<tr class="odd">
+<td>Block</td>
+<td>p &lt; 0.001</td>
+</tr>
+<tr class="even">
+<td>Lane / placement / pace</td>
+<td>p = 0.50 / 0.08 / 0.95</td>
+</tr>
+<tr class="odd">
+<td>Lap SD / residual SD</td>
+<td>1.45 / 2.20 percentage points</td>
+</tr>
+<tr class="even">
+<td>Diagnostics</td>
+<td>Shapiro p = 0.67; lap-order correlation −0.05 (p = 0.71); Bartlett p
+= 0.96</td>
+</tr>
+<tr class="odd">
+<td>Sensitivity ±1 m</td>
+<td>Overall mean 1.66%–2.14%, p-values unchanged</td>
+</tr>
+<tr class="even">
+<td>MAPE Keep / Strava</td>
+<td>2.71% / 3.58%</td>
+</tr>
+<tr class="odd">
+<td>95% CI for MAPE difference</td>
+<td>−0.11 to 1.76</td>
+</tr>
+<tr class="even">
+<td>Placement p without the lap random effect</td>
+<td>0.081 → 0.042 (consequence of pseudo-replication)</td>
+</tr>
+<tr class="odd">
+<td>Display resolution</td>
+<td>10 m, ±5 m rounding (±1.1%–1.25%)</td>
+</tr>
+</tbody>
+</table></article>
+    <article data-lang="zh" lang="zh-CN"><h1>跑步 app 测距有多准？GPS 距离误差实验的设计、分析与结论</h1><p>本页是 <a
+href="https://github.com/z-boyi/gps-running-accuracy-doe">gps-running-accuracy-doe</a>
+这个 repo 的讲解。数字都来自 repo 里的
+<code>report/results_summary.md</code> 和 <code>results/</code>
+文件夹，图在 <code>figures/</code>。</p>
+<hr />
+<h2 id="zh-一句话概括">0. 一句话概括</h2>
+<p>我们四个人在 UBC 的同一条田径跑道上，用各自的手机同时打开 Strava 和
+Keep，按随机顺序走或跑了 32 圈，比较 app
+记录的距离和真实圈长差多少。结论是：<strong>app 平均多记约 2%，而哪个
+app
+记得更长，取决于是谁的手机</strong>。跑道内外圈、手机拿在手上还是放口袋、走还是跑，在我们的样本量下都没有检测到明显影响。</p>
+<hr />
+<h2 id="zh-研究问题从哪里来">1. 研究问题从哪里来</h2>
+<p><strong>背景</strong>：跑步 app 用手机 GPS 记录距离。GPS
+每隔一段时间记录一个位置点，再把这些点连起来算长度。如果点有误差，或者在弯道上采样太稀，算出来的距离就会偏长或偏短。</p>
+<p><strong>我们想回答的三个问题</strong>（proposal 里的三个 Aim）：</p>
+<ol type="1">
+<li><strong>偏差（bias）</strong>：app 是不是系统性地多记或少记？</li>
+<li><strong>影响因素</strong>：哪些因素，以及哪些因素的组合，会影响误差？</li>
+<li><strong>准确度（accuracy）</strong>：哪个 app、哪种设置最准？</li>
+</ol>
+<p>“偏差”和“准确度”是两件事。偏差看的是误差平均起来往哪个方向偏；准确度看的是每次误差离
+0 有多远。一个 app 一次多 5%、一次少 5%，平均偏差是
+0，但它每次都不准。所以这两个问题要用不同的指标回答（见第 6 节）。</p>
+<hr />
+<h2 id="zh-实验设计每个选择是什么为什么">2.
+实验设计：每个选择是什么、为什么</h2>
+<h3 id="zh-处理因素treatment-factors和水平levels">2.1
+处理因素（treatment factors）和水平（levels）</h3>
+<p><strong>因素</strong>是我们主动改变、想研究其影响的东西；每个因素取的不同值叫<strong>水平</strong>。我们有
+4 个因素，每个 2 个水平：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>因素</th>
+<th>两个水平</th>
+<th>为什么选它</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>App</td>
+<td>Strava / Keep</td>
+<td>这是我们最想比较的东西，两个都是常用的免费 app</td>
+</tr>
+<tr class="even">
+<td>Lane（跑道）</td>
+<td>第 1 道 / 第 8 道</td>
+<td>第 8 道弯道半径更大。GPS
+误差主要出在弯道，弯道曲率不同可能影响误差</td>
+</tr>
+<tr class="odd">
+<td>Placement（手机位置）</td>
+<td>拿在手上 / 前裤袋</td>
+<td>人们最常见的两种带手机方式；口袋里信号可能被身体遮挡</td>
+</tr>
+<tr class="even">
+<td>Pace（速度）</td>
+<td>走 / 慢跑</td>
+<td>速度改变 GPS 相邻两点之间的距离，影响轨迹的精细程度</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么每个因素只取 2 个水平</strong>：这叫 <strong>2⁴
+析因设计</strong>（2 的 4 次方 = 16
+种组合）。两水平设计用最少的试验次数就能估计所有因素的主效应和它们之间的所有交互作用，是课上
+2^k
+设计的标准做法。代价是只能看“两个水平之间有没有差”，看不出中间的变化趋势。</p>
+<p><strong>为什么是“析因”（factorial）而不是一次只改一个因素</strong>：析因设计里每个因素的每个水平都和其他因素的每个水平组合。好处有两个：一是每个观测同时用来估计所有因素的效应，效率高；二是能估计<strong>交互作用</strong>（interaction），也就是“一个因素的效果是否取决于另一个因素的水平”。比如“走路时手机放口袋影响大，跑步时影响小”就是
+placement × pace 交互。一次只改一个因素的做法看不出交互。</p>
+<h3 id="zh-区组block">2.2 区组（block）</h3>
+<p><strong>区组</strong>是把实验对象按某个已知会造成差异、但我们不打算研究的因素分组。每一组内部条件相似，比较只在组内做，组间差异就不会混进处理效应的比较里。</p>
+<p>我们的区组 = <strong>一个人 + 他自己的手机</strong>，一共 4
+个：Phoebe、Boyi、Jenny、Darren。</p>
+<p>为什么要分区组：不同手机的 GPS
+芯片、天线不同，不同人走路的习惯也不同，这些差异可能很大，但不是我们研究的对象。如果不分组，这些差异会变成“噪音”，让
+app、lane 等效应更难看出来。结果也证明区组效应非常显著（p &lt;
+0.001），说明分区组是对的。</p>
+<p><strong>完全区组（complete block）</strong>：每个区组里都做了全部 8
+种跑法组合（lane × placement ×
+pace），所以每种组合在每个人身上都出现一次。这保证了区组和处理之间<strong>不混杂（not
+confounded）</strong>：任何处理的比较都在每个人内部完整地做了一遍。</p>
+<p><strong>为什么区组当作固定效应而不是随机效应</strong>：我们只有 4
+个区组，而且关心的就是这 4
+部具体的手机，不打算推广到“所有手机组成的总体”。4
+个水平也很难可靠地估计一个方差。所以把区组作为普通的分组变量（固定效应）放进模型。</p>
+<h3 id="zh-实验单位和配对">2.3 实验单位和配对</h3>
+<p><strong>实验单位（experimental
+unit）</strong>是接受一个处理、能独立给出结果的最小单元。我们的设计里有<strong>两种大小</strong>的单位：</p>
+<ul>
+<li><strong>一圈（lap）</strong>是 lane、placement、pace
+的实验单位。这三个因素是整圈一起设定的：这一圈走第几道、手机放哪、走还是跑。</li>
+<li><strong>一圈里的一个 app 读数</strong>是 app 的实验单位。每圈 Strava
+和 Keep <strong>同时打开、同时记录</strong>，所以每圈有两个读数。</li>
+</ul>
+<p>两个 app
+在同一圈同时记录，它们就是<strong>配对（paired）</strong>的：共享同一圈的所有条件（同一个人、同一部手机、同一条实际走的线、同一时刻的卫星分布）。比较
+app 时，这一圈特有的偏差会在 Strava − Keep
+的差里抵消，比较更精确。这和配对 t
+检验先算每对的差再分析是同一个道理。如果两个 app 分别跑不同的圈，app
+的差异里就会混进圈与圈之间的差别，需要两倍的圈数，精度还更低。</p>
+<p>这种“大单位上设一些因素、大单位内部再分小单位设另一个因素”的结构，叫<strong>裂区设计（split-plot
+design）</strong>：</p>
+<ul>
+<li><strong>整区（whole plot）</strong>= 一圈；整区因素 =
+lane、placement、pace</li>
+<li><strong>子区（sub-plot）</strong>= 圈里的一个 app 读数；子区因素 =
+app</li>
+</ul>
+<p>裂区设计的关键是：整区因素要和“圈与圈之间的变异”比，子区因素要和“圈内的变异”比，两者的误差大小不一样。第
+8 节的模型就是按这个结构建的。</p>
+<h3 id="zh-随机化randomization">2.4 随机化（randomization）</h3>
+<p>每个人跑 8 圈的<strong>顺序</strong>是在 R 里用
+<code>set.seed(404)</code> 随机生成的，四个人各自独立随机。</p>
+<p><strong>为什么要随机化</strong>：实验过程中可能有我们控制不了的慢慢变化，比如越跑越累、手机电量下降、卫星位置随时间移动。如果按固定顺序跑（比如先全部走、再全部跑），这些变化就会和
+pace
+混在一起，分不清误差变化是因为速度还是因为时间。随机打乱顺序，这些变化就会平均地分散到各个处理上，不会系统性地偏向某一个。<code>set.seed(404)</code>
+固定了随机数，任何人重新运行代码都会得到同样的顺序，结果可以复现。</p>
+<p>四个人都<strong>完全按随机顺序</strong>跑了。</p>
+<p><strong>例：Boyi 的随机顺序</strong>（完整表格见
+<code>data/randomization_schedule.csv</code>）</p>
+<table>
+<thead>
+<tr class="header">
+<th>Lap</th>
+<th>Lane</th>
+<th>Placement</th>
+<th>Pace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>8</td>
+<td>hand</td>
+<td>walk</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1</td>
+<td>hand</td>
+<td>walk</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>1</td>
+<td>hand</td>
+<td>jog</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>8</td>
+<td>pocket</td>
+<td>jog</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>1</td>
+<td>pocket</td>
+<td>walk</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>1</td>
+<td>pocket</td>
+<td>jog</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>8</td>
+<td>hand</td>
+<td>jog</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>8</td>
+<td>pocket</td>
+<td>walk</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zh-重复replication">2.5 重复（replication）</h3>
+<p>每种组合在每个人身上只跑一次，但 4 个人都跑了，所以每种组合有 4
+次重复。总共 4 人 × 8 圈 = <strong>32 圈</strong>，每圈 2 个 app 读数 =
+<strong>64 个读数</strong>。</p>
+<p>没有同一个人重复跑同一种组合，所以“误差”的估计来自不同人之间、不同组合之间的剩余波动。模型里用来检验的<strong>自由度（degrees
+of freedom, df）</strong>是：</p>
+<ul>
+<li>圈与圈之间：32 圈 − 1（总平均）− 3（区组）− 7（lane、placement、pace
+的主效应和交互）= <strong>21</strong></li>
+<li>圈内：32 个配对差 − 8（app 及它和其他因素的交互）=
+<strong>24</strong></li>
+</ul>
+<p>自由度可以理解为“还剩多少独立的信息用来估计误差”。21 和 24
+足够做检验。</p>
+<hr />
+<h2 id="zh-响应变量怎么衡量误差">3. 响应变量：怎么衡量“误差”</h2>
+<h3 id="zh-真实距离">3.1 真实距离</h3>
+<p>真实距离用的是这条跑道<strong>官方丈量线</strong>上的圈长：第 1 道
+<strong>400.00 m</strong>，第 8 道 <strong>453.03 m</strong>。</p>
+<p>为什么第 8 道是 453.03 m：每条道宽 1.22 m。丈量线在第 1 道离路沿 0.30
+m，其他道离内侧线 0.20 m。第 8 道丈量线比第 1 道向外多了 7 × 1.22 − 0.10
+= 8.44 m，两个半圆弯道合起来是一整个圆，周长多 2π × 8.44 ≈ 53.03
+m。直道长度不变，所以第 8 道一圈是 453.03 m。</p>
+<p>我们实际走的线可能和丈量线有一点偏差，所以做了<strong>敏感性分析</strong>：把真实距离加减
+1 m 重新算，看结论变不变（第 10 节）。</p>
+<h3 id="zh-带符号百分比误差-e">3.2 带符号百分比误差 e</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mn>100</mn><mo>×</mo><mfrac><mrow><mtext mathvariant="normal">app 记录的距离</mtext><mo>−</mo><mtext mathvariant="normal">真实距离</mtext></mrow><mtext mathvariant="normal">真实距离</mtext></mfrac></mrow><annotation encoding="application/x-tex">e = 100 \times \frac{\text{app 记录的距离} - \text{真实距离}}{\text{真实距离}}</annotation></semantics></math></p>
+<ul>
+<li>e &gt; 0：app <strong>多记</strong>了；e &lt;
+0：<strong>少记</strong>了。</li>
+<li>用百分比而不是米：因为第 8 道比第 1 道长，同样的相对误差，第 8
+道的米数会更大。用百分比，两条道可以直接比较。</li>
+<li>乘 100 才是百分比。原 proposal 的公式漏了
+×100，审稿人指出了，后来改正了。</li>
+</ul>
+<p>这个带符号的 e 用来回答 <strong>Aim 1 和 Aim
+2</strong>（偏差和影响因素）。</p>
+<h3 id="zh-绝对误差-e-和-mape">3.3 绝对误差 |e| 和 MAPE</h3>
+<ul>
+<li><strong>|e|</strong>：e 的绝对值，只看误差有多大，不看方向。</li>
+<li><strong>MAPE（mean absolute percentage
+error，平均绝对百分比误差）</strong>：一组读数 |e| 的平均值。</li>
+</ul>
+<p>用来回答 <strong>Aim 3</strong>（准确度）。原因就是第 1
+节说的：平均的 e 会让正负误差抵消，不能反映准确度。审稿人第 5
+条意见专门指出了这一点。</p>
+<h3 id="zh-测量精度的限制">3.4 测量精度的限制</h3>
+<p>两个 app 都只显示到 0.01 km，也就是 <strong>10 m
+一档</strong>。真实值四舍五入到最近的 10 m，所以每个读数本身就有最多
+<strong>±5 m</strong> 的舍入误差，相当于第 1 道的 ±1.25%、第 8 道的
+±1.10%。这和我们想检测的很多效应差不多大，是这个实验最大的局限。这也让误差只能取几个固定的值，模型诊断里的
+Q–Q 图会呈阶梯状（第 9 节）。</p>
+<hr />
+<h2 id="zh-审稿意见以及我们怎么处理">4. 审稿意见以及我们怎么处理</h2>
+<p>proposal 交上去后收到 7
+条意见。数据是在收到意见之前采集的，所以和<strong>分析有关</strong>的意见（3、5、6、7）都完整做到了；和<strong>采集有关</strong>的意见（1、2、4）已经没法重新采集，就如实说明实际做法，并写进局限。</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>意见</th>
+<th>我们的处理</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>统一手机拿法、朝向、口袋</td>
+<td>没有统一，每个人用自己的习惯。如实说明，区组吸收了人与人之间的习惯差异；代价是
+placement 效应是四种个人习惯的平均，写进局限</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>给出走和跑的具体速度范围</td>
+<td>没有设定，每人用自然速度。如实说明，写进局限，并给出以后可以用的速度范围</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>公式要乘 100，区分带符号误差和绝对误差</td>
+<td>已改正（第 3.2、3.3 节）</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>核实这条跑道的真实距离</td>
+<td>用了跑道的实际丈量数据 400.00 / 453.03 m，并做 ±1 m 敏感性分析</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>明确定义“典型绝对误差”，给出不确定性，不要凭点估计宣布唯一最佳组合</td>
+<td>用 MAPE，加 bootstrap 置信区间和 log 模型；最后没有宣布最佳组合（第
+11 节）</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>说明模型包含哪些交互</td>
+<td>完整的 2⁴ 结构，并说明重点关注哪几个二阶交互、为什么</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>加性区组假设 app 效应在每部手机上都一样，要按区组画图检查</td>
+<td>画了图，发现不成立，调整了模型。<strong>这是整个分析最重要的一步</strong>（第
+8 节）</td>
+</tr>
+</tbody>
+</table>
+<p>“如实说明而不是假装做到”很重要：老师追问时，能清楚说出“我们没有标准化，代价是什么，以后怎么改”，比含糊其辞好得多。</p>
+<hr />
+<h2 id="zh-数据采集">5. 数据采集</h2>
+<ul>
+<li><strong>场地</strong>：UBC 的 Rashpal Dhillon Track &amp; Field
+Oval，四个人用同一条跑道，所以场地不会带来差异。</li>
+<li><strong>日期和天气</strong>：Phoebe（多云）和 Boyi（晴）都在 11 月
+12 日跑完；Darren 在 11 月 13 日（小雨）；Jenny 的第 1、2、6 圈在 11 月
+6 日（小雨），其余 5 圈在 11 月 12 日（多云）。</li>
+<li><strong>天气和日期为什么不影响结论</strong>：每个人基本在一天内跑完，所以天气和日期的差异都落在“人”这个区组里，被区组效应吸收了。在统计上，这叫天气和区组<strong>混杂（confounded）</strong>：我们分不开“是人/手机的差别还是天气的差别”，但因为我们本来就不研究区组效应，所以不影响其他因素的比较。</li>
+<li><strong>一个例外</strong>：Jenny 11 月 6
+日下雨的三圈恰好都是走路，所以在她的区组里，天气和 pace
+部分混杂。这是随机顺序碰巧造成的，主动说出来能体现对设计的理解。</li>
+<li><strong>操作流程</strong>：打开两个 app，等 60 秒让 GPS
+定位；在终点线同时开始，按指定跑道走或跑一圈，尽量贴着道的内侧线，过同一条线时同时停止；记录两个
+app 的距离并截图。</li>
+<li><strong>没有记录开始时间</strong>，所以检查“随时间的趋势”时用的是圈序（第几圈）。</li>
+</ul>
+<hr />
+<h2 id="zh-数据整理">6. 数据整理</h2>
+<p>原始记录表是一行一圈，Strava 和 Keep 的读数并排。分析前用脚本
+<code>code/00_clean_data.R</code> 做了这些事，原始表永远不手动改：</p>
+<ol type="1">
+<li><strong>检查数据</strong>：一共 32 行；每人 8
+圈；每人每种组合恰好一次。确认数据符合设计。</li>
+<li><strong>宽表变长表</strong>：变成一行一个 app 读数，共 64
+行。混合模型需要这种格式。</li>
+<li><strong>单位换算</strong>：km 换成 m。</li>
+<li><strong>重新计算误差</strong>：第 8 道用准确的 453.03 m。</li>
+<li><strong>给每一圈一个唯一编号</strong>（<code>lap_id</code>，比如
+<code>Boyi_3</code>）：同一圈的两个读数共用它，模型靠它知道哪两个读数是配对的。只用圈序
+1–8 不行，因为 Phoebe 的第 1 圈和 Boyi 的第 1 圈是两圈不同的圈。</li>
+</ol>
+<p>整理过程写成脚本，任何人都能重新运行得到完全一样的结果，这叫<strong>可复现（reproducible）</strong>。
+<strong>整理后的数据（<code>data/processed/gps_runs.csv</code>）前几行</strong>：一行一个读数，同一圈的两行共用
+<code>lap_id</code>。</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>block</th>
+<th>lap_order</th>
+<th>lap_id</th>
+<th>lane</th>
+<th>placement</th>
+<th>pace</th>
+<th>app</th>
+<th>true_distance_m</th>
+<th>recorded_distance_m</th>
+<th>error_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Phoebe</td>
+<td>1</td>
+<td>Phoebe_1</td>
+<td>1</td>
+<td>hand</td>
+<td>jog</td>
+<td>Keep</td>
+<td>400</td>
+<td>410</td>
+<td>2.5</td>
+</tr>
+<tr class="even">
+<td>Phoebe</td>
+<td>1</td>
+<td>Phoebe_1</td>
+<td>1</td>
+<td>hand</td>
+<td>jog</td>
+<td>Strava</td>
+<td>400</td>
+<td>430</td>
+<td>7.5</td>
+</tr>
+<tr class="odd">
+<td>Phoebe</td>
+<td>2</td>
+<td>Phoebe_2</td>
+<td>1</td>
+<td>hand</td>
+<td>walk</td>
+<td>Keep</td>
+<td>400</td>
+<td>390</td>
+<td>−2.5</td>
+</tr>
+<tr class="even">
+<td>Phoebe</td>
+<td>2</td>
+<td>Phoebe_2</td>
+<td>1</td>
+<td>hand</td>
+<td>walk</td>
+<td>Strava</td>
+<td>400</td>
+<td>410</td>
+<td>2.5</td>
+</tr>
+<tr class="odd">
+<td>Phoebe</td>
+<td>3</td>
+<td>Phoebe_3</td>
+<td>8</td>
+<td>hand</td>
+<td>walk</td>
+<td>Keep</td>
+<td>453.03</td>
+<td>470</td>
+<td>3.746</td>
+</tr>
+<tr class="even">
+<td>Phoebe</td>
+<td>3</td>
+<td>Phoebe_3</td>
+<td>8</td>
+<td>hand</td>
+<td>walk</td>
+<td>Strava</td>
+<td>453.03</td>
+<td>490</td>
+<td>8.161</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="zh-先看数据">7. 先看数据</h2>
+<p>画出全部 64
+个读数（<code>figures/01_raw_error_by_block.png</code>），按人和 app
+分开：</p>
+<ul>
+<li>大部分读数在 0 以上，app 普遍多记。</li>
+<li>Phoebe 和 Boyi 的 Strava 明显比 Keep 高；Jenny 反过来；Darren
+两个差不多。</li>
+</ul>
+<p>先画图再建模，是为了知道数据大概长什么样、有没有异常值，也为后面检查模型假设提供线索。这里看到的“不同人身上
+app 差别方向不同”，后面会成为最重要的发现。</p>
+<figure>
+<img src="../figures/01_raw_error_by_block.png" style="width:100.0%"
+alt="全部 64 个读数的误差，按人和 app 分开。虚线是 0 误差。" />
+<figcaption aria-hidden="true">全部 64 个读数的误差，按人和 app
+分开。虚线是 0 误差。</figcaption>
+</figure>
+<hr />
+<h2 id="zh-统计模型">8. 统计模型</h2>
+<h3 id="zh-为什么用线性混合模型">8.1 为什么用线性混合模型</h3>
+<p><strong>线性模型</strong>的基本想法：每个读数 = 总平均 +
+各个因素带来的偏移 +
+随机误差。我们用模型估计每个因素带来多少偏移，再判断这个偏移是否明显大于随机波动。</p>
+<p><strong>混合模型（mixed model）</strong>同时包含两种效应：</p>
+<ul>
+<li><strong>固定效应（fixed
+effect）</strong>：我们想估计具体数值的因素，比如
+app、lane、placement、pace、区组。</li>
+<li><strong>随机效应（random
+effect）</strong>：我们不关心具体值、只关心它波动有多大的东西，这里是“每一圈特有的偏移”。</li>
+</ul>
+<p>模型写成 R 代码：</p>
+<div class="sourceCode" id="zh-cb1"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb1-1"><a href="#zh-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(e <span class="sc">~</span> block <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id))</span></code></pre></div>
+<p>逐项解释：</p>
+<ul>
+<li><code>e ~ ...</code>：用右边的东西解释左边的误差 e。</li>
+<li><code>block</code>：每个人有自己的平均水平（固定效应）。</li>
+<li><code>app * lane * placement * pace</code>：<code>*</code>
+表示“主效应加上所有交互”，展开是 4 个主效应、6 个两因素交互、4
+个三因素交互、1 个四因素交互，共 15 项，就是完整的 2⁴ 析因结构。</li>
+<li><code>(1 | lap_id)</code>：<strong>随机截距</strong>。竖线读作“对每个……分组”，<code>1</code>
+代表截距（整体平移）。意思是每一圈有一个自己的随机平移量，服从均值 0
+的正态分布，模型估计它的标准差。</li>
+</ul>
+<h3 id="zh-为什么必须有每圈的随机效应">8.2
+为什么必须有“每圈的随机效应”</h3>
+<p>一个读数可以拆成：总平均 + 区组 + 处理效应 +
+<strong>这一圈的偏移</strong> + 读数自己的误差。</p>
+<p>“这一圈的偏移”是扣掉区组和处理之后，还剩下的这一圈特有的东西：当时的卫星分布、实际走的线离内侧多远、有没有绕开别人……它和处理无关，但<strong>同一圈的两个读数都受它影响</strong>，所以两个读数不独立。例子：Darren
+第 4 圈，Strava −2.9%，Keep
+−7.3%，两个都明显偏低，很可能是这一圈整体“偏短”。</p>
+<p>如果不加这一项，用普通线性回归（<code>lm</code>），模型会把 64
+个读数当成 64 次独立试验。但 lane、placement、pace
+是施加在“圈”上的，真正独立的只有 32
+圈。这叫<strong>伪重复（pseudo-replication）</strong>：把同一个单位的多次测量当成独立重复，会低估误差、夸大显著性。用我们的数据实际对比：去掉随机效应后，placement
+的 p 值从 0.081 变成 0.042，会错误地宣布显著；而 app 的比较反而变弱（p
+从 0.015 变成 0.032），因为没有利用配对。</p>
+<p>在我们的数据里，单独检验这个随机效应 p =
+0.15，说明圈与圈的差别不算大。但它仍然要保留，因为它是<strong>由设计决定的</strong>（裂区结构），在看数据之前就该这样建模。不能因为它不显著就删掉，否则就是看着数据挑模型。</p>
+<h3 id="zh-效应编码">8.3 效应编码</h3>
+<p>模型里用了<strong>效应编码（sum-to-zero
+contrasts）</strong>：每个效应表示“这个水平比总平均高或低多少”，两个水平的效应加起来是
+0。这和课上 2^k 设计里用 +1/−1
+定义效应的方式一致。有交互项时，用这种编码得到的检验（Type III
+ANOVA）才有清楚的含义。</p>
+<h3 id="zh-f-检验和-p-值">8.4 F 检验和 p 值</h3>
+<p><strong>ANOVA（方差分析）</strong>把数据的总波动分解到各个因素上。对每个因素，算一个
+<strong>F 统计量</strong> = 这个因素带来的波动 ÷ 随机误差的波动。F
+越大，越说明这个因素的作用超过了随机波动。</p>
+<p><strong>p
+值</strong>：假设这个因素其实没有作用，仅凭随机波动就得到这么大（或更大）F
+值的概率。p 很小（通常 &lt;
+0.05）说明“没有作用”这个假设不太可信，就说这个效应<strong>统计显著</strong>。</p>
+<p>要注意：</p>
+<ul>
+<li>p &gt; 0.05
+<strong>不等于</strong>“没有作用”，只是“在这个样本量下没检测到”。样本小时，真实存在的小效应也可能检测不出来。</li>
+<li>p
+值不说明效应有多大。效应大小要看<strong>估计值和置信区间</strong>。</li>
+</ul>
+<p>混合模型里 F 检验的分母自由度用 <strong>Satterthwaite
+近似</strong>计算（R 的 lmerTest 包），结果和第 2.5 节按裂区结构算的
+21、24 一致。</p>
+<h3 id="zh-检查假设app-效应在每部手机上一样吗">8.5 检查假设：app
+效应在每部手机上一样吗</h3>
+<p>上面的模型里，<code>block</code>
+是<strong>加性</strong>的：它假设每个人只是整体平移，Strava 和 Keep
+的差在每部手机上都一样。审稿人第 7 条意见要我们检查这个假设。</p>
+<p><strong>检查方法</strong>：每一圈算 Strava − Keep
+的差，按人分开画图（<code>figures/02_app_difference_by_block.png</code>，slide
+4 左边的图）。</p>
+<p><strong>结果</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>人</th>
+<th>Strava − Keep（百分点）</th>
+<th>95% 置信区间</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Phoebe</td>
+<td>+3.02</td>
+<td>0.73 到 5.30</td>
+</tr>
+<tr class="even">
+<td>Boyi</td>
+<td>+4.01</td>
+<td>1.72 到 6.30</td>
+</tr>
+<tr class="odd">
+<td>Jenny</td>
+<td><strong>−2.63</strong></td>
+<td>−4.92 到 −0.34</td>
+</tr>
+<tr class="even">
+<td>Darren</td>
+<td>+1.45</td>
+<td>−0.83 到 3.74</td>
+</tr>
+</tbody>
+</table>
+<p>三部手机上 Strava 记得更长，Jenny 的手机上 Keep
+记得更长，<strong>方向相反</strong>。用中位数看（图里的箱线图）也一样，所以不是被个别异常值带出来的。</p>
+<figure>
+<img src="../figures/02_app_difference_by_block.png"
+style="width:100.0%"
+alt="每一圈的 Strava − Keep，按人分开。箱子是四分位数，灰线是中位数，红线是平均值；在 0 以上表示 Strava 记得更长。" />
+<figcaption aria-hidden="true">每一圈的 Strava −
+Keep，按人分开。箱子是四分位数，灰线是中位数，红线是平均值；在 0
+以上表示 Strava 记得更长。</figcaption>
+</figure>
+<p><strong>调整模型</strong>：加入 app × block
+交互项，允许每部手机有自己的 app 差异：</p>
+<div class="sourceCode" id="zh-cb2"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb2-1"><a href="#zh-cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(e <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id))</span></code></pre></div>
+<p><strong>似然比检验（likelihood-ratio test,
+LRT）</strong>：比较两个模型哪个更符合数据。似然（likelihood）衡量“在这个模型下，看到这批数据的可能性有多大”。加了交互的模型似然明显更高，差异的检验统计量
+χ² = 22.4，自由度 3（多了 4 − 1 = 3 个参数），p &lt; 0.001。模型里 app ×
+block 的 F 检验 p =
+0.002，结论一致。做似然比检验时，两个模型要用<strong>ML（最大似然）</strong>而不是默认的
+REML 重新拟合，因为比较的是固定效应不同的模型，R 会自动处理。</p>
+<p><strong>为什么要加交互项，重点不在 p 值</strong>：原模型假设 app
+的差别在每部手机上一样；我们按审稿意见检查了这个假设，看到差别很大，Jenny
+的手机上甚至方向相反，所以模型必须允许它随手机变化。检验只是确认看到的差别不是随机波动。这就是
+rubric 里说的“model adjusted if necessary”：<strong>按计划建模 →
+检查假设 → 发现不成立 → 调整模型 → 解释原因</strong>。</p>
+<p><strong>加了交互后，app
+的主效应怎么理解</strong>：它表示四部手机平均起来 Strava 比 Keep 多记约
+1.5 个百分点（p =
+0.015）。但因为方向在不同手机上不一样，我们更看重逐个区组的结果，不说“Strava
+总是更长”。</p>
+<p>最终模型里，圈与圈之间的标准差约 1.45 个百分点，残差标准差约 2.20
+个百分点。</p>
+<hr />
+<h2 id="zh-模型诊断模型的假设成立吗">9. 模型诊断：模型的假设成立吗</h2>
+<p>线性模型有几个假设：误差平均为
+0、方差相同（各组波动差不多）、近似正态分布、彼此独立。<strong>残差（residual）</strong>=
+实际值 −
+模型预测值，用残差来检查这些假设（<code>figures/03_diagnostics.png</code>）：</p>
+<ol type="1">
+<li><strong>残差 vs
+拟合值</strong>：看有没有弯曲趋势（说明模型漏了什么），或者漏斗形状（说明方差随预测值变化）。结果：点随机散布，没有问题。</li>
+<li><strong>正态 Q–Q
+图</strong>：把残差的分位数和正态分布的分位数对比，点贴着直线就说明接近正态。结果：基本在线上（Shapiro–Wilk
+正态性检验 p = 0.67，不拒绝正态）。图有一点阶梯状，是因为读数只有 10 m
+一档。</li>
+<li><strong>残差 vs
+圈序</strong>：看随着跑的圈数增加有没有趋势，比如疲劳或电量。结果：没有趋势（相关系数
+−0.05，p = 0.71）。这也说明随机化起了作用。</li>
+</ol>
+<p>另外检查了四个人的残差波动是否相同（Bartlett 检验 p =
+0.96），方差齐。</p>
+<figure>
+<img src="../figures/03_diagnostics.png" style="width:100.0%"
+alt="模型诊断：残差 vs 拟合值、正态 Q–Q 图、残差 vs 圈序。" />
+<figcaption aria-hidden="true">模型诊断：残差 vs 拟合值、正态 Q–Q
+图、残差 vs 圈序。</figcaption>
+</figure>
+<p>最大的一个残差是 Jenny 第 1 圈的 Keep（+10%，残差
++4.5），只有一个，不影响结论。</p>
+<p><strong>为什么不做变换（比如
+Box-Cox）</strong>：变换是用来修正方差不齐或者残差不正态的。诊断显示这两点都没问题，所以没必要变换；而且带符号误差有负数，Box-Cox
+要求数据全部为正，没法直接用。不变换还能保留“多记几个百分点”这种直观解释。</p>
+<hr />
+<h2 id="zh-估计效应和敏感性分析">10. 估计效应和敏感性分析</h2>
+<h3 id="zh-估计边际均值">10.1 估计边际均值</h3>
+<p><strong>估计边际均值（estimated marginal means,
+emmeans）</strong>：按模型算出某个水平的平均误差，同时对其他因素取平均。比如“手持”的估计均值，是把
+lane、pace、app、区组都平均掉之后手持的平均误差。和直接求原始数据的平均相比，它基于模型，能给出正确的置信区间。</p>
+<p><strong>95% 置信区间（confidence interval,
+CI）</strong>：真实值很可能落在的范围。如果反复做同样的实验，按同样方法算出的区间，95%
+会覆盖真实值。区间不包含 0，就说明这个效应在 5%
+水平上显著。区间越窄，估计越精确。</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>估计平均误差</th>
+<th>95% CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>总平均</strong></td>
+<td><strong>+1.90%</strong></td>
+<td>1.12% 到 2.68%</td>
+</tr>
+<tr class="even">
+<td>Keep</td>
+<td>+1.17%</td>
+<td>0.23% 到 2.11%</td>
+</tr>
+<tr class="odd">
+<td>Strava</td>
+<td>+2.63%</td>
+<td>1.69% 到 3.57%</td>
+</tr>
+<tr class="even">
+<td>第 1 道 / 第 8 道</td>
+<td>1.64% / 2.16%</td>
+<td>p = 0.50</td>
+</tr>
+<tr class="odd">
+<td>手持 / 口袋</td>
+<td>1.21% / 2.59%</td>
+<td>p = 0.08</td>
+</tr>
+<tr class="even">
+<td>走 / 跑</td>
+<td>1.88% / 1.92%</td>
+<td>p = 0.95</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="../figures/04_main_effects.png" style="width:100.0%"
+alt="各因素水平的估计平均误差和 95% 置信区间。" />
+<figcaption aria-hidden="true">各因素水平的估计平均误差和 95%
+置信区间。</figcaption>
+</figure>
+<ul>
+<li><strong>Aim 1 的答案</strong>：总平均 +1.90%，区间不含 0，app
+系统性地多记，大约每 400 m 一圈多 8 m。一个可能的原因是 GPS
+定位点有随机抖动，连起来的折线会比真实路径更“曲折”，所以偏长。</li>
+<li><strong>Aim 2 的答案</strong>：区组和 app × 区组的影响最大（p ≤
+0.002）。lane 和 pace 在我们的样本量下没有检测到影响；placement
+是弱证据（口袋比手持多记约 1.4 个百分点，p = 0.08，置信区间包含
+0），不能下结论。</li>
+<li>所有 11 个处理因素之间的交互项 p 都大于
+0.12，也没有检测到。交互图（<code>figures/05_interactions.png</code>）里有两对线是交叉的（lane
+× pace、placement × pace），但检验不显著，交叉很可能只是噪音。</li>
+</ul>
+<figure>
+<img src="../figures/05_interactions.png" style="width:100.0%"
+alt="四个重点两因素交互。线平行表示没有交互。" />
+<figcaption
+aria-hidden="true">四个重点两因素交互。线平行表示没有交互。</figcaption>
+</figure>
+<p><strong>功效（power）</strong>的概念：样本量小时，即使真实效应存在，检验检测到它的概率也低。我们每种
+app × 组合只有 4 个读数，再加上 10 m
+的精度限制，功效有限。所以“没检测到”要谨慎解读。</p>
+<h3 id="zh-敏感性分析真实距离不准会怎样">10.2
+敏感性分析：真实距离不准会怎样</h3>
+<p>把真实距离分别减 1 m 和加 1 m，重新算误差、重新拟合模型：</p>
+<table>
+<thead>
+<tr class="header">
+<th>真实距离</th>
+<th>总平均误差</th>
+<th>app × block p</th>
+<th>app p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>−1 m</td>
+<td>2.14%</td>
+<td>0.0018</td>
+<td>0.0147</td>
+</tr>
+<tr class="even">
+<td>原值</td>
+<td>1.90%</td>
+<td>0.0018</td>
+<td>0.0147</td>
+</tr>
+<tr class="odd">
+<td>+1 m</td>
+<td>1.66%</td>
+<td>0.0018</td>
+<td>0.0147</td>
+</tr>
+</tbody>
+</table>
+<p>总平均只移动约 ±0.24 个百分点，所有 p
+值都不变。原因是：平移真实距离几乎等于给所有误差减去同一个常数，而检验比较的是差异，常数会抵消，只有总平均会变。所以“实际走的线和丈量线不完全一样”不影响结论。</p>
+<p><strong>敏感性分析</strong>的一般含义：改变一个不确定的假设，看结论是否稳定。结论不变，说明它不依赖这个假设。</p>
+<hr />
+<h2 id="zh-准确度分析aim-3">11. 准确度分析（Aim 3）</h2>
+<h3 id="zh-mape-和-bootstrap-置信区间">11.1 MAPE 和 bootstrap
+置信区间</h3>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>MAPE</th>
+<th>95% bootstrap CI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Keep</td>
+<td>2.71%</td>
+<td>1.97% 到 3.53%</td>
+</tr>
+<tr class="even">
+<td>Strava</td>
+<td>3.58%</td>
+<td>2.95% 到 4.22%</td>
+</tr>
+<tr class="odd">
+<td>Strava − Keep</td>
+<td>0.87 个百分点</td>
+<td><strong>−0.11 到 1.76</strong></td>
+</tr>
+</tbody>
+</table>
+<p>MAPE 只是一个平均数，没有现成的置信区间公式，所以用
+<strong>bootstrap（自助法）</strong>估计它的波动：</p>
+<ol type="1">
+<li>在<strong>每个人内部</strong>，从他的 8
+圈里<strong>有放回</strong>地随机抽 8
+圈（有的圈会被抽到两次，有的一次都没有）。</li>
+<li>每抽到一圈，就把这一圈的 Strava 和 Keep
+<strong>两个读数一起</strong>拿进来，保留配对。</li>
+<li>用这个新样本算一次两个 app 的 MAPE。</li>
+<li>重复 5000 次，取 5000 个结果中间 95% 的范围作为置信区间。</li>
+</ol>
+<p>在每个人内部抽，是为了保持“4 个区组 × 8
+圈”的设计结构；整圈一起抽，是为了保留配对。bootstrap
+的思路是：把手上的样本当成总体的缩影，反复从中重抽，看统计量会怎么波动。</p>
+<p><strong>结论</strong>：Keep 的 MAPE 更小，但差值的置信区间包含
+0，<strong>统计上分不出哪个更准</strong>。我们说的是“Keep 观察到的 MAPE
+更低，但差异不显著”，不说“Keep 更准”。</p>
+<p>MAPE 也因手机而异：Strava 在 Phoebe 和 Boyi 的手机上 MAPE 约 5.5% 和
+6.1%，在 Jenny 和 Darren 的手机上只有 1.0% 和 1.8%。又一次说明手机比 app
+更重要。</p>
+<h3 id="zh-对数绝对误差模型">11.2 对数绝对误差模型</h3>
+<p>想同时比较各因素和 16 种组合的准确度，需要一个模型。但 |e|
+不能直接放进线性模型：它都 ≥ 0，分布偏向一边，还有很多 0。所以对
+<strong>log(|e| + 0.5)</strong> 建模：</p>
+<ul>
+<li>取对数让分布更对称。</li>
+<li>加 0.5 是因为 log(0) 是负无穷。换成 0.25 或 1，app 的 p 值是
+0.16、0.14、0.12，结论不变。</li>
+<li>用和最终模型一样的结构（包括 app × block）。</li>
+<li>结果再<strong>反变换</strong>回百分比：exp(估计值) −
+0.5。在对数尺度上平均再反变换，得到的是接近<strong>中位数</strong>的“典型”绝对误差，所以比
+MAPE 小：Keep 1.83%（1.32–2.47），Strava 2.44%（1.80–3.26）。</li>
+</ul>
+<p>结果：</p>
+<ul>
+<li>app 不显著（p = 0.14），和 bootstrap 一致。</li>
+<li>app × block 显著（p = 0.03），准确度也因手机而异。</li>
+<li>app × lane × pace 三因素交互很显著（p &lt; 0.001），比如 Keep 在第 1
+道跑步时特别准。但一共检验了 17 项，每格只有 4
+个读数，三因素交互也难以解释。检验的项越多，碰巧出现一个“显著”结果的机会就越大，这叫<strong>多重比较问题（multiple
+comparisons）</strong>。所以这个结果只作为<strong>探索性发现</strong>，留给以后的实验验证，不当结论。</li>
+</ul>
+<h3 id="zh-为什么不宣布最佳组合">11.3 为什么不宣布“最佳组合”</h3>
+<p>16 种组合（2 个 app × 8 种跑法）的典型绝对误差和置信区间画在
+<code>figures/06_typical_abs_error_by_treatment.png</code>。区间大量重叠。每种组合每个
+app 只有 4 个读数，凭点估计挑出最小的那个，很可能只是运气。审稿人第 5
+条意见明确要求不要这样做。所以我们的结论是：<strong>没有统计上可区分的唯一最佳组合</strong>。</p>
+<figure>
+<img src="../figures/06_typical_abs_error_by_treatment.png"
+style="width:100.0%"
+alt="16 种组合的典型绝对误差（log 模型反变换）和 95% 置信区间。" />
+<figcaption aria-hidden="true">16 种组合的典型绝对误差（log
+模型反变换）和 95% 置信区间。</figcaption>
+</figure>
+<hr />
+<h2 id="zh-结论">12. 结论</h2>
+<ol type="1">
+<li><strong>偏差</strong>：app 平均多记约 1.9%（95% CI
+1.1%–2.7%），大约每 400 m 多 8 m。</li>
+<li><strong>手机比 app 重要</strong>：哪个 app
+记得更长取决于手机，三部手机上 Strava 更长，一部上 Keep 更长。</li>
+<li><strong>跑道、手机位置、速度</strong>：在我们的样本量下没有检测到明显影响；手机放口袋可能多记一点，但证据弱。</li>
+<li><strong>准确度</strong>：Keep 的 MAPE 更低（2.7% 对
+3.6%），但差异不显著；没有唯一的最佳组合。</li>
+</ol>
+<p><strong>对普通用户的意义</strong>：跑一圈 400 m，app 显示 0.41 km
+是正常的。换 app 不一定更准，换手机的影响可能更大。</p>
+<hr />
+<h2 id="zh-局限和改进方向">13. 局限和改进方向</h2>
+<ul>
+<li><strong>10 m
+显示精度</strong>：舍入误差（±1.1%–1.25%）和很多效应差不多大，小效应检测不出来。改进：导出
+GPS 轨迹文件，用原始坐标算更精确的距离。</li>
+<li><strong>只有 4
+部手机、一条跑道</strong>：结论不能直接推广到所有手机和所有场地。改进：更多手机型号。</li>
+<li><strong>手机位置和速度没有标准化</strong>：placement 和 pace
+效应是四个人习惯的平均，同一个人每圈之间的不一致也会增加噪音；还有一个人缺少每圈用时记录。改进：规定用哪只手、屏幕朝向、哪个口袋，并设定目标速度（例如走
+4.5–5.5 km/h，慢跑 8–10 km/h），每圈计时。</li>
+<li><strong>天气和日期与区组混杂</strong>：Jenny
+的三圈雨天都是走路。改进：每个人在同一天、相近条件下完成。</li>
+<li><strong>每种组合重复次数少</strong>：每格 4
+个读数，组合层面的比较功效低。</li>
+</ul>
+<hr />
+<h2 id="zh-每页-slide-讲什么">14. 每页 slide 讲什么</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Slide</th>
+<th>核心信息</th>
+<th>关键数字</th>
+<th>对应本文</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1 Formulation</td>
+<td>三个目标；4 个因素及理由；按人分区组；带符号百分比误差</td>
+<td>400.00 / 453.03 m</td>
+<td>第 1、2.1、2.2、3 节</td>
+</tr>
+<tr class="even">
+<td>2 Design (1)</td>
+<td>2⁴ 析因 + 4 个完全区组；两个 app 同时测 → 配对；裂区结构</td>
+<td>4 / 32 / 64；df 21 和 24</td>
+<td>第 2.1–2.5 节</td>
+</tr>
+<tr class="odd">
+<td>3 Design (2)</td>
+<td>区组、随机化、数据采集、已知限制</td>
+<td>set.seed(404)；±5 m</td>
+<td>第 2.2、2.4、3.4、5 节</td>
+</tr>
+<tr class="even">
+<td>4 Analysis</td>
+<td>计划模型 → 检查 app 效应是否随手机变化 → 加 app × block → 诊断</td>
+<td>+3.0 / +4.0 / −2.6 / +1.5；χ² = 22.4, p &lt; 0.001</td>
+<td>第 8、9、10.2 节</td>
+</tr>
+<tr class="odd">
+<td>5 Conclusions</td>
+<td>三个 Aim 的答案；局限和改进</td>
+<td>+1.9%；MAPE 2.7% vs 3.6%</td>
+<td>第 10–13 节</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="zh-关键数字速查">15. 关键数字速查</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>内容</th>
+<th>数字</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>总平均误差</td>
+<td>+1.90%（95% CI 1.12–2.68）</td>
+</tr>
+<tr class="even">
+<td>Keep / Strava 平均误差</td>
+<td>+1.17% / +2.63%</td>
+</tr>
+<tr class="odd">
+<td>Strava − Keep（Phoebe / Boyi / Jenny / Darren）</td>
+<td>+3.02 / +4.01 / −2.63 / +1.45 个百分点</td>
+</tr>
+<tr class="even">
+<td>app × block</td>
+<td>LRT χ² = 22.4, df = 3, p &lt; 0.001；F 检验 p = 0.002</td>
+</tr>
+<tr class="odd">
+<td>区组</td>
+<td>p &lt; 0.001</td>
+</tr>
+<tr class="even">
+<td>lane / placement / pace</td>
+<td>p = 0.50 / 0.08 / 0.95</td>
+</tr>
+<tr class="odd">
+<td>圈间 SD / 残差 SD</td>
+<td>1.45 / 2.20 个百分点</td>
+</tr>
+<tr class="even">
+<td>诊断</td>
+<td>Shapiro p = 0.67；圈序相关 −0.05（p = 0.71）；Bartlett p = 0.96</td>
+</tr>
+<tr class="odd">
+<td>敏感性 ±1 m</td>
+<td>总平均 1.66%–2.14%，p 值不变</td>
+</tr>
+<tr class="even">
+<td>MAPE Keep / Strava</td>
+<td>2.71% / 3.58%</td>
+</tr>
+<tr class="odd">
+<td>MAPE 差值 95% CI</td>
+<td>−0.11 到 1.76</td>
+</tr>
+<tr class="even">
+<td>去掉随机效应后 placement p</td>
+<td>0.081 → 0.042（伪重复的后果）</td>
+</tr>
+<tr class="odd">
+<td>显示精度</td>
+<td>10 m，±5 m 舍入（±1.1%–1.25%）</td>
+</tr>
+</tbody>
+</table></article>
+  </main>
+</div>
+<script>
+(function () {
+  var titles = { en: "How Accurate Is Your Running App? Design, Analysis and Results of a GPS Distance Experiment", zh: "跑步 app 测距有多准？GPS 距离误差实验的设计、分析与结论" };
+  function setLang(lang, save) {
+    if (lang !== "zh") lang = "en";
+    document.documentElement.setAttribute("data-current", lang);
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    document.title = titles[lang];
+    var buttons = document.querySelectorAll("[data-set-lang]");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute("aria-pressed", buttons[i].getAttribute("data-set-lang") === lang);
+    }
+    if (save) { try { localStorage.setItem("lang", lang); } catch (e) {} }
+  }
+  var fromUrl = new URLSearchParams(location.search).get("lang");
+  var saved = null;
+  try { saved = localStorage.getItem("lang"); } catch (e) {}
+  var browser = (navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
+  setLang(fromUrl || saved || browser, false);
+  document.addEventListener("click", function (ev) {
+    var b = ev.target.closest("[data-set-lang]");
+    if (!b) return;
+    var lang = b.getAttribute("data-set-lang");
+    setLang(lang, true);
+    var url = new URL(location.href);
+    url.searchParams.set("lang", lang);
+    url.hash = "";
+    history.replaceState(null, "", url);
+    window.scrollTo(0, 0);
+  });
+})();
+</script>
+</body>
+</html>
