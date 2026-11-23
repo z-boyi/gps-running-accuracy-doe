@@ -56,6 +56,12 @@ $$e = 100 \times \frac{d_{\text{recorded}} - d_{\text{true}}}{d_{\text{true}}}, 
 - Lane, placement and pace had **no clear effect** at this sample size.
 - Keep had the lower MAPE (2.7% vs 3.6%), but the difference is not statistically clear; no single best combination is declared.
 
+## Limitations
+
+- The apps show distance in 0.01 km steps, so each reading has up to ±5 m (about ±1.2%) of rounding error, similar in size to several of the effects.
+- Four phones on one track, mostly one day per member: day and weather cannot be separated from the block.
+- Phone position and pace were left to each member's habit, so those effects are averages over personal styles.
+
 Full results: [`report/results_summary.md`](report/results_summary.md).
 
 ## Repository structure
@@ -68,6 +74,7 @@ Full results: [`report/results_summary.md`](report/results_summary.md).
 │   ├── 02_analysis.R        # signed error: mixed model, block check, diagnostics, effects
 │   └── 03_absolute_error.R  # accuracy: MAPE, bootstrap, log(|e|) model
 ├── data/
+│   ├── README.md            # what each data file contains
 │   ├── gps_track_data_log.csv     # collected lap data (32 laps, both apps)
 │   ├── randomization_schedule.csv
 │   ├── data_collection_template.csv
@@ -107,7 +114,7 @@ source("code/02_analysis.R")        # signed-error analysis
 source("code/03_absolute_error.R")  # accuracy (MAPE) analysis
 ```
 
-Requires R ≥ 4.2 with `lme4`, `lmerTest`, `emmeans`, `pbkrtest`, `ggplot2`.
+Requires R ≥ 4.2. `00_clean_data.R` installs any missing packages (`lme4`, `lmerTest`, `emmeans`, `pbkrtest`, `ggplot2`).
 
 ## Team
 
