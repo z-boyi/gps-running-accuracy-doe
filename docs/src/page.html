@@ -6,6 +6,7 @@
 <title>{{TITLE_EN}}</title>
 <style>
 {{CSS}}
+{{CODE_CSS}}
 </style>
 </head>
 <body>
@@ -13,6 +14,9 @@
   <span class="brand" data-lang="en">GPS running accuracy · DOE</span>
   <span class="brand" data-lang="zh">GPS 跑步测距 · 实验设计</span>
   <span class="spacer"></span>
+  <button type="button" class="code-toggle" data-code-toggle>
+    <span data-lang="en">Expand all code</span><span data-lang="zh">展开全部代码</span>
+  </button>
   <a class="repo" href="https://github.com/z-boyi/gps-running-accuracy-doe">GitHub</a>
   <div class="switch" role="group" aria-label="Language">
     <button type="button" data-set-lang="en">English</button>
@@ -49,6 +53,16 @@
   var browser = (navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
   setLang(fromUrl || saved || browser, false);
   document.addEventListener("click", function (ev) {
+    var t = ev.target.closest("[data-code-toggle]");
+    if (t) {
+      var open = t.getAttribute("aria-pressed") !== "true";
+      t.setAttribute("aria-pressed", open);
+      t.querySelector('[data-lang="en"]').textContent = open ? "Collapse all code" : "Expand all code";
+      t.querySelector('[data-lang="zh"]').textContent = open ? "收起全部代码" : "展开全部代码";
+      var blocks = document.querySelectorAll("details.rcode");
+      for (var i = 0; i < blocks.length; i++) blocks[i].open = open;
+      return;
+    }
     var b = ev.target.closest("[data-set-lang]");
     if (!b) return;
     var lang = b.getAttribute("data-set-lang");

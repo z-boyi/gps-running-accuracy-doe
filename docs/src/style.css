@@ -36,7 +36,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 2.4em 0 0; }
 p, li { margin: .5em 0; }
 a { color: var(--green); }
 strong { color: #10181c; }
-code { font-family: Menlo, Consolas, "Courier New", monospace; font-size: .88em; background: var(--tint); padding: .1em .35em; border-radius: 4px; }
+code { overflow-wrap: anywhere; font-family: Menlo, Consolas, "Courier New", monospace; font-size: .88em; background: var(--tint); padding: .1em .35em; border-radius: 4px; }
 pre { background: var(--tint); padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
 pre code { background: none; padding: 0; }
 table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .9rem; display: block; overflow-x: auto; }
@@ -54,3 +54,12 @@ math[display="block"] { margin: 1em 0; font-size: 1.1em; }
   main { padding: 24px 20px 60px; }
   .brand { display: none; }
 }
+
+/* Collapsible R code next to each explanation */
+details.rcode { margin: 1.2em 0; border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 6px; background: var(--tint); }
+details.rcode > summary { cursor: pointer; padding: 8px 14px; font-size: .9rem; font-weight: 600; color: var(--green); }
+details.rcode > summary code { background: #fff; }
+details.rcode[open] > summary { border-bottom: 1px solid var(--line); }
+details.rcode div.sourceCode, details.rcode pre { margin: 0; border-radius: 0; background: #fff; font-size: .85rem; line-height: 1.5; }
+.rcode-link { margin: 0; padding: 6px 14px; font-size: .82rem; text-align: right; }
+.code-toggle { font: inherit; font-size: .82rem; padding: 3px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--muted); cursor: pointer; }
