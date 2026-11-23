@@ -1,6 +1,5 @@
 # How Accurate Is Your Running App? A Designed Experiment on GPS Distance Error
 
-![Status](https://img.shields.io/badge/status-in%20progress-yellow)
 ![Language](https://img.shields.io/badge/language-R-276DC3)
 ![Course](https://img.shields.io/badge/STAT%20404-Design%20of%20Experiments-blue)
 
@@ -107,27 +106,6 @@ source("code/03_absolute_error.R")  # accuracy (MAPE) analysis
 
 Requires R ≥ 4.2 with `lme4`, `lmerTest`, `emmeans`, `pbkrtest`, `ggplot2`.
 
-## Status
-
-🚧 **In progress.** Data collection and analysis complete; class presentation to follow.
-
-- [x] Proposal and randomized design
-- [x] Data collection (32 laps)
-- [x] Proposal review: comments addressed in proposal v2
-- [x] Mixed-model analysis and diagnostics
-- [ ] Class presentation slides
-
 ## Team
 
-Group project for **STAT 404 (Design and Analysis of Experiments)**.
-
-| Member | Contributions so far |
-|---|---|
-| Phoebe Yu | Proposed the research idea; co-led drafting of the proposal |
-| **Boyi Zhang** | Co-led drafting of the proposal; maintains this repository |
-| Jenny Zhang | Contributed to the proposal draft |
-| Darren Axellian Hartono | Contributed to the proposal draft |
-
-All four members reviewed the final proposal for completeness and accuracy. Contributions will be updated as data collection and analysis progress.
-
-This repository is maintained by Boyi Zhang and shared with the agreement of all group members.
+Group project for **STAT 404 (Design and Analysis of Experiments)** by Phoebe Yu, Boyi Zhang, Jenny Zhang and Darren Axellian Hartono. Each member ran their own block of 8 laps. This repository is maintained by Boyi Zhang and shared with the agreement of all group members.
