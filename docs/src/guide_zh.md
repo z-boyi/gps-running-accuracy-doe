@@ -88,6 +88,8 @@
 | 7 | 8 | hand | jog |
 | 8 | 8 | pocket | walk |
 
+<!-- r: code/01_randomization.R all -->
+
 
 ### 2.5 重复（replication）
 
@@ -186,6 +188,8 @@ proposal 交上去后收到 7 条意见。数据是在收到意见之前采集�
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Keep | 453.03 | 470 | 3.746 |
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Strava | 453.03 | 490 | 8.161 |
 
+<!-- r: code/00_clean_data.R 1-4 -->
+
 
 ---
 
@@ -199,6 +203,8 @@ proposal 交上去后收到 7 条意见。数据是在收到意见之前采集�
 先画图再建模，是为了知道数据大概长什么样、有没有异常值，也为后面检查模型假设提供线索。这里看到的“不同人身上 app 差别方向不同”，后面会成为最重要的发现。
 
 ![全部 64 个读数的误差，按人和 app 分开。虚线是 0 误差。](../figures/01_raw_error_by_block.png){width=100%}
+
+<!-- r: code/02_analysis.R 2 -->
 
 
 ---
@@ -237,9 +243,13 @@ lmer(e ~ block + app * lane * placement * pace + (1 | lap_id))
 
 在我们的数据里，单独检验这个随机效应 p = 0.15，说明圈与圈的差别不算大。但它仍然要保留，因为它是**由设计决定的**（裂区结构），在看数据之前就该这样建模。不能因为它不显著就删掉，否则就是看着数据挑模型。
 
+<!-- r: code/02_analysis.R 3 -->
+
 ### 8.3 效应编码
 
 模型里用了**效应编码（sum-to-zero contrasts）**：每个效应表示“这个水平比总平均高或低多少”，两个水平的效应加起来是 0。这和课上 2^k 设计里用 +1/−1 定义效应的方式一致。有交互项时，用这种编码得到的检验（Type III ANOVA）才有清楚的含义。
+
+<!-- r: code/02_analysis.R 1 -->
 
 ### 8.4 F 检验和 p 值
 
@@ -288,6 +298,8 @@ lmer(e ~ block * app + app * lane * placement * pace + (1 | lap_id))
 
 最终模型里，圈与圈之间的标准差约 1.45 个百分点，残差标准差约 2.20 个百分点。
 
+<!-- r: code/02_analysis.R 4 -->
+
 ---
 
 ## 9. 模型诊断：模型的假设成立吗
@@ -306,6 +318,8 @@ lmer(e ~ block * app + app * lane * placement * pace + (1 | lap_id))
 最大的一个残差是 Jenny 第 1 圈的 Keep（+10%，残差 +4.5），只有一个，不影响结论。
 
 **为什么不做变换（比如 Box-Cox）**：变换是用来修正方差不齐或者残差不正态的。诊断显示这两点都没问题，所以没必要变换；而且带符号误差有负数，Box-Cox 要求数据全部为正，没法直接用。不变换还能保留“多记几个百分点”这种直观解释。
+
+<!-- r: code/02_analysis.R 5 -->
 
 ---
 
@@ -338,6 +352,8 @@ lmer(e ~ block * app + app * lane * placement * pace + (1 | lap_id))
 
 **功效（power）**的概念：样本量小时，即使真实效应存在，检验检测到它的概率也低。我们每种 app × 组合只有 4 个读数，再加上 10 m 的精度限制，功效有限。所以“没检测到”要谨慎解读。
 
+<!-- r: code/02_analysis.R 6 -->
+
 ### 10.2 敏感性分析：真实距离不准会怎样
 
 把真实距离分别减 1 m 和加 1 m，重新算误差、重新拟合模型：
@@ -351,6 +367,8 @@ lmer(e ~ block * app + app * lane * placement * pace + (1 | lap_id))
 总平均只移动约 ±0.24 个百分点，所有 p 值都不变。原因是：平移真实距离几乎等于给所有误差减去同一个常数，而检验比较的是差异，常数会抵消，只有总平均会变。所以“实际走的线和丈量线不完全一样”不影响结论。
 
 **敏感性分析**的一般含义：改变一个不确定的假设，看结论是否稳定。结论不变，说明它不依赖这个假设。
+
+<!-- r: code/02_analysis.R 7 -->
 
 ---
 
@@ -377,6 +395,8 @@ MAPE 只是一个平均数，没有现成的置信区间公式，所以用 **boo
 
 MAPE 也因手机而异：Strava 在 Phoebe 和 Boyi 的手机上 MAPE 约 5.5% 和 6.1%，在 Jenny 和 Darren 的手机上只有 1.0% 和 1.8%。又一次说明手机比 app 更重要。
 
+<!-- r: code/03_absolute_error.R 1 -->
+
 ### 11.2 对数绝对误差模型
 
 想同时比较各因素和 16 种组合的准确度，需要一个模型。但 |e| 不能直接放进线性模型：它都 ≥ 0，分布偏向一边，还有很多 0。所以对 **log(|e| + 0.5)** 建模：
@@ -392,11 +412,15 @@ MAPE 也因手机而异：Strava 在 Phoebe 和 Boyi 的手机上 MAPE 约 5.5% 
 - app × block 显著（p = 0.03），准确度也因手机而异。
 - app × lane × pace 三因素交互很显著（p < 0.001），比如 Keep 在第 1 道跑步时特别准。但一共检验了 17 项，每格只有 4 个读数，三因素交互也难以解释。检验的项越多，碰巧出现一个“显著”结果的机会就越大，这叫**多重比较问题（multiple comparisons）**。所以这个结果只作为**探索性发现**，留给以后的实验验证，不当结论。
 
+<!-- r: code/03_absolute_error.R 2 -->
+
 ### 11.3 为什么不宣布“最佳组合”
 
 16 种组合（2 个 app × 8 种跑法）的典型绝对误差和置信区间画在 `figures/06_typical_abs_error_by_treatment.png`。区间大量重叠。每种组合每个 app 只有 4 个读数，凭点估计挑出最小的那个，很可能只是运气。审稿人第 5 条意见明确要求不要这样做。所以我们的结论是：**没有统计上可区分的唯一最佳组合**。
 
 ![16 种组合的典型绝对误差（log 模型反变换）和 95% 置信区间。](../figures/06_typical_abs_error_by_treatment.png){width=100%}
+
+<!-- r: code/03_absolute_error.R 3 -->
 
 
 ---
@@ -451,3 +475,22 @@ MAPE 也因手机而异：Strava 在 Phoebe 和 Boyi 的手机上 MAPE 约 5.5% 
 | MAPE 差值 95% CI | −0.11 到 1.76 |
 | 去掉随机效应后 placement p | 0.081 → 0.042（伪重复的后果） |
 | 显示精度 | 10 m，±5 m 舍入（±1.1%–1.25%） |
+
+---
+
+## 16. 自己运行代码
+
+本页所有结果都来自 [`code/`](https://github.com/z-boyi/gps-running-accuracy-doe/tree/main/code) 文件夹里的四个 R 脚本。想重现结果：下载或 clone 这个 repo，在 R 或 RStudio 里把 repo 文件夹设为工作目录，然后运行：
+
+```r
+source("code/01_randomization.R")   # 随机顺序（seed 404）
+source("code/00_clean_data.R")      # 原始记录 -> data/processed/gps_runs.csv
+source("code/02_analysis.R")        # 带符号误差：混合模型、诊断、效应
+source("code/03_absolute_error.R")  # 准确度：MAPE、bootstrap、log|e| 模型
+```
+
+整理数据的脚本会先自动安装缺少的 R 包（`lme4`、`lmerTest`、`emmeans`、`pbkrtest`、`ggplot2`）：
+
+<!-- r: code/00_clean_data.R 0 -->
+
+结果表格写到 `results/`，图写到 `figures/`。bootstrap 用了固定的随机种子，所以每个数字都和本页一致。

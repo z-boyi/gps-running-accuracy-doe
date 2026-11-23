@@ -88,6 +88,8 @@ All four members followed their random order **exactly**.
 | 7 | 8 | hand | jog |
 | 8 | 8 | pocket | walk |
 
+<!-- r: code/01_randomization.R all -->
+
 
 ### 2.5 Replication
 
@@ -186,6 +188,8 @@ Writing the preparation as a script means anyone can re-run it and get exactly t
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Keep | 453.03 | 470 | 3.746 |
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Strava | 453.03 | 490 | 8.161 |
 
+<!-- r: code/00_clean_data.R 1-4 -->
+
 
 ---
 
@@ -199,6 +203,8 @@ Plotting all 64 readings by member and app (`figures/01_raw_error_by_block.png`)
 Plotting before modelling shows what the data look like, reveals any outliers, and gives clues for checking model assumptions later. The pattern seen here, the app difference changing direction between members, turns out to be the key finding.
 
 ![Error of all 64 readings by member and app. The dashed line is zero error.](../figures/01_raw_error_by_block.png){width=100%}
+
+<!-- r: code/02_analysis.R 2 -->
 
 
 ---
@@ -237,9 +243,13 @@ Without this term, an ordinary linear regression (`lm`) would treat the 64 readi
 
 In our data a test of the lap random effect alone gives p = 0.15, so lap-to-lap differences are modest. It is kept anyway because it is **dictated by the design** (the split-plot structure) and was decided before looking at the data. Dropping it because it is not significant would mean choosing the model by looking at the data.
 
+<!-- r: code/02_analysis.R 3 -->
+
 ### 8.3 Effect coding
 
 The model uses **effect coding (sum-to-zero contrasts)**: each effect is how far a level sits above or below the overall mean, and the two levels' effects add to zero. This matches the +1/−1 definition of effects for 2^k designs in class. With interactions in the model, this coding gives the tests (Type III ANOVA) a clear meaning.
+
+<!-- r: code/02_analysis.R 1 -->
 
 ### 8.4 F-tests and p-values
 
@@ -288,6 +298,8 @@ lmer(e ~ block * app + app * lane * placement * pace + (1 | lap_id))
 
 In the final model the lap-to-lap SD is about 1.45 percentage points and the residual SD about 2.20.
 
+<!-- r: code/02_analysis.R 4 -->
+
 ---
 
 ## 9. Model checking: do the assumptions hold?
@@ -306,6 +318,8 @@ We also checked whether the residual spread is the same for all four members (Ba
 The largest residual is Jenny's lap 1 Keep reading (+10%, residual +4.5). It is a single point and does not change the conclusions.
 
 **Why no transformation (such as Box-Cox)**: transformations fix unequal variance or non-normal residuals. The diagnostics show neither problem, so there is no reason to transform. Box-Cox also needs all values positive, and the signed error has negative values. Leaving e untransformed keeps the intuitive "over-records by so many percentage points" interpretation.
+
+<!-- r: code/02_analysis.R 5 -->
 
 ---
 
@@ -338,6 +352,8 @@ The largest residual is Jenny's lap 1 Keep reading (+10%, residual +4.5). It is 
 
 **Power**: with a small sample, a test has a low chance of detecting a real effect. We have only 4 readings per app × setting, plus the 10 m resolution, so power is limited and "not detected" must be read with care.
 
+<!-- r: code/02_analysis.R 6 -->
+
 ### 10.2 Sensitivity analysis: what if the true distance is off?
 
 Shift the true distance by −1 m and +1 m, recompute the error and refit the model:
@@ -351,6 +367,8 @@ Shift the true distance by −1 m and +1 m, recompute the error and refit the mo
 The overall mean moves by only about ±0.24 percentage points and every p-value is unchanged. Shifting the true distance is almost the same as subtracting one constant from every error; the tests compare differences, so the constant cancels and only the overall mean moves. So a small gap between the walked line and the measurement line does not affect the conclusions.
 
 **Sensitivity analysis** in general: change an uncertain assumption and see whether the conclusion holds. If it does, the conclusion does not depend on that assumption.
+
+<!-- r: code/02_analysis.R 7 -->
 
 ---
 
@@ -377,6 +395,8 @@ Resampling within members keeps the "4 blocks × 8 laps" structure; resampling w
 
 MAPE also depends on the phone: Strava's MAPE is about 5.5% and 6.1% on Phoebe's and Boyi's phones but only 1.0% and 1.8% on Jenny's and Darren's. Once again the phone matters more than the app.
 
+<!-- r: code/03_absolute_error.R 1 -->
+
 ### 11.2 Model for log absolute error
 
 To compare accuracy across factors and the 16 combinations at once, we need a model. But |e| cannot go straight into a linear model: it is always ≥ 0, skewed, and often exactly 0. So we model **log(|e| + 0.5)**:
@@ -392,11 +412,15 @@ Results:
 - App × block significant (p = 0.03): accuracy also depends on the phone.
 - The app × lane × pace three-factor interaction is highly significant (p < 0.001); for example, Keep was especially accurate when jogging in lane 1. But 17 terms were tested, each cell has only 4 readings, and a three-factor interaction is hard to interpret. The more tests you run, the more likely one comes out "significant" by chance; this is the **multiple comparisons** problem. So this result is treated as **exploratory**, a lead for a future experiment, not a conclusion.
 
+<!-- r: code/03_absolute_error.R 2 -->
+
 ### 11.3 Why we do not declare a "best combination"
 
 The typical absolute error and interval for all 16 combinations (2 apps × 8 settings) are plotted in `figures/06_typical_abs_error_by_treatment.png`. The intervals overlap heavily. With only 4 readings per app per setting, picking the smallest point estimate would very likely be picking luck. Reviewer comment 5 explicitly asked us not to do this. Our conclusion: **there is no statistically distinguishable single best combination**.
 
 ![Typical absolute error (back-transformed from the log model) with 95% confidence intervals for the 16 combinations.](../figures/06_typical_abs_error_by_treatment.png){width=100%}
+
+<!-- r: code/03_absolute_error.R 3 -->
 
 
 ---
@@ -451,3 +475,22 @@ The typical absolute error and interval for all 16 combinations (2 apps × 8 set
 | 95% CI for MAPE difference | −0.11 to 1.76 |
 | Placement p without the lap random effect | 0.081 → 0.042 (consequence of pseudo-replication) |
 | Display resolution | 10 m, ±5 m rounding (±1.1%–1.25%) |
+
+---
+
+## 16. Run the code yourself
+
+All results on this page come from four R scripts in the [`code/`](https://github.com/z-boyi/gps-running-accuracy-doe/tree/main/code) folder. To reproduce them, download or clone the repository, open R or RStudio with the repository folder as the working directory, and run:
+
+```r
+source("code/01_randomization.R")   # randomized run order (seed 404)
+source("code/00_clean_data.R")      # raw lap log -> data/processed/gps_runs.csv
+source("code/02_analysis.R")        # signed error: mixed model, checks, effects
+source("code/03_absolute_error.R")  # accuracy: MAPE, bootstrap, log|e| model
+```
+
+The first script to run installs any missing packages (`lme4`, `lmerTest`, `emmeans`, `pbkrtest`, `ggplot2`):
+
+<!-- r: code/00_clean_data.R 0 -->
+
+Tables are written to `results/` and plots to `figures/`. The bootstrap uses a fixed seed, so every number matches this page.
