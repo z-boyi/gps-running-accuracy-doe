@@ -84,8 +84,8 @@ ggsave("figures/01_raw_error_by_block.png", p_raw, width = 6, height = 4, dpi = 
 # Dropping (1 | lap_id) and using lm() would treat the 64 readings as
 # independent (pseudo-replication): in the final model (section 4) the
 # placement p-value would fall from 0.08 to 0.04, a false "significant"
-# result, while the app test would lose the benefit of pairing. The term is kept because the design requires
-# it, whether or not it is significant in this data set.
+# result, while the app test would lose the benefit of pairing. We keep the
+# term because the design requires it, whether or not it is significant here.
 fit_add <- lmer(error_pct ~ block + app * lane * placement * pace + (1 | lap_id),
                 data = dat)
 

@@ -1134,8 +1134,8 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb5-1"><a href="#en
 <span id="en-cb5-18"><a href="#en-cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Dropping (1 | lap_id) and using lm() would treat the 64 readings as</span></span>
 <span id="en-cb5-19"><a href="#en-cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># independent (pseudo-replication): in the final model (section 4) the</span></span>
 <span id="en-cb5-20"><a href="#en-cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># placement p-value would fall from 0.08 to 0.04, a false &quot;significant&quot;</span></span>
-<span id="en-cb5-21"><a href="#en-cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># result, while the app test would lose the benefit of pairing. The term is kept because the design requires</span></span>
-<span id="en-cb5-22"><a href="#en-cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># it, whether or not it is significant in this data set.</span></span>
+<span id="en-cb5-21"><a href="#en-cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># result, while the app test would lose the benefit of pairing. We keep the</span></span>
+<span id="en-cb5-22"><a href="#en-cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># term because the design requires it, whether or not it is significant here.</span></span>
 <span id="en-cb5-23"><a href="#en-cb5-23" aria-hidden="true" tabindex="-1"></a>fit_add <span class="ot">&lt;-</span> <span class="fu">lmer</span>(error_pct <span class="sc">~</span> block <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
 <span id="en-cb5-24"><a href="#en-cb5-24" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
 <span id="en-cb5-25"><a href="#en-cb5-25" aria-hidden="true" tabindex="-1"></a></span>
@@ -1769,43 +1769,44 @@ conclusion.</li>
 </ul>
 <details class="rcode">
 <summary>
-R code · <code>code/03_absolute_error.R</code>, lines 68–99
+R code · <code>code/03_absolute_error.R</code>, lines 68–100
 </summary>
 <div class="sourceCode" id="en-cb13"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb13-1"><a href="#en-cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2. Model for log(|e| + 0.5) ---------------------------------------------</span></span>
 <span id="en-cb13-2"><a href="#en-cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="en-cb13-3"><a href="#en-cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed</span></span>
-<span id="en-cb13-4"><a href="#en-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R). Back-transformed means are &quot;typical&quot; (median-like)</span></span>
-<span id="en-cb13-5"><a href="#en-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># absolute errors, so they are smaller than MAPE.</span></span>
-<span id="en-cb13-6"><a href="#en-cb13-6" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
-<span id="en-cb13-7"><a href="#en-cb13-7" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="en-cb13-8"><a href="#en-cb13-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
-<span id="en-cb13-9"><a href="#en-cb13-9" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
-<span id="en-cb13-10"><a href="#en-cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
-<span id="en-cb13-11"><a href="#en-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
-<span id="en-cb13-12"><a href="#en-cb13-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb13-13"><a href="#en-cb13-13" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
-<span id="en-cb13-14"><a href="#en-cb13-14" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
-<span id="en-cb13-15"><a href="#en-cb13-15" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
-<span id="en-cb13-16"><a href="#en-cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
-<span id="en-cb13-17"><a href="#en-cb13-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
-<span id="en-cb13-18"><a href="#en-cb13-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
-<span id="en-cb13-19"><a href="#en-cb13-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="en-cb13-20"><a href="#en-cb13-20" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
-<span id="en-cb13-21"><a href="#en-cb13-21" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
-<span id="en-cb13-22"><a href="#en-cb13-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="en-cb13-23"><a href="#en-cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
-<span id="en-cb13-24"><a href="#en-cb13-24" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
-<span id="en-cb13-25"><a href="#en-cb13-25" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="en-cb13-26"><a href="#en-cb13-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb13-27"><a href="#en-cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
-<span id="en-cb13-28"><a href="#en-cb13-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
-<span id="en-cb13-29"><a href="#en-cb13-29" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="en-cb13-30"><a href="#en-cb13-30" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
-<span id="en-cb13-31"><a href="#en-cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
-<span id="en-cb13-32"><a href="#en-cb13-32" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="en-cb13-4"><a href="#en-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R).</span></span>
+<span id="en-cb13-5"><a href="#en-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Back-transformed means are &quot;typical&quot; (median-like) absolute errors, so they</span></span>
+<span id="en-cb13-6"><a href="#en-cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># are smaller than MAPE.</span></span>
+<span id="en-cb13-7"><a href="#en-cb13-7" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
+<span id="en-cb13-8"><a href="#en-cb13-8" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="en-cb13-9"><a href="#en-cb13-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
+<span id="en-cb13-10"><a href="#en-cb13-10" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
+<span id="en-cb13-11"><a href="#en-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
+<span id="en-cb13-12"><a href="#en-cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
+<span id="en-cb13-13"><a href="#en-cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb13-14"><a href="#en-cb13-14" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
+<span id="en-cb13-15"><a href="#en-cb13-15" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
+<span id="en-cb13-16"><a href="#en-cb13-16" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
+<span id="en-cb13-17"><a href="#en-cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
+<span id="en-cb13-18"><a href="#en-cb13-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
+<span id="en-cb13-19"><a href="#en-cb13-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
+<span id="en-cb13-20"><a href="#en-cb13-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="en-cb13-21"><a href="#en-cb13-21" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
+<span id="en-cb13-22"><a href="#en-cb13-22" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
+<span id="en-cb13-23"><a href="#en-cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="en-cb13-24"><a href="#en-cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
+<span id="en-cb13-25"><a href="#en-cb13-25" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
+<span id="en-cb13-26"><a href="#en-cb13-26" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="en-cb13-27"><a href="#en-cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb13-28"><a href="#en-cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
+<span id="en-cb13-29"><a href="#en-cb13-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
+<span id="en-cb13-30"><a href="#en-cb13-30" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="en-cb13-31"><a href="#en-cb13-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
+<span id="en-cb13-32"><a href="#en-cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
+<span id="en-cb13-33"><a href="#en-cb13-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L68-L99">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L68-L100">View
 on GitHub</a>
 </p>
 </details>
@@ -1829,7 +1830,7 @@ combinations.</figcaption>
 </figure>
 <details class="rcode">
 <summary>
-R code · <code>code/03_absolute_error.R</code>, lines 101–113
+R code · <code>code/03_absolute_error.R</code>, lines 102–114
 </summary>
 <div class="sourceCode" id="en-cb14"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb14-1"><a href="#en-cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3. Plot: typical |e| for all 16 treatment combinations ------------------</span></span>
@@ -1846,7 +1847,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb14-1"><a href="#e
 <span id="en-cb14-12"><a href="#en-cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/06_typical_abs_error_by_treatment.png&quot;</span>, p_cell,</span>
 <span id="en-cb14-13"><a href="#en-cb14-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L101-L113">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L102-L114">View
 on GitHub</a>
 </p>
 </details>
@@ -2733,8 +2734,8 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb5-1"><a href="#zh
 <span id="zh-cb5-18"><a href="#zh-cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Dropping (1 | lap_id) and using lm() would treat the 64 readings as</span></span>
 <span id="zh-cb5-19"><a href="#zh-cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># independent (pseudo-replication): in the final model (section 4) the</span></span>
 <span id="zh-cb5-20"><a href="#zh-cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"># placement p-value would fall from 0.08 to 0.04, a false &quot;significant&quot;</span></span>
-<span id="zh-cb5-21"><a href="#zh-cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># result, while the app test would lose the benefit of pairing. The term is kept because the design requires</span></span>
-<span id="zh-cb5-22"><a href="#zh-cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># it, whether or not it is significant in this data set.</span></span>
+<span id="zh-cb5-21"><a href="#zh-cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># result, while the app test would lose the benefit of pairing. We keep the</span></span>
+<span id="zh-cb5-22"><a href="#zh-cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># term because the design requires it, whether or not it is significant here.</span></span>
 <span id="zh-cb5-23"><a href="#zh-cb5-23" aria-hidden="true" tabindex="-1"></a>fit_add <span class="ot">&lt;-</span> <span class="fu">lmer</span>(error_pct <span class="sc">~</span> block <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
 <span id="zh-cb5-24"><a href="#zh-cb5-24" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
 <span id="zh-cb5-25"><a href="#zh-cb5-25" aria-hidden="true" tabindex="-1"></a></span>
@@ -3314,43 +3315,44 @@ comparisons）</strong>。所以这个结果只作为<strong>探索性发现</st
 </ul>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/03_absolute_error.R</code> 第 68–99 行
+R 代码 · <code>code/03_absolute_error.R</code> 第 68–100 行
 </summary>
 <div class="sourceCode" id="zh-cb13"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb13-1"><a href="#zh-cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2. Model for log(|e| + 0.5) ---------------------------------------------</span></span>
 <span id="zh-cb13-2"><a href="#zh-cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="zh-cb13-3"><a href="#zh-cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed</span></span>
-<span id="zh-cb13-4"><a href="#zh-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R). Back-transformed means are &quot;typical&quot; (median-like)</span></span>
-<span id="zh-cb13-5"><a href="#zh-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># absolute errors, so they are smaller than MAPE.</span></span>
-<span id="zh-cb13-6"><a href="#zh-cb13-6" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
-<span id="zh-cb13-7"><a href="#zh-cb13-7" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="zh-cb13-8"><a href="#zh-cb13-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
-<span id="zh-cb13-9"><a href="#zh-cb13-9" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
-<span id="zh-cb13-10"><a href="#zh-cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
-<span id="zh-cb13-11"><a href="#zh-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
-<span id="zh-cb13-12"><a href="#zh-cb13-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb13-13"><a href="#zh-cb13-13" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
-<span id="zh-cb13-14"><a href="#zh-cb13-14" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
-<span id="zh-cb13-15"><a href="#zh-cb13-15" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
-<span id="zh-cb13-16"><a href="#zh-cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
-<span id="zh-cb13-17"><a href="#zh-cb13-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
-<span id="zh-cb13-18"><a href="#zh-cb13-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
-<span id="zh-cb13-19"><a href="#zh-cb13-19" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="zh-cb13-20"><a href="#zh-cb13-20" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
-<span id="zh-cb13-21"><a href="#zh-cb13-21" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
-<span id="zh-cb13-22"><a href="#zh-cb13-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="zh-cb13-23"><a href="#zh-cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
-<span id="zh-cb13-24"><a href="#zh-cb13-24" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
-<span id="zh-cb13-25"><a href="#zh-cb13-25" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="zh-cb13-26"><a href="#zh-cb13-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb13-27"><a href="#zh-cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
-<span id="zh-cb13-28"><a href="#zh-cb13-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
-<span id="zh-cb13-29"><a href="#zh-cb13-29" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="zh-cb13-30"><a href="#zh-cb13-30" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
-<span id="zh-cb13-31"><a href="#zh-cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
-<span id="zh-cb13-32"><a href="#zh-cb13-32" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<span id="zh-cb13-4"><a href="#zh-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R).</span></span>
+<span id="zh-cb13-5"><a href="#zh-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Back-transformed means are &quot;typical&quot; (median-like) absolute errors, so they</span></span>
+<span id="zh-cb13-6"><a href="#zh-cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># are smaller than MAPE.</span></span>
+<span id="zh-cb13-7"><a href="#zh-cb13-7" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
+<span id="zh-cb13-8"><a href="#zh-cb13-8" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="zh-cb13-9"><a href="#zh-cb13-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
+<span id="zh-cb13-10"><a href="#zh-cb13-10" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
+<span id="zh-cb13-11"><a href="#zh-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
+<span id="zh-cb13-12"><a href="#zh-cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
+<span id="zh-cb13-13"><a href="#zh-cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb13-14"><a href="#zh-cb13-14" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
+<span id="zh-cb13-15"><a href="#zh-cb13-15" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
+<span id="zh-cb13-16"><a href="#zh-cb13-16" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
+<span id="zh-cb13-17"><a href="#zh-cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
+<span id="zh-cb13-18"><a href="#zh-cb13-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
+<span id="zh-cb13-19"><a href="#zh-cb13-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
+<span id="zh-cb13-20"><a href="#zh-cb13-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="zh-cb13-21"><a href="#zh-cb13-21" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
+<span id="zh-cb13-22"><a href="#zh-cb13-22" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
+<span id="zh-cb13-23"><a href="#zh-cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="zh-cb13-24"><a href="#zh-cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
+<span id="zh-cb13-25"><a href="#zh-cb13-25" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
+<span id="zh-cb13-26"><a href="#zh-cb13-26" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="zh-cb13-27"><a href="#zh-cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb13-28"><a href="#zh-cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
+<span id="zh-cb13-29"><a href="#zh-cb13-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
+<span id="zh-cb13-30"><a href="#zh-cb13-30" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="zh-cb13-31"><a href="#zh-cb13-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
+<span id="zh-cb13-32"><a href="#zh-cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
+<span id="zh-cb13-33"><a href="#zh-cb13-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L68-L99">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L68-L100">在
 GitHub 上查看</a>
 </p>
 </details>
@@ -3368,7 +3370,7 @@ alt="16 种组合的典型绝对误差（log 模型反变换）和 95% 置信区
 </figure>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/03_absolute_error.R</code> 第 101–113 行
+R 代码 · <code>code/03_absolute_error.R</code> 第 102–114 行
 </summary>
 <div class="sourceCode" id="zh-cb14"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb14-1"><a href="#zh-cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3. Plot: typical |e| for all 16 treatment combinations ------------------</span></span>
@@ -3385,7 +3387,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb14-1"><a href="#z
 <span id="zh-cb14-12"><a href="#zh-cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/06_typical_abs_error_by_treatment.png&quot;</span>, p_cell,</span>
 <span id="zh-cb14-13"><a href="#zh-cb14-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L101-L113">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L102-L114">在
 GitHub 上查看</a>
 </p>
 </details>

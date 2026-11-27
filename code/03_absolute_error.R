@@ -68,8 +68,9 @@ write.csv(mape_block, "results/mape_by_block_app.csv", row.names = FALSE)
 # ---- 2. Model for log(|e| + 0.5) ---------------------------------------------
 
 # |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed
-# model as the signed error (including app x block, see 02_analysis.R). Back-transformed means are "typical" (median-like)
-# absolute errors, so they are smaller than MAPE.
+# model as the signed error (including app x block, see 02_analysis.R).
+# Back-transformed means are "typical" (median-like) absolute errors, so they
+# are smaller than MAPE.
 dat$log_abs <- log(dat$abs_e + 0.5)
 fit_abs <- lmer(log_abs ~ block * app + app * lane * placement * pace + (1 | lap_id),
                 data = dat)
