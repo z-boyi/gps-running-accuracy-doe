@@ -201,7 +201,8 @@ p_main <- ggplot(main, aes(x = value, y = emmean)) +
   geom_pointrange(aes(ymin = lower.CL, ymax = upper.CL)) +
   facet_wrap(~ factor, scales = "free_x", nrow = 1) +
   labs(x = NULL, y = "Estimated mean error e (%)",
-       title = "Main effects with 95% confidence intervals") +
+       title = "Main effects with 95% confidence intervals",
+       subtitle = "Averaged over our 4 blocks (fixed-block final model)") +
   theme_bw()
 ggsave("figures/04_main_effects.png", p_main, width = 8, height = 3.5, dpi = 200)
 

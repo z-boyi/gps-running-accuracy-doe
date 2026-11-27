@@ -1505,7 +1505,7 @@ plus the 10 m resolution, so power is limited and “not detected” must be
 read with care.</p>
 <details class="rcode">
 <summary>
-R code · <code>code/02_analysis.R</code>, lines 172–227
+R code · <code>code/02_analysis.R</code>, lines 172–228
 </summary>
 <div class="sourceCode" id="en-cb10"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb10-1"><a href="#en-cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 6. Estimated effects (aims 1 and 2) ------------------------------------</span></span>
@@ -1540,32 +1540,33 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb10-1"><a href="#e
 <span id="en-cb10-30"><a href="#en-cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower.CL, <span class="at">ymax =</span> upper.CL)) <span class="sc">+</span></span>
 <span id="en-cb10-31"><a href="#en-cb10-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> factor, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="en-cb10-32"><a href="#en-cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Estimated mean error e (%)&quot;</span>,</span>
-<span id="en-cb10-33"><a href="#en-cb10-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Main effects with 95% confidence intervals&quot;</span>) <span class="sc">+</span></span>
-<span id="en-cb10-34"><a href="#en-cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="en-cb10-35"><a href="#en-cb10-35" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/04_main_effects.png&quot;</span>, p_main, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="fl">3.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span>
-<span id="en-cb10-36"><a href="#en-cb10-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb10-37"><a href="#en-cb10-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Interaction plots for the two-factor interactions of primary interest:</span></span>
-<span id="en-cb10-38"><a href="#en-cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co"># x-axis factor, line (trace) factor</span></span>
-<span id="en-cb10-39"><a href="#en-cb10-39" aria-hidden="true" tabindex="-1"></a>pairs_of_interest <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;pace&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;placement&quot;</span>, <span class="st">&quot;pace&quot;</span>),</span>
-<span id="en-cb10-40"><a href="#en-cb10-40" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;app&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;pace&quot;</span>, <span class="st">&quot;app&quot;</span>))</span>
-<span id="en-cb10-41"><a href="#en-cb10-41" aria-hidden="true" tabindex="-1"></a>int_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(pairs_of_interest, <span class="cf">function</span>(p) {</span>
-<span id="en-cb10-42"><a href="#en-cb10-42" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">emmeans</span>(fit, <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;~&quot;</span>, p[<span class="dv">1</span>], <span class="st">&quot;*&quot;</span>, p[<span class="dv">2</span>]))))</span>
-<span id="en-cb10-43"><a href="#en-cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">panel =</span> <span class="fu">paste</span>(p[<span class="dv">1</span>], <span class="st">&quot;x&quot;</span>, p[<span class="dv">2</span>]),</span>
-<span id="en-cb10-44"><a href="#en-cb10-44" aria-hidden="true" tabindex="-1"></a>             <span class="at">x =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">1</span>]]]), <span class="at">trace =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">2</span>]]]),</span>
-<span id="en-cb10-45"><a href="#en-cb10-45" aria-hidden="true" tabindex="-1"></a>             <span class="at">emmean =</span> em<span class="sc">$</span>emmean)</span>
-<span id="en-cb10-46"><a href="#en-cb10-46" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="en-cb10-47"><a href="#en-cb10-47" aria-hidden="true" tabindex="-1"></a><span class="co"># keep the level order used in the data (walk before jog, etc.)</span></span>
-<span id="en-cb10-48"><a href="#en-cb10-48" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>x     <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>x, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>x))</span>
-<span id="en-cb10-49"><a href="#en-cb10-49" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>trace <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>trace, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>trace))</span>
-<span id="en-cb10-50"><a href="#en-cb10-50" aria-hidden="true" tabindex="-1"></a>p_int <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(int_data, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> emmean, <span class="at">colour =</span> trace, <span class="at">group =</span> trace)) <span class="sc">+</span></span>
-<span id="en-cb10-51"><a href="#en-cb10-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="en-cb10-52"><a href="#en-cb10-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> panel, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="sc">+</span></span>
-<span id="en-cb10-53"><a href="#en-cb10-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Estimated mean error e (%)&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;Line&quot;</span>,</span>
-<span id="en-cb10-54"><a href="#en-cb10-54" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Two-factor interactions (parallel lines = no interaction)&quot;</span>) <span class="sc">+</span></span>
-<span id="en-cb10-55"><a href="#en-cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="en-cb10-56"><a href="#en-cb10-56" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/05_interactions.png&quot;</span>, p_int, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
+<span id="en-cb10-33"><a href="#en-cb10-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Main effects with 95% confidence intervals&quot;</span>,</span>
+<span id="en-cb10-34"><a href="#en-cb10-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;Averaged over our 4 blocks (fixed-block final model)&quot;</span>) <span class="sc">+</span></span>
+<span id="en-cb10-35"><a href="#en-cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="en-cb10-36"><a href="#en-cb10-36" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/04_main_effects.png&quot;</span>, p_main, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="fl">3.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span>
+<span id="en-cb10-37"><a href="#en-cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb10-38"><a href="#en-cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Interaction plots for the two-factor interactions of primary interest:</span></span>
+<span id="en-cb10-39"><a href="#en-cb10-39" aria-hidden="true" tabindex="-1"></a><span class="co"># x-axis factor, line (trace) factor</span></span>
+<span id="en-cb10-40"><a href="#en-cb10-40" aria-hidden="true" tabindex="-1"></a>pairs_of_interest <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;pace&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;placement&quot;</span>, <span class="st">&quot;pace&quot;</span>),</span>
+<span id="en-cb10-41"><a href="#en-cb10-41" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;app&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;pace&quot;</span>, <span class="st">&quot;app&quot;</span>))</span>
+<span id="en-cb10-42"><a href="#en-cb10-42" aria-hidden="true" tabindex="-1"></a>int_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(pairs_of_interest, <span class="cf">function</span>(p) {</span>
+<span id="en-cb10-43"><a href="#en-cb10-43" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">emmeans</span>(fit, <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;~&quot;</span>, p[<span class="dv">1</span>], <span class="st">&quot;*&quot;</span>, p[<span class="dv">2</span>]))))</span>
+<span id="en-cb10-44"><a href="#en-cb10-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">panel =</span> <span class="fu">paste</span>(p[<span class="dv">1</span>], <span class="st">&quot;x&quot;</span>, p[<span class="dv">2</span>]),</span>
+<span id="en-cb10-45"><a href="#en-cb10-45" aria-hidden="true" tabindex="-1"></a>             <span class="at">x =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">1</span>]]]), <span class="at">trace =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">2</span>]]]),</span>
+<span id="en-cb10-46"><a href="#en-cb10-46" aria-hidden="true" tabindex="-1"></a>             <span class="at">emmean =</span> em<span class="sc">$</span>emmean)</span>
+<span id="en-cb10-47"><a href="#en-cb10-47" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="en-cb10-48"><a href="#en-cb10-48" aria-hidden="true" tabindex="-1"></a><span class="co"># keep the level order used in the data (walk before jog, etc.)</span></span>
+<span id="en-cb10-49"><a href="#en-cb10-49" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>x     <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>x, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>x))</span>
+<span id="en-cb10-50"><a href="#en-cb10-50" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>trace <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>trace, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>trace))</span>
+<span id="en-cb10-51"><a href="#en-cb10-51" aria-hidden="true" tabindex="-1"></a>p_int <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(int_data, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> emmean, <span class="at">colour =</span> trace, <span class="at">group =</span> trace)) <span class="sc">+</span></span>
+<span id="en-cb10-52"><a href="#en-cb10-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="en-cb10-53"><a href="#en-cb10-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> panel, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="sc">+</span></span>
+<span id="en-cb10-54"><a href="#en-cb10-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Estimated mean error e (%)&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;Line&quot;</span>,</span>
+<span id="en-cb10-55"><a href="#en-cb10-55" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Two-factor interactions (parallel lines = no interaction)&quot;</span>) <span class="sc">+</span></span>
+<span id="en-cb10-56"><a href="#en-cb10-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="en-cb10-57"><a href="#en-cb10-57" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/05_interactions.png&quot;</span>, p_int, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L172-L227">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L172-L228">View
 on GitHub</a>
 </p>
 </details>
@@ -1614,7 +1615,7 @@ assumption and see whether the conclusion holds. If it does, the
 conclusion does not depend on that assumption.</p>
 <details class="rcode">
 <summary>
-R code · <code>code/02_analysis.R</code>, lines 229–242
+R code · <code>code/02_analysis.R</code>, lines 230–243
 </summary>
 <div class="sourceCode" id="en-cb11"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb11-1"><a href="#en-cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 7. Sensitivity to the true lap length ----------------------------------</span></span>
@@ -1632,7 +1633,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb11-1"><a href="#e
 <span id="en-cb11-13"><a href="#en-cb11-13" aria-hidden="true" tabindex="-1"></a>              a[<span class="st">&quot;block:app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>], a[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
 <span id="en-cb11-14"><a href="#en-cb11-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L229-L242">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L230-L243">View
 on GitHub</a>
 </p>
 </details>
@@ -3070,7 +3071,7 @@ app × 组合只有 4 个读数，再加上 10 m
 的精度限制，功效有限。所以“没检测到”要谨慎解读。</p>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/02_analysis.R</code> 第 172–227 行
+R 代码 · <code>code/02_analysis.R</code> 第 172–228 行
 </summary>
 <div class="sourceCode" id="zh-cb10"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb10-1"><a href="#zh-cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 6. Estimated effects (aims 1 and 2) ------------------------------------</span></span>
@@ -3105,32 +3106,33 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb10-1"><a href="#z
 <span id="zh-cb10-30"><a href="#zh-cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower.CL, <span class="at">ymax =</span> upper.CL)) <span class="sc">+</span></span>
 <span id="zh-cb10-31"><a href="#zh-cb10-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> factor, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="zh-cb10-32"><a href="#zh-cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Estimated mean error e (%)&quot;</span>,</span>
-<span id="zh-cb10-33"><a href="#zh-cb10-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Main effects with 95% confidence intervals&quot;</span>) <span class="sc">+</span></span>
-<span id="zh-cb10-34"><a href="#zh-cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="zh-cb10-35"><a href="#zh-cb10-35" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/04_main_effects.png&quot;</span>, p_main, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="fl">3.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span>
-<span id="zh-cb10-36"><a href="#zh-cb10-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb10-37"><a href="#zh-cb10-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Interaction plots for the two-factor interactions of primary interest:</span></span>
-<span id="zh-cb10-38"><a href="#zh-cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co"># x-axis factor, line (trace) factor</span></span>
-<span id="zh-cb10-39"><a href="#zh-cb10-39" aria-hidden="true" tabindex="-1"></a>pairs_of_interest <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;pace&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;placement&quot;</span>, <span class="st">&quot;pace&quot;</span>),</span>
-<span id="zh-cb10-40"><a href="#zh-cb10-40" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;app&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;pace&quot;</span>, <span class="st">&quot;app&quot;</span>))</span>
-<span id="zh-cb10-41"><a href="#zh-cb10-41" aria-hidden="true" tabindex="-1"></a>int_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(pairs_of_interest, <span class="cf">function</span>(p) {</span>
-<span id="zh-cb10-42"><a href="#zh-cb10-42" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">emmeans</span>(fit, <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;~&quot;</span>, p[<span class="dv">1</span>], <span class="st">&quot;*&quot;</span>, p[<span class="dv">2</span>]))))</span>
-<span id="zh-cb10-43"><a href="#zh-cb10-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">panel =</span> <span class="fu">paste</span>(p[<span class="dv">1</span>], <span class="st">&quot;x&quot;</span>, p[<span class="dv">2</span>]),</span>
-<span id="zh-cb10-44"><a href="#zh-cb10-44" aria-hidden="true" tabindex="-1"></a>             <span class="at">x =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">1</span>]]]), <span class="at">trace =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">2</span>]]]),</span>
-<span id="zh-cb10-45"><a href="#zh-cb10-45" aria-hidden="true" tabindex="-1"></a>             <span class="at">emmean =</span> em<span class="sc">$</span>emmean)</span>
-<span id="zh-cb10-46"><a href="#zh-cb10-46" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="zh-cb10-47"><a href="#zh-cb10-47" aria-hidden="true" tabindex="-1"></a><span class="co"># keep the level order used in the data (walk before jog, etc.)</span></span>
-<span id="zh-cb10-48"><a href="#zh-cb10-48" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>x     <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>x, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>x))</span>
-<span id="zh-cb10-49"><a href="#zh-cb10-49" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>trace <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>trace, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>trace))</span>
-<span id="zh-cb10-50"><a href="#zh-cb10-50" aria-hidden="true" tabindex="-1"></a>p_int <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(int_data, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> emmean, <span class="at">colour =</span> trace, <span class="at">group =</span> trace)) <span class="sc">+</span></span>
-<span id="zh-cb10-51"><a href="#zh-cb10-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="zh-cb10-52"><a href="#zh-cb10-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> panel, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="sc">+</span></span>
-<span id="zh-cb10-53"><a href="#zh-cb10-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Estimated mean error e (%)&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;Line&quot;</span>,</span>
-<span id="zh-cb10-54"><a href="#zh-cb10-54" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Two-factor interactions (parallel lines = no interaction)&quot;</span>) <span class="sc">+</span></span>
-<span id="zh-cb10-55"><a href="#zh-cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="zh-cb10-56"><a href="#zh-cb10-56" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/05_interactions.png&quot;</span>, p_int, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
+<span id="zh-cb10-33"><a href="#zh-cb10-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Main effects with 95% confidence intervals&quot;</span>,</span>
+<span id="zh-cb10-34"><a href="#zh-cb10-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;Averaged over our 4 blocks (fixed-block final model)&quot;</span>) <span class="sc">+</span></span>
+<span id="zh-cb10-35"><a href="#zh-cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="zh-cb10-36"><a href="#zh-cb10-36" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/04_main_effects.png&quot;</span>, p_main, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="fl">3.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span>
+<span id="zh-cb10-37"><a href="#zh-cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb10-38"><a href="#zh-cb10-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Interaction plots for the two-factor interactions of primary interest:</span></span>
+<span id="zh-cb10-39"><a href="#zh-cb10-39" aria-hidden="true" tabindex="-1"></a><span class="co"># x-axis factor, line (trace) factor</span></span>
+<span id="zh-cb10-40"><a href="#zh-cb10-40" aria-hidden="true" tabindex="-1"></a>pairs_of_interest <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;pace&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;placement&quot;</span>, <span class="st">&quot;pace&quot;</span>),</span>
+<span id="zh-cb10-41"><a href="#zh-cb10-41" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">c</span>(<span class="st">&quot;lane&quot;</span>, <span class="st">&quot;app&quot;</span>), <span class="fu">c</span>(<span class="st">&quot;pace&quot;</span>, <span class="st">&quot;app&quot;</span>))</span>
+<span id="zh-cb10-42"><a href="#zh-cb10-42" aria-hidden="true" tabindex="-1"></a>int_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(pairs_of_interest, <span class="cf">function</span>(p) {</span>
+<span id="zh-cb10-43"><a href="#zh-cb10-43" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">emmeans</span>(fit, <span class="fu">as.formula</span>(<span class="fu">paste</span>(<span class="st">&quot;~&quot;</span>, p[<span class="dv">1</span>], <span class="st">&quot;*&quot;</span>, p[<span class="dv">2</span>]))))</span>
+<span id="zh-cb10-44"><a href="#zh-cb10-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">panel =</span> <span class="fu">paste</span>(p[<span class="dv">1</span>], <span class="st">&quot;x&quot;</span>, p[<span class="dv">2</span>]),</span>
+<span id="zh-cb10-45"><a href="#zh-cb10-45" aria-hidden="true" tabindex="-1"></a>             <span class="at">x =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">1</span>]]]), <span class="at">trace =</span> <span class="fu">as.character</span>(em[[p[<span class="dv">2</span>]]]),</span>
+<span id="zh-cb10-46"><a href="#zh-cb10-46" aria-hidden="true" tabindex="-1"></a>             <span class="at">emmean =</span> em<span class="sc">$</span>emmean)</span>
+<span id="zh-cb10-47"><a href="#zh-cb10-47" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="zh-cb10-48"><a href="#zh-cb10-48" aria-hidden="true" tabindex="-1"></a><span class="co"># keep the level order used in the data (walk before jog, etc.)</span></span>
+<span id="zh-cb10-49"><a href="#zh-cb10-49" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>x     <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>x, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>x))</span>
+<span id="zh-cb10-50"><a href="#zh-cb10-50" aria-hidden="true" tabindex="-1"></a>int_data<span class="sc">$</span>trace <span class="ot">&lt;-</span> <span class="fu">factor</span>(int_data<span class="sc">$</span>trace, <span class="at">levels =</span> <span class="fu">unique</span>(int_data<span class="sc">$</span>trace))</span>
+<span id="zh-cb10-51"><a href="#zh-cb10-51" aria-hidden="true" tabindex="-1"></a>p_int <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(int_data, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> emmean, <span class="at">colour =</span> trace, <span class="at">group =</span> trace)) <span class="sc">+</span></span>
+<span id="zh-cb10-52"><a href="#zh-cb10-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="zh-cb10-53"><a href="#zh-cb10-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> panel, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="sc">+</span></span>
+<span id="zh-cb10-54"><a href="#zh-cb10-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Estimated mean error e (%)&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;Line&quot;</span>,</span>
+<span id="zh-cb10-55"><a href="#zh-cb10-55" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Two-factor interactions (parallel lines = no interaction)&quot;</span>) <span class="sc">+</span></span>
+<span id="zh-cb10-56"><a href="#zh-cb10-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="zh-cb10-57"><a href="#zh-cb10-57" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/05_interactions.png&quot;</span>, p_int, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L172-L227">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L172-L228">在
 GitHub 上查看</a>
 </p>
 </details>
@@ -3172,7 +3174,7 @@ GitHub 上查看</a>
 <p><strong>敏感性分析</strong>的一般含义：改变一个不确定的假设，看结论是否稳定。结论不变，说明它不依赖这个假设。</p>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/02_analysis.R</code> 第 229–242 行
+R 代码 · <code>code/02_analysis.R</code> 第 230–243 行
 </summary>
 <div class="sourceCode" id="zh-cb11"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb11-1"><a href="#zh-cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 7. Sensitivity to the true lap length ----------------------------------</span></span>
@@ -3190,7 +3192,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb11-1"><a href="#z
 <span id="zh-cb11-13"><a href="#zh-cb11-13" aria-hidden="true" tabindex="-1"></a>              a[<span class="st">&quot;block:app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>], a[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
 <span id="zh-cb11-14"><a href="#zh-cb11-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L229-L242">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L230-L243">在
 GitHub 上查看</a>
 </p>
 </details>
