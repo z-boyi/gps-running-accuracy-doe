@@ -2,7 +2,7 @@
 # Signed percentage error: does each app over- or under-record, and which
 # factors and interactions matter? (proposal v2, aims 1 and 2)
 #
-# Input : data/processed/gps_runs.csv  (made by code/00_clean_data.R)
+# Input : data/processed/gps_runs.csv  (made by code/01_clean_data.R)
 # Output: tables in results/, plots in figures/
 # Run from the repository root:  Rscript code/02_analysis.R
 

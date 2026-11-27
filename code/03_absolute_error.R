@@ -5,7 +5,7 @@
 # A mean signed error near 0 can hide large + and - errors, so here we use
 # the absolute percentage error |e| and MAPE = mean of |e| in a group.
 #
-# Input : data/processed/gps_runs.csv  (made by code/00_clean_data.R)
+# Input : data/processed/gps_runs.csv  (made by code/01_clean_data.R)
 # Output: tables in results/, plot in figures/
 # Run from the repository root:  Rscript code/03_absolute_error.R
 

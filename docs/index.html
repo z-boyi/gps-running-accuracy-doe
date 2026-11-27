@@ -578,10 +578,10 @@ design is reproducible.</p>
 </table>
 <details class="rcode">
 <summary>
-R code · <code>code/01_randomization.R</code>, lines 1–32
+R code · <code>code/00_randomization.R</code>, lines 1–32
 </summary>
 <div class="sourceCode" id="en-cb1"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="en-cb1-1"><a href="#en-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 01_randomization.R</span></span>
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb1-1"><a href="#en-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 00_randomization.R</span></span>
 <span id="en-cb1-2"><a href="#en-cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomize the run order of the 8 lane x pace x placement combinations</span></span>
 <span id="en-cb1-3"><a href="#en-cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># independently within each block (owner-phone pair).</span></span>
 <span id="en-cb1-4"><a href="#en-cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the exact code from the project proposal (seed 404); it also writes</span></span>
@@ -614,7 +614,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb1-1"><a href="#en
 <span id="en-cb1-31"><a href="#en-cb1-31" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, schedule)</span>
 <span id="en-cb1-32"><a href="#en-cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(schedule, <span class="st">&quot;data/randomization_schedule.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_randomization.R#L1-L32">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_randomization.R#L1-L32">View
 on GitHub</a>
 </p>
 </details>
@@ -792,7 +792,7 @@ over time use lap order.</li>
 <h2 id="en-data-preparation">6. Data preparation</h2>
 <p>The raw sheet has one row per lap with the Strava and Keep readings
 side by side. Before analysis, the script
-<code>code/00_clean_data.R</code> does the following; the raw sheet is
+<code>code/01_clean_data.R</code> does the following; the raw sheet is
 never edited by hand:</p>
 <ol type="1">
 <li><strong>Checks the data</strong>: 32 rows; 8 laps per member; each
@@ -917,7 +917,7 @@ reading; the two rows of a lap share <code>lap_id</code>.</p>
 </table>
 <details class="rcode">
 <summary>
-R code · <code>code/00_clean_data.R</code>, lines 27–88
+R code · <code>code/01_clean_data.R</code>, lines 27–88
 </summary>
 <div class="sourceCode" id="en-cb2"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb2-1"><a href="#en-cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1. Read and check the raw lap log --------------------------------------</span></span>
@@ -983,7 +983,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb2-1"><a href="#en
 <span id="en-cb2-61"><a href="#en-cb2-61" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(out, <span class="st">&quot;data/processed/gps_runs.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">na =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="en-cb2-62"><a href="#en-cb2-62" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Wrote data/processed/gps_runs.csv:&quot;</span>, <span class="fu">nrow</span>(out), <span class="st">&quot;rows</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_clean_data.R#L27-L88">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_clean_data.R#L27-L88">View
 on GitHub</a>
 </p>
 </details>
@@ -2009,8 +2009,8 @@ folder. To reproduce them, download or clone the repository, open R or
 RStudio with the repository folder as the working directory, and
 run:</p>
 <div class="sourceCode" id="en-cb15"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="en-cb15-1"><a href="#en-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_randomization.R&quot;</span>)   <span class="co"># randomized run order (seed 404)</span></span>
-<span id="en-cb15-2"><a href="#en-cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_clean_data.R&quot;</span>)      <span class="co"># raw lap log -&gt; data/processed/gps_runs.csv</span></span>
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb15-1"><a href="#en-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_randomization.R&quot;</span>)   <span class="co"># randomized run order (seed 404)</span></span>
+<span id="en-cb15-2"><a href="#en-cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_clean_data.R&quot;</span>)      <span class="co"># raw lap log -&gt; data/processed/gps_runs.csv</span></span>
 <span id="en-cb15-3"><a href="#en-cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/02_analysis.R&quot;</span>)        <span class="co"># signed error: mixed model, checks, effects</span></span>
 <span id="en-cb15-4"><a href="#en-cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/03_absolute_error.R&quot;</span>)  <span class="co"># accuracy: MAPE, bootstrap, log|e| model</span></span></code></pre></div>
 <p>The first script to run installs any missing packages
@@ -2018,7 +2018,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb15-1"><a href="#e
 <code>pbkrtest</code>, <code>ggplot2</code>):</p>
 <details class="rcode">
 <summary>
-R code · <code>code/00_clean_data.R</code>, lines 12–25
+R code · <code>code/01_clean_data.R</code>, lines 12–25
 </summary>
 <div class="sourceCode" id="en-cb16"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb16-1"><a href="#en-cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 0. Packages ------------------------------------------------------------</span></span>
@@ -2036,7 +2036,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb16-1"><a href="#e
 <span id="en-cb16-13"><a href="#en-cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (pkg <span class="cf">in</span> packages) <span class="fu">library</span>(pkg, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
 <span id="en-cb16-14"><a href="#en-cb16-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_clean_data.R#L12-L25">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_clean_data.R#L12-L25">View
 on GitHub</a>
 </p>
 </details>
@@ -2232,10 +2232,10 @@ pace
 </table>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/01_randomization.R</code> 第 1–32 行
+R 代码 · <code>code/00_randomization.R</code> 第 1–32 行
 </summary>
 <div class="sourceCode" id="zh-cb1"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="zh-cb1-1"><a href="#zh-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 01_randomization.R</span></span>
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb1-1"><a href="#zh-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 00_randomization.R</span></span>
 <span id="zh-cb1-2"><a href="#zh-cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomize the run order of the 8 lane x pace x placement combinations</span></span>
 <span id="zh-cb1-3"><a href="#zh-cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># independently within each block (owner-phone pair).</span></span>
 <span id="zh-cb1-4"><a href="#zh-cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the exact code from the project proposal (seed 404); it also writes</span></span>
@@ -2268,7 +2268,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb1-1"><a href="#zh
 <span id="zh-cb1-31"><a href="#zh-cb1-31" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, schedule)</span>
 <span id="zh-cb1-32"><a href="#zh-cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(schedule, <span class="st">&quot;data/randomization_schedule.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_randomization.R#L1-L32">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_randomization.R#L1-L32">在
 GitHub 上查看</a>
 </p>
 </details>
@@ -2403,7 +2403,7 @@ app 的距离并截图。</li>
 <hr />
 <h2 id="zh-数据整理">6. 数据整理</h2>
 <p>原始记录表是一行一圈，Strava 和 Keep 的读数并排。分析前用脚本
-<code>code/00_clean_data.R</code> 做了这些事，原始表永远不手动改：</p>
+<code>code/01_clean_data.R</code> 做了这些事，原始表永远不手动改：</p>
 <ol type="1">
 <li><strong>检查数据</strong>：一共 32 行；每人 8
 圈；每人每种组合恰好一次。确认数据符合设计。</li>
@@ -2522,7 +2522,7 @@ app 的距离并截图。</li>
 </table>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/00_clean_data.R</code> 第 27–88 行
+R 代码 · <code>code/01_clean_data.R</code> 第 27–88 行
 </summary>
 <div class="sourceCode" id="zh-cb2"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb2-1"><a href="#zh-cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1. Read and check the raw lap log --------------------------------------</span></span>
@@ -2588,7 +2588,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb2-1"><a href="#zh
 <span id="zh-cb2-61"><a href="#zh-cb2-61" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(out, <span class="st">&quot;data/processed/gps_runs.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">na =</span> <span class="st">&quot;&quot;</span>)</span>
 <span id="zh-cb2-62"><a href="#zh-cb2-62" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Wrote data/processed/gps_runs.csv:&quot;</span>, <span class="fu">nrow</span>(out), <span class="st">&quot;rows</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_clean_data.R#L27-L88">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_clean_data.R#L27-L88">在
 GitHub 上查看</a>
 </p>
 </details>
@@ -3519,15 +3519,15 @@ href="https://github.com/z-boyi/gps-running-accuracy-doe/tree/main/code"><code>c
 文件夹里的四个 R 脚本。想重现结果：下载或 clone 这个 repo，在 R 或
 RStudio 里把 repo 文件夹设为工作目录，然后运行：</p>
 <div class="sourceCode" id="zh-cb15"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="zh-cb15-1"><a href="#zh-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_randomization.R&quot;</span>)   <span class="co"># 随机顺序（seed 404）</span></span>
-<span id="zh-cb15-2"><a href="#zh-cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_clean_data.R&quot;</span>)      <span class="co"># 原始记录 -&gt; data/processed/gps_runs.csv</span></span>
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb15-1"><a href="#zh-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_randomization.R&quot;</span>)   <span class="co"># 随机顺序（seed 404）</span></span>
+<span id="zh-cb15-2"><a href="#zh-cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_clean_data.R&quot;</span>)      <span class="co"># 原始记录 -&gt; data/processed/gps_runs.csv</span></span>
 <span id="zh-cb15-3"><a href="#zh-cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/02_analysis.R&quot;</span>)        <span class="co"># 带符号误差：混合模型、诊断、效应</span></span>
 <span id="zh-cb15-4"><a href="#zh-cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/03_absolute_error.R&quot;</span>)  <span class="co"># 准确度：MAPE、bootstrap、log|e| 模型</span></span></code></pre></div>
 <p>整理数据的脚本会先自动安装缺少的 R
 包（<code>lme4</code>、<code>lmerTest</code>、<code>emmeans</code>、<code>pbkrtest</code>、<code>ggplot2</code>）：</p>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/00_clean_data.R</code> 第 12–25 行
+R 代码 · <code>code/01_clean_data.R</code> 第 12–25 行
 </summary>
 <div class="sourceCode" id="zh-cb16"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb16-1"><a href="#zh-cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 0. Packages ------------------------------------------------------------</span></span>
@@ -3545,7 +3545,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb16-1"><a href="#z
 <span id="zh-cb16-13"><a href="#zh-cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (pkg <span class="cf">in</span> packages) <span class="fu">library</span>(pkg, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
 <span id="zh-cb16-14"><a href="#zh-cb16-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_clean_data.R#L12-L25">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_clean_data.R#L12-L25">在
 GitHub 上查看</a>
 </p>
 </details>

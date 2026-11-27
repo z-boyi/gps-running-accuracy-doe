@@ -3,10 +3,10 @@
 | File | Description |
 |---|---|
 | `gps_track_data_log.csv` | Lap log as recorded: one row per lap, both apps side by side. Raw data, never edited by hand. |
-| `randomization_schedule.csv` | Run order for each block, produced by `code/01_randomization.R` (seed 404). |
+| `randomization_schedule.csv` | Run order for each block, produced by `code/00_randomization.R` (seed 404). |
 | `data_collection_template.csv` | Column layout for logging laps (one row per app per lap). |
 | `raw/` | Raw app exports and screenshots. **Not committed** (may contain GPS traces). |
-| `processed/gps_runs.csv` | Analysis data: one row per app reading (64 rows), produced from the lap log by `code/00_clean_data.R`. |
+| `processed/gps_runs.csv` | Analysis data: one row per app reading (64 rows), produced from the lap log by `code/01_clean_data.R`. |
 
 ## Variables in `processed/gps_runs.csv`
 

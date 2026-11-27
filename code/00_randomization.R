@@ -1,4 +1,4 @@
-# 01_randomization.R
+# 00_randomization.R
 # Randomize the run order of the 8 lane x pace x placement combinations
 # independently within each block (owner-phone pair).
 # This is the exact code from the project proposal (seed 404); it also writes

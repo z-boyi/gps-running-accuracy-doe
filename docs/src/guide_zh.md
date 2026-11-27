@@ -88,7 +88,7 @@
 | 7 | 8 | hand | jog |
 | 8 | 8 | pocket | walk |
 
-<!-- r: code/01_randomization.R all -->
+<!-- r: code/00_randomization.R all -->
 
 
 ### 2.5 重复（replication）
@@ -168,7 +168,7 @@ proposal 交上去后收到 7 条意见。数据是在收到意见之前采集�
 
 ## 6. 数据整理
 
-原始记录表是一行一圈，Strava 和 Keep 的读数并排。分析前用脚本 `code/00_clean_data.R` 做了这些事，原始表永远不手动改：
+原始记录表是一行一圈，Strava 和 Keep 的读数并排。分析前用脚本 `code/01_clean_data.R` 做了这些事，原始表永远不手动改：
 
 1. **检查数据**：一共 32 行；每人 8 圈；每人每种组合恰好一次。确认数据符合设计。
 2. **宽表变长表**：变成一行一个 app 读数，共 64 行。混合模型需要这种格式。
@@ -188,7 +188,7 @@ proposal 交上去后收到 7 条意见。数据是在收到意见之前采集�
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Keep | 453.03 | 470 | 3.746 |
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Strava | 453.03 | 490 | 8.161 |
 
-<!-- r: code/00_clean_data.R 1-4 -->
+<!-- r: code/01_clean_data.R 1-4 -->
 
 
 ---
@@ -483,14 +483,14 @@ MAPE 也因手机而异：Strava 在 Phoebe 和 Boyi 的手机上 MAPE 约 5.5% 
 本页所有结果都来自 [`code/`](https://github.com/z-boyi/gps-running-accuracy-doe/tree/main/code) 文件夹里的四个 R 脚本。想重现结果：下载或 clone 这个 repo，在 R 或 RStudio 里把 repo 文件夹设为工作目录，然后运行：
 
 ```r
-source("code/01_randomization.R")   # 随机顺序（seed 404）
-source("code/00_clean_data.R")      # 原始记录 -> data/processed/gps_runs.csv
+source("code/00_randomization.R")   # 随机顺序（seed 404）
+source("code/01_clean_data.R")      # 原始记录 -> data/processed/gps_runs.csv
 source("code/02_analysis.R")        # 带符号误差：混合模型、诊断、效应
 source("code/03_absolute_error.R")  # 准确度：MAPE、bootstrap、log|e| 模型
 ```
 
 整理数据的脚本会先自动安装缺少的 R 包（`lme4`、`lmerTest`、`emmeans`、`pbkrtest`、`ggplot2`）：
 
-<!-- r: code/00_clean_data.R 0 -->
+<!-- r: code/01_clean_data.R 0 -->
 
 结果表格写到 `results/`，图写到 `figures/`。bootstrap 用了固定的随机种子，所以每个数字都和本页一致。

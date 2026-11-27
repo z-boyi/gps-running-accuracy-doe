@@ -88,7 +88,7 @@ All four members followed their random order **exactly**.
 | 7 | 8 | hand | jog |
 | 8 | 8 | pocket | walk |
 
-<!-- r: code/01_randomization.R all -->
+<!-- r: code/00_randomization.R all -->
 
 
 ### 2.5 Replication
@@ -168,7 +168,7 @@ Being honest about what we did not do matters: if asked, saying clearly "we did 
 
 ## 6. Data preparation
 
-The raw sheet has one row per lap with the Strava and Keep readings side by side. Before analysis, the script `code/00_clean_data.R` does the following; the raw sheet is never edited by hand:
+The raw sheet has one row per lap with the Strava and Keep readings side by side. Before analysis, the script `code/01_clean_data.R` does the following; the raw sheet is never edited by hand:
 
 1. **Checks the data**: 32 rows; 8 laps per member; each setting exactly once per member. This confirms the data match the design.
 2. **Reshapes wide to long**: one row per app reading, 64 rows. Mixed models need this format.
@@ -188,7 +188,7 @@ Writing the preparation as a script means anyone can re-run it and get exactly t
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Keep | 453.03 | 470 | 3.746 |
 | Phoebe | 3 | Phoebe_3 | 8 | hand | walk | Strava | 453.03 | 490 | 8.161 |
 
-<!-- r: code/00_clean_data.R 1-4 -->
+<!-- r: code/01_clean_data.R 1-4 -->
 
 
 ---
@@ -483,14 +483,14 @@ The typical absolute error and interval for all 16 combinations (2 apps × 8 set
 All results on this page come from four R scripts in the [`code/`](https://github.com/z-boyi/gps-running-accuracy-doe/tree/main/code) folder. To reproduce them, download or clone the repository, open R or RStudio with the repository folder as the working directory, and run:
 
 ```r
-source("code/01_randomization.R")   # randomized run order (seed 404)
-source("code/00_clean_data.R")      # raw lap log -> data/processed/gps_runs.csv
+source("code/00_randomization.R")   # randomized run order (seed 404)
+source("code/01_clean_data.R")      # raw lap log -> data/processed/gps_runs.csv
 source("code/02_analysis.R")        # signed error: mixed model, checks, effects
 source("code/03_absolute_error.R")  # accuracy: MAPE, bootstrap, log|e| model
 ```
 
 The first script to run installs any missing packages (`lme4`, `lmerTest`, `emmeans`, `pbkrtest`, `ggplot2`):
 
-<!-- r: code/00_clean_data.R 0 -->
+<!-- r: code/01_clean_data.R 0 -->
 
 Tables are written to `results/` and plots to `figures/`. The bootstrap uses a fixed seed, so every number matches this page.

@@ -69,8 +69,8 @@ Full results: [`report/results_summary.md`](report/results_summary.md).
 ```
 .
 ├── code/
-│   ├── 00_clean_data.R      # lap log -> data/processed/gps_runs.csv
-│   ├── 01_randomization.R   # generates the within-block run order (seed 404)
+│   ├── 00_randomization.R   # generates the within-block run order (seed 404)
+│   ├── 01_clean_data.R      # lap log -> data/processed/gps_runs.csv
 │   ├── 02_analysis.R        # signed error: mixed model, block check, diagnostics, effects
 │   └── 03_absolute_error.R  # accuracy: MAPE, bootstrap, log(|e|) model
 ├── data/
@@ -108,13 +108,13 @@ The original proposal is kept unchanged. Reviewer comments and our response live
 
 ```r
 # from the repository root
-source("code/01_randomization.R")   # regenerate the randomized schedule
-source("code/00_clean_data.R")      # lap log -> data/processed/gps_runs.csv
+source("code/00_randomization.R")   # regenerate the randomized schedule
+source("code/01_clean_data.R")      # lap log -> data/processed/gps_runs.csv
 source("code/02_analysis.R")        # signed-error analysis
 source("code/03_absolute_error.R")  # accuracy (MAPE) analysis
 ```
 
-Requires R ≥ 4.2. `00_clean_data.R` installs any missing packages (`lme4`, `lmerTest`, `emmeans`, `pbkrtest`, `ggplot2`).
+Requires R ≥ 4.2. `01_clean_data.R` installs any missing packages (`lme4`, `lmerTest`, `emmeans`, `pbkrtest`, `ggplot2`).
 
 ## Team
 

@@ -1,13 +1,13 @@
-# 00_clean_data.R
+# 01_clean_data.R
 # Turn the raw lap log (one row per lap, both apps side by side) into the
 # analysis file data/processed/gps_runs.csv (one row per app reading).
 #
 # The raw file data/gps_track_data_log.csv is never edited by hand;
 # every cleaning step lives here so it can be re-run and checked.
 #
-# Run from the repository root:  Rscript code/00_clean_data.R
-# Run this script first: it also installs the R packages that the analysis
-# scripts (02_analysis.R, 03_absolute_error.R) need.
+# Run from the repository root:  Rscript code/01_clean_data.R
+# Run this script before the analysis scripts: it also installs the R
+# packages that the analysis scripts (02_analysis.R, 03_absolute_error.R) need.
 
 # ---- 0. Packages ------------------------------------------------------------
 
