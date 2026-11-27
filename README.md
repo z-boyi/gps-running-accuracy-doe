@@ -28,7 +28,7 @@ Specifically, we aim to:
 | **Site** | Rashpal Dhillon Track & Field Oval, University of British Columbia (outdoor 400 m track, 1.22 m lanes) |
 | **Blocking** | 4 blocks = 4 owner–phone pairs; each person uses their own phone for all laps |
 | **Experimental unit** | One lap (for lane, placement, pace); the two app readings within a lap are **paired** |
-| **Randomization** | 8 lane × placement × pace combinations randomized independently within each block in R (`set.seed(404)`) |
+| **Randomization** | 8 lane × placement × pace combinations randomized independently within each block in R: `set.seed(404)` is set once, then each block gets its own `sample(8)` |
 | **Replication** | Each combination observed once per block → 8 laps/person, 32 laps, **64 app readings** |
 
 **Response:** signed percentage distance error (positive = the app over-records)
@@ -45,7 +45,8 @@ $$e = 100 \times \frac{d_{\text{recorded}} - d_{\text{true}}}{d_{\text{true}}}, 
   lmer(error_pct ~ block * app + app * lane * placement * pace + (1 | lap_id), data = dat)
   ```
 - **Why `(1 | lap_id)`:** both apps record the same lap at the same time, so their two readings share that lap's conditions. `lap_id` (e.g. `Boyi_3`, 32 laps) gives each lap a random intercept. This is a split-plot structure: laps are whole plots for lane, placement and pace, and app readings are sub-plots, compared within laps as in a paired test. Treating the 64 readings as independent (`lm`) would be pseudo-replication.
-- Estimated means and effects with 95% CIs (`emmeans`), main-effect and interaction plots
+- Estimated means and effects with 95% CIs (`emmeans`), averaged over our 4 blocks; main-effect and interaction plots
+- Interactions among app, lane, placement and pace: the smallest p-value of the 11 interaction terms is printed (none detected, all p ≥ 0.13)
 - Diagnostics: residuals vs. fitted, normal Q–Q, residuals vs. lap order; sensitivity to the true lap length (±1 m)
 - **Sensitivity, blocks as a random sample of phones:** `(1 | block) + (1 | block:app)` instead of fixed blocks, to see what four phones say about a typical phone
 - **Accuracy:** MAPE by app with a bootstrap that resamples laps within blocks, and a mixed model for log(|e| + 0.5)
