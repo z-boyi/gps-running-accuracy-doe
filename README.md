@@ -95,7 +95,7 @@ Full results: [`report/results_summary.md`](report/results_summary.md).
 │   ├── proposal.css
 │   ├── build_proposal_v2.sh
 │   ├── results_summary.md   # results and conclusions
-│   └── presentation_slides.pdf  # final class presentation (5 slides)
+│   └── presentation_slides.pdf  # final class presentation (title + 5 slides)
 └── review/
     └── 2026-11_proposal/
         ├── reviewer_comments.md   # reviewer comments on the proposal, verbatim
