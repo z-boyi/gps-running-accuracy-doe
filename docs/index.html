@@ -578,43 +578,45 @@ design is reproducible.</p>
 </table>
 <details class="rcode">
 <summary>
-R code · <code>code/00_randomization.R</code>, lines 1–32
+R code · <code>code/00_randomization.R</code>, lines 1–34
 </summary>
 <div class="sourceCode" id="en-cb1"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb1-1"><a href="#en-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 00_randomization.R</span></span>
 <span id="en-cb1-2"><a href="#en-cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomize the run order of the 8 lane x pace x placement combinations</span></span>
 <span id="en-cb1-3"><a href="#en-cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># independently within each block (owner-phone pair).</span></span>
-<span id="en-cb1-4"><a href="#en-cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the exact code from the project proposal (seed 404); it also writes</span></span>
-<span id="en-cb1-5"><a href="#en-cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># the resulting schedule to data/randomization_schedule.csv.</span></span>
-<span id="en-cb1-6"><a href="#en-cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb1-7"><a href="#en-cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
+<span id="en-cb1-4"><a href="#en-cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># One seed (404) is set once; the four blocks then get four consecutive,</span></span>
+<span id="en-cb1-5"><a href="#en-cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># independent draws of sample(8), so each block has its own random order.</span></span>
+<span id="en-cb1-6"><a href="#en-cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the exact code from the project proposal; it also writes</span></span>
+<span id="en-cb1-7"><a href="#en-cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the resulting schedule to data/randomization_schedule.csv.</span></span>
 <span id="en-cb1-8"><a href="#en-cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb1-9"><a href="#en-cb1-9" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
-<span id="en-cb1-10"><a href="#en-cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">lane      =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">8</span>),</span>
-<span id="en-cb1-11"><a href="#en-cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">pace      =</span> <span class="fu">c</span>(<span class="st">&quot;walk&quot;</span>, <span class="st">&quot;jog&quot;</span>),</span>
-<span id="en-cb1-12"><a href="#en-cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">placement =</span> <span class="fu">c</span>(<span class="st">&quot;hand&quot;</span>, <span class="st">&quot;pocket&quot;</span>)</span>
-<span id="en-cb1-13"><a href="#en-cb1-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="en-cb1-14"><a href="#en-cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb1-15"><a href="#en-cb1-15" aria-hidden="true" tabindex="-1"></a>members <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Phoebe&quot;</span>, <span class="st">&quot;Boyi&quot;</span>, <span class="st">&quot;Jenny&quot;</span>, <span class="st">&quot;Darren&quot;</span>)</span>
+<span id="en-cb1-9"><a href="#en-cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
+<span id="en-cb1-10"><a href="#en-cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb1-11"><a href="#en-cb1-11" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="en-cb1-12"><a href="#en-cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">lane      =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">8</span>),</span>
+<span id="en-cb1-13"><a href="#en-cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">pace      =</span> <span class="fu">c</span>(<span class="st">&quot;walk&quot;</span>, <span class="st">&quot;jog&quot;</span>),</span>
+<span id="en-cb1-14"><a href="#en-cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">placement =</span> <span class="fu">c</span>(<span class="st">&quot;hand&quot;</span>, <span class="st">&quot;pocket&quot;</span>)</span>
+<span id="en-cb1-15"><a href="#en-cb1-15" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="en-cb1-16"><a href="#en-cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb1-17"><a href="#en-cb1-17" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="en-cb1-18"><a href="#en-cb1-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (m <span class="cf">in</span> members) {</span>
-<span id="en-cb1-19"><a href="#en-cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(m, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="en-cb1-20"><a href="#en-cb1-20" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">8</span>)</span>
-<span id="en-cb1-21"><a href="#en-cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(design[idx, ])</span>
-<span id="en-cb1-22"><a href="#en-cb1-22" aria-hidden="true" tabindex="-1"></a>  schedule[[m]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="en-cb1-23"><a href="#en-cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">block      =</span> m,</span>
-<span id="en-cb1-24"><a href="#en-cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">lap_order  =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>,</span>
-<span id="en-cb1-25"><a href="#en-cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">design_row =</span> idx,</span>
-<span id="en-cb1-26"><a href="#en-cb1-26" aria-hidden="true" tabindex="-1"></a>    design[idx, ],</span>
-<span id="en-cb1-27"><a href="#en-cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names  =</span> <span class="cn">NULL</span></span>
-<span id="en-cb1-28"><a href="#en-cb1-28" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="en-cb1-29"><a href="#en-cb1-29" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="en-cb1-30"><a href="#en-cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb1-31"><a href="#en-cb1-31" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, schedule)</span>
-<span id="en-cb1-32"><a href="#en-cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(schedule, <span class="st">&quot;data/randomization_schedule.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<span id="en-cb1-17"><a href="#en-cb1-17" aria-hidden="true" tabindex="-1"></a>members <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Phoebe&quot;</span>, <span class="st">&quot;Boyi&quot;</span>, <span class="st">&quot;Jenny&quot;</span>, <span class="st">&quot;Darren&quot;</span>)</span>
+<span id="en-cb1-18"><a href="#en-cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb1-19"><a href="#en-cb1-19" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="en-cb1-20"><a href="#en-cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (m <span class="cf">in</span> members) {</span>
+<span id="en-cb1-21"><a href="#en-cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(m, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="en-cb1-22"><a href="#en-cb1-22" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">8</span>)</span>
+<span id="en-cb1-23"><a href="#en-cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(design[idx, ])</span>
+<span id="en-cb1-24"><a href="#en-cb1-24" aria-hidden="true" tabindex="-1"></a>  schedule[[m]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="en-cb1-25"><a href="#en-cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">block      =</span> m,</span>
+<span id="en-cb1-26"><a href="#en-cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">lap_order  =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>,</span>
+<span id="en-cb1-27"><a href="#en-cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">design_row =</span> idx,</span>
+<span id="en-cb1-28"><a href="#en-cb1-28" aria-hidden="true" tabindex="-1"></a>    design[idx, ],</span>
+<span id="en-cb1-29"><a href="#en-cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names  =</span> <span class="cn">NULL</span></span>
+<span id="en-cb1-30"><a href="#en-cb1-30" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="en-cb1-31"><a href="#en-cb1-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="en-cb1-32"><a href="#en-cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb1-33"><a href="#en-cb1-33" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, schedule)</span>
+<span id="en-cb1-34"><a href="#en-cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(schedule, <span class="st">&quot;data/randomization_schedule.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_randomization.R#L1-L32">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_randomization.R#L1-L34">View
 on GitHub</a>
 </p>
 </details>
@@ -2232,43 +2234,45 @@ pace
 </table>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/00_randomization.R</code> 第 1–32 行
+R 代码 · <code>code/00_randomization.R</code> 第 1–34 行
 </summary>
 <div class="sourceCode" id="zh-cb1"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb1-1"><a href="#zh-cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 00_randomization.R</span></span>
 <span id="zh-cb1-2"><a href="#zh-cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomize the run order of the 8 lane x pace x placement combinations</span></span>
 <span id="zh-cb1-3"><a href="#zh-cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># independently within each block (owner-phone pair).</span></span>
-<span id="zh-cb1-4"><a href="#zh-cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the exact code from the project proposal (seed 404); it also writes</span></span>
-<span id="zh-cb1-5"><a href="#zh-cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># the resulting schedule to data/randomization_schedule.csv.</span></span>
-<span id="zh-cb1-6"><a href="#zh-cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb1-7"><a href="#zh-cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
+<span id="zh-cb1-4"><a href="#zh-cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># One seed (404) is set once; the four blocks then get four consecutive,</span></span>
+<span id="zh-cb1-5"><a href="#zh-cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># independent draws of sample(8), so each block has its own random order.</span></span>
+<span id="zh-cb1-6"><a href="#zh-cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the exact code from the project proposal; it also writes</span></span>
+<span id="zh-cb1-7"><a href="#zh-cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the resulting schedule to data/randomization_schedule.csv.</span></span>
 <span id="zh-cb1-8"><a href="#zh-cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb1-9"><a href="#zh-cb1-9" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
-<span id="zh-cb1-10"><a href="#zh-cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">lane      =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">8</span>),</span>
-<span id="zh-cb1-11"><a href="#zh-cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">pace      =</span> <span class="fu">c</span>(<span class="st">&quot;walk&quot;</span>, <span class="st">&quot;jog&quot;</span>),</span>
-<span id="zh-cb1-12"><a href="#zh-cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">placement =</span> <span class="fu">c</span>(<span class="st">&quot;hand&quot;</span>, <span class="st">&quot;pocket&quot;</span>)</span>
-<span id="zh-cb1-13"><a href="#zh-cb1-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="zh-cb1-14"><a href="#zh-cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb1-15"><a href="#zh-cb1-15" aria-hidden="true" tabindex="-1"></a>members <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Phoebe&quot;</span>, <span class="st">&quot;Boyi&quot;</span>, <span class="st">&quot;Jenny&quot;</span>, <span class="st">&quot;Darren&quot;</span>)</span>
+<span id="zh-cb1-9"><a href="#zh-cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
+<span id="zh-cb1-10"><a href="#zh-cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb1-11"><a href="#zh-cb1-11" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="zh-cb1-12"><a href="#zh-cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">lane      =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">8</span>),</span>
+<span id="zh-cb1-13"><a href="#zh-cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">pace      =</span> <span class="fu">c</span>(<span class="st">&quot;walk&quot;</span>, <span class="st">&quot;jog&quot;</span>),</span>
+<span id="zh-cb1-14"><a href="#zh-cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">placement =</span> <span class="fu">c</span>(<span class="st">&quot;hand&quot;</span>, <span class="st">&quot;pocket&quot;</span>)</span>
+<span id="zh-cb1-15"><a href="#zh-cb1-15" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="zh-cb1-16"><a href="#zh-cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb1-17"><a href="#zh-cb1-17" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="zh-cb1-18"><a href="#zh-cb1-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (m <span class="cf">in</span> members) {</span>
-<span id="zh-cb1-19"><a href="#zh-cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(m, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="zh-cb1-20"><a href="#zh-cb1-20" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">8</span>)</span>
-<span id="zh-cb1-21"><a href="#zh-cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(design[idx, ])</span>
-<span id="zh-cb1-22"><a href="#zh-cb1-22" aria-hidden="true" tabindex="-1"></a>  schedule[[m]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="zh-cb1-23"><a href="#zh-cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">block      =</span> m,</span>
-<span id="zh-cb1-24"><a href="#zh-cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">lap_order  =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>,</span>
-<span id="zh-cb1-25"><a href="#zh-cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">design_row =</span> idx,</span>
-<span id="zh-cb1-26"><a href="#zh-cb1-26" aria-hidden="true" tabindex="-1"></a>    design[idx, ],</span>
-<span id="zh-cb1-27"><a href="#zh-cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names  =</span> <span class="cn">NULL</span></span>
-<span id="zh-cb1-28"><a href="#zh-cb1-28" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="zh-cb1-29"><a href="#zh-cb1-29" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="zh-cb1-30"><a href="#zh-cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb1-31"><a href="#zh-cb1-31" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, schedule)</span>
-<span id="zh-cb1-32"><a href="#zh-cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(schedule, <span class="st">&quot;data/randomization_schedule.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<span id="zh-cb1-17"><a href="#zh-cb1-17" aria-hidden="true" tabindex="-1"></a>members <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Phoebe&quot;</span>, <span class="st">&quot;Boyi&quot;</span>, <span class="st">&quot;Jenny&quot;</span>, <span class="st">&quot;Darren&quot;</span>)</span>
+<span id="zh-cb1-18"><a href="#zh-cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb1-19"><a href="#zh-cb1-19" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="zh-cb1-20"><a href="#zh-cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (m <span class="cf">in</span> members) {</span>
+<span id="zh-cb1-21"><a href="#zh-cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(m, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="zh-cb1-22"><a href="#zh-cb1-22" aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">8</span>)</span>
+<span id="zh-cb1-23"><a href="#zh-cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(design[idx, ])</span>
+<span id="zh-cb1-24"><a href="#zh-cb1-24" aria-hidden="true" tabindex="-1"></a>  schedule[[m]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="zh-cb1-25"><a href="#zh-cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">block      =</span> m,</span>
+<span id="zh-cb1-26"><a href="#zh-cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">lap_order  =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>,</span>
+<span id="zh-cb1-27"><a href="#zh-cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">design_row =</span> idx,</span>
+<span id="zh-cb1-28"><a href="#zh-cb1-28" aria-hidden="true" tabindex="-1"></a>    design[idx, ],</span>
+<span id="zh-cb1-29"><a href="#zh-cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names  =</span> <span class="cn">NULL</span></span>
+<span id="zh-cb1-30"><a href="#zh-cb1-30" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="zh-cb1-31"><a href="#zh-cb1-31" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="zh-cb1-32"><a href="#zh-cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb1-33"><a href="#zh-cb1-33" aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, schedule)</span>
+<span id="zh-cb1-34"><a href="#zh-cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(schedule, <span class="st">&quot;data/randomization_schedule.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_randomization.R#L1-L32">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/00_randomization.R#L1-L34">在
 GitHub 上查看</a>
 </p>
 </details>
