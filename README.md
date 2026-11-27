@@ -5,7 +5,7 @@
 
 A blocked 2⁴ factorial experiment measuring how **app choice, track lane, phone placement and pace** affect the distance error of consumer GPS running apps (Strava vs. Keep), and whether these factors interact.
 
-📖 **[Read the step-by-step guide to this experiment (English / 中文)](https://z-boyi.github.io/gps-running-accuracy-doe/docs/)**: how the design, data, model and conclusions fit together, with the figures and tables next to each explanation.
+📖 **[Read the step-by-step guide to this experiment](https://z-boyi.github.io/gps-running-accuracy-doe/docs/?lang=en)**: how the design, data, model and conclusions fit together, with the figures and tables next to each explanation.
 
 📊 **[Final presentation slides (PDF)](report/presentation_slides.pdf)**
 
