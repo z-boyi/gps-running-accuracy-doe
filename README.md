@@ -47,19 +47,20 @@ $$e = 100 \times \frac{d_{\text{recorded}} - d_{\text{true}}}{d_{\text{true}}}, 
 - **Why `(1 | lap_id)`:** both apps record the same lap at the same time, so their two readings share that lap's conditions. `lap_id` (e.g. `Boyi_3`, 32 laps) gives each lap a random intercept. This is a split-plot structure: laps are whole plots for lane, placement and pace, and app readings are sub-plots, compared within laps as in a paired test. Treating the 64 readings as independent (`lm`) would be pseudo-replication.
 - Estimated means and effects with 95% CIs (`emmeans`), main-effect and interaction plots
 - Diagnostics: residuals vs. fitted, normal Q–Q, residuals vs. lap order; sensitivity to the true lap length (±1 m)
+- **Sensitivity, blocks as a random sample of phones:** `(1 | block) + (1 | block:app)` instead of fixed blocks, to see what four phones say about a typical phone
 - **Accuracy:** MAPE by app with a bootstrap that resamples laps within blocks, and a mixed model for log(|e| + 0.5)
 
 ## Key results
 
-- The apps **over-record by about 1.9%** on average (95% CI 1.1% to 2.7%).
+- On our four phones the apps **over-record by about 1.9%** on average (95% CI 1.1% to 2.7%). Treating the phones as a random sample, the CI for a typical phone is −2.2% to 6.0%: four phones are too few to generalize.
 - **The app effect depends on the phone:** Strava read 1.5 to 4 percentage points longer than Keep on three phones and 2.6 points shorter on the fourth (app × block p = 0.002).
-- Lane, placement and pace had **no clear effect** at this sample size.
+- Lane, placement and pace had **no clear effect** at this sample size, and none of the 11 interactions among app, lane, placement and pace was detected (all p ≥ 0.13).
 - Keep had the lower MAPE (2.7% vs 3.6%), but the difference is not statistically clear; no single best combination is declared.
 
 ## Limitations
 
 - The apps show distance in 0.01 km steps, so each reading has up to ±5 m (about ±1.2%) of rounding error, similar in size to several of the effects.
-- Four phones on one track, mostly one day per member: day and weather cannot be separated from the block.
+- Four phones on one track, mostly one day per member: day and weather were not blocked separately and cannot be separated from the block.
 - Phone position and pace were left to each member's habit, so those effects are averages over personal styles.
 
 Full results: [`report/results_summary.md`](report/results_summary.md).
@@ -71,7 +72,8 @@ Full results: [`report/results_summary.md`](report/results_summary.md).
 ├── code/
 │   ├── 00_randomization.R   # generates the within-block run order (seed 404)
 │   ├── 01_clean_data.R      # lap log -> data/processed/gps_runs.csv
-│   ├── 02_analysis.R        # signed error: mixed model, block check, diagnostics, effects
+│   ├── 02_analysis.R        # signed error: mixed model, block check, diagnostics, effects,
+│   │                        #   random-block sensitivity model
 │   └── 03_absolute_error.R  # accuracy: MAPE, bootstrap, log(|e|) model
 ├── data/
 │   ├── README.md            # what each data file contains
