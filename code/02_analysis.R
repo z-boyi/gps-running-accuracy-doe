@@ -137,6 +137,15 @@ write.csv(app_by_block_df, "results/app_difference_by_block.csv", row.names = FA
 # The interaction is clear, so fit_int is used as the final model from here on
 fit <- fit_int
 
+# Aim 2 also asks about interactions among the treatment factors: the
+# smallest p-value among all 11 two-, three- and four-way interactions of
+# app, lane, placement and pace (block:app is reported separately above)
+int_terms <- grep(":", rownames(anova_int), value = TRUE)
+int_terms <- setdiff(int_terms, "block:app")
+int_p <- anova_int[int_terms, "Pr(>F)"]
+cat(sprintf("Treatment-factor interactions: %d terms, smallest p = %.2f (%s)\n",
+            length(int_terms), min(int_p), int_terms[which.min(int_p)]))
+
 # ---- 5. Model checking ------------------------------------------------------
 
 dat$fitted <- fitted(fit)

@@ -1289,7 +1289,7 @@ block-by-block results and do not say “Strava always reads longer”.</p>
 and the residual SD about 2.20.</p>
 <details class="rcode">
 <summary>
-R code · <code>code/02_analysis.R</code>, lines 98–138
+R code · <code>code/02_analysis.R</code>, lines 98–147
 </summary>
 <div class="sourceCode" id="en-cb8"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb8-1"><a href="#en-cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 4. Is the app effect the same on every phone? (review comment 7) -------</span></span>
@@ -1332,9 +1332,18 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb8-1"><a href="#en
 <span id="en-cb8-38"><a href="#en-cb8-38" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(app_by_block_df, <span class="st">&quot;results/app_difference_by_block.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
 <span id="en-cb8-39"><a href="#en-cb8-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="en-cb8-40"><a href="#en-cb8-40" aria-hidden="true" tabindex="-1"></a><span class="co"># The interaction is clear, so fit_int is used as the final model from here on</span></span>
-<span id="en-cb8-41"><a href="#en-cb8-41" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> fit_int</span></code></pre></div>
+<span id="en-cb8-41"><a href="#en-cb8-41" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> fit_int</span>
+<span id="en-cb8-42"><a href="#en-cb8-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb8-43"><a href="#en-cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Aim 2 also asks about interactions among the treatment factors: the</span></span>
+<span id="en-cb8-44"><a href="#en-cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co"># smallest p-value among all 11 two-, three- and four-way interactions of</span></span>
+<span id="en-cb8-45"><a href="#en-cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co"># app, lane, placement and pace (block:app is reported separately above)</span></span>
+<span id="en-cb8-46"><a href="#en-cb8-46" aria-hidden="true" tabindex="-1"></a>int_terms <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;:&quot;</span>, <span class="fu">rownames</span>(anova_int), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="en-cb8-47"><a href="#en-cb8-47" aria-hidden="true" tabindex="-1"></a>int_terms <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(int_terms, <span class="st">&quot;block:app&quot;</span>)</span>
+<span id="en-cb8-48"><a href="#en-cb8-48" aria-hidden="true" tabindex="-1"></a>int_p <span class="ot">&lt;-</span> anova_int[int_terms, <span class="st">&quot;Pr(&gt;F)&quot;</span>]</span>
+<span id="en-cb8-49"><a href="#en-cb8-49" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Treatment-factor interactions: %d terms, smallest p = %.2f (%s)</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="en-cb8-50"><a href="#en-cb8-50" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(int_terms), <span class="fu">min</span>(int_p), int_terms[<span class="fu">which.min</span>(int_p)]))</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L98-L138">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L98-L147">View
 on GitHub</a>
 </p>
 </details>
@@ -1377,7 +1386,7 @@ negative values. Leaving e untransformed keeps the intuitive
 “over-records by so many percentage points” interpretation.</p>
 <details class="rcode">
 <summary>
-R code · <code>code/02_analysis.R</code>, lines 140–161
+R code · <code>code/02_analysis.R</code>, lines 149–170
 </summary>
 <div class="sourceCode" id="en-cb9"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb9-1"><a href="#en-cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 5. Model checking ------------------------------------------------------</span></span>
@@ -1403,7 +1412,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb9-1"><a href="#en
 <span id="en-cb9-21"><a href="#en-cb9-21" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">cor.test</span>(dat<span class="sc">$</span>resid, dat<span class="sc">$</span>lap_order))         <span class="co"># trend over the session?</span></span>
 <span id="en-cb9-22"><a href="#en-cb9-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">bartlett.test</span>(resid <span class="sc">~</span> block, <span class="at">data =</span> dat))   <span class="co"># equal spread across blocks?</span></span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L140-L161">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L149-L170">View
 on GitHub</a>
 </p>
 </details>
@@ -1496,7 +1505,7 @@ plus the 10 m resolution, so power is limited and “not detected” must be
 read with care.</p>
 <details class="rcode">
 <summary>
-R code · <code>code/02_analysis.R</code>, lines 163–218
+R code · <code>code/02_analysis.R</code>, lines 172–227
 </summary>
 <div class="sourceCode" id="en-cb10"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb10-1"><a href="#en-cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 6. Estimated effects (aims 1 and 2) ------------------------------------</span></span>
@@ -1556,7 +1565,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb10-1"><a href="#e
 <span id="en-cb10-55"><a href="#en-cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
 <span id="en-cb10-56"><a href="#en-cb10-56" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/05_interactions.png&quot;</span>, p_int, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L163-L218">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L172-L227">View
 on GitHub</a>
 </p>
 </details>
@@ -1605,7 +1614,7 @@ assumption and see whether the conclusion holds. If it does, the
 conclusion does not depend on that assumption.</p>
 <details class="rcode">
 <summary>
-R code · <code>code/02_analysis.R</code>, lines 220–233
+R code · <code>code/02_analysis.R</code>, lines 229–242
 </summary>
 <div class="sourceCode" id="en-cb11"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="en-cb11-1"><a href="#en-cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 7. Sensitivity to the true lap length ----------------------------------</span></span>
@@ -1623,7 +1632,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb11-1"><a href="#e
 <span id="en-cb11-13"><a href="#en-cb11-13" aria-hidden="true" tabindex="-1"></a>              a[<span class="st">&quot;block:app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>], a[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
 <span id="en-cb11-14"><a href="#en-cb11-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L220-L233">View
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L229-L242">View
 on GitHub</a>
 </p>
 </details>
@@ -2861,7 +2870,7 @@ rubric 里说的“model adjusted if necessary”：<strong>按计划建模 →
 个百分点。</p>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/02_analysis.R</code> 第 98–138 行
+R 代码 · <code>code/02_analysis.R</code> 第 98–147 行
 </summary>
 <div class="sourceCode" id="zh-cb8"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb8-1"><a href="#zh-cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 4. Is the app effect the same on every phone? (review comment 7) -------</span></span>
@@ -2904,9 +2913,18 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb8-1"><a href="#zh
 <span id="zh-cb8-38"><a href="#zh-cb8-38" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(app_by_block_df, <span class="st">&quot;results/app_difference_by_block.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
 <span id="zh-cb8-39"><a href="#zh-cb8-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="zh-cb8-40"><a href="#zh-cb8-40" aria-hidden="true" tabindex="-1"></a><span class="co"># The interaction is clear, so fit_int is used as the final model from here on</span></span>
-<span id="zh-cb8-41"><a href="#zh-cb8-41" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> fit_int</span></code></pre></div>
+<span id="zh-cb8-41"><a href="#zh-cb8-41" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> fit_int</span>
+<span id="zh-cb8-42"><a href="#zh-cb8-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb8-43"><a href="#zh-cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Aim 2 also asks about interactions among the treatment factors: the</span></span>
+<span id="zh-cb8-44"><a href="#zh-cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co"># smallest p-value among all 11 two-, three- and four-way interactions of</span></span>
+<span id="zh-cb8-45"><a href="#zh-cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co"># app, lane, placement and pace (block:app is reported separately above)</span></span>
+<span id="zh-cb8-46"><a href="#zh-cb8-46" aria-hidden="true" tabindex="-1"></a>int_terms <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;:&quot;</span>, <span class="fu">rownames</span>(anova_int), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="zh-cb8-47"><a href="#zh-cb8-47" aria-hidden="true" tabindex="-1"></a>int_terms <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(int_terms, <span class="st">&quot;block:app&quot;</span>)</span>
+<span id="zh-cb8-48"><a href="#zh-cb8-48" aria-hidden="true" tabindex="-1"></a>int_p <span class="ot">&lt;-</span> anova_int[int_terms, <span class="st">&quot;Pr(&gt;F)&quot;</span>]</span>
+<span id="zh-cb8-49"><a href="#zh-cb8-49" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Treatment-factor interactions: %d terms, smallest p = %.2f (%s)</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="zh-cb8-50"><a href="#zh-cb8-50" aria-hidden="true" tabindex="-1"></a>            <span class="fu">length</span>(int_terms), <span class="fu">min</span>(int_p), int_terms[<span class="fu">which.min</span>(int_p)]))</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L98-L138">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L98-L147">在
 GitHub 上查看</a>
 </p>
 </details>
@@ -2942,7 +2960,7 @@ Box-Cox）</strong>：变换是用来修正方差不齐或者残差不正态的�
 要求数据全部为正，没法直接用。不变换还能保留“多记几个百分点”这种直观解释。</p>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/02_analysis.R</code> 第 140–161 行
+R 代码 · <code>code/02_analysis.R</code> 第 149–170 行
 </summary>
 <div class="sourceCode" id="zh-cb9"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb9-1"><a href="#zh-cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 5. Model checking ------------------------------------------------------</span></span>
@@ -2968,7 +2986,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb9-1"><a href="#zh
 <span id="zh-cb9-21"><a href="#zh-cb9-21" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">cor.test</span>(dat<span class="sc">$</span>resid, dat<span class="sc">$</span>lap_order))         <span class="co"># trend over the session?</span></span>
 <span id="zh-cb9-22"><a href="#zh-cb9-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">bartlett.test</span>(resid <span class="sc">~</span> block, <span class="at">data =</span> dat))   <span class="co"># equal spread across blocks?</span></span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L140-L161">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L149-L170">在
 GitHub 上查看</a>
 </p>
 </details>
@@ -3052,7 +3070,7 @@ app × 组合只有 4 个读数，再加上 10 m
 的精度限制，功效有限。所以“没检测到”要谨慎解读。</p>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/02_analysis.R</code> 第 163–218 行
+R 代码 · <code>code/02_analysis.R</code> 第 172–227 行
 </summary>
 <div class="sourceCode" id="zh-cb10"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb10-1"><a href="#zh-cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 6. Estimated effects (aims 1 and 2) ------------------------------------</span></span>
@@ -3112,7 +3130,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb10-1"><a href="#z
 <span id="zh-cb10-55"><a href="#zh-cb10-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
 <span id="zh-cb10-56"><a href="#zh-cb10-56" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/05_interactions.png&quot;</span>, p_int, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">6</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L163-L218">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L172-L227">在
 GitHub 上查看</a>
 </p>
 </details>
@@ -3154,7 +3172,7 @@ GitHub 上查看</a>
 <p><strong>敏感性分析</strong>的一般含义：改变一个不确定的假设，看结论是否稳定。结论不变，说明它不依赖这个假设。</p>
 <details class="rcode">
 <summary>
-R 代码 · <code>code/02_analysis.R</code> 第 220–233 行
+R 代码 · <code>code/02_analysis.R</code> 第 229–242 行
 </summary>
 <div class="sourceCode" id="zh-cb11"><pre
 class="sourceCode r"><code class="sourceCode r"><span id="zh-cb11-1"><a href="#zh-cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 7. Sensitivity to the true lap length ----------------------------------</span></span>
@@ -3172,7 +3190,7 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb11-1"><a href="#z
 <span id="zh-cb11-13"><a href="#zh-cb11-13" aria-hidden="true" tabindex="-1"></a>              a[<span class="st">&quot;block:app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>], a[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
 <span id="zh-cb11-14"><a href="#zh-cb11-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
-<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L220-L233">在
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L229-L242">在
 GitHub 上查看</a>
 </p>
 </details>
