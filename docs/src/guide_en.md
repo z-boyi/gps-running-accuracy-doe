@@ -51,6 +51,8 @@ Why block: phones differ in GPS chips and antennas, and people differ in how the
 
 **Why block is a fixed effect, not a random effect**: we have only 4 blocks, and we care about these 4 specific phones; we are not trying to generalize to a population of all phones. Four levels are also too few to estimate a variance reliably. So block enters the model as an ordinary grouping variable (a fixed effect).
 
+The price of fixed blocks: the model's confidence intervals describe **our 4 phones** only. To ask about "a typical phone", block has to be refitted as a random effect; Section 10.3 does this as a sensitivity analysis.
+
 ### 2.3 Experimental units and pairing
 
 An **experimental unit** is the smallest unit that receives a treatment and gives an independent result. Our design has **two sizes** of unit:
@@ -69,24 +71,26 @@ The key point of a split-plot design is that whole-plot factors must be compared
 
 ### 2.4 Randomization
 
-The **order** of each member's 8 laps was randomized in R with `set.seed(404)`, separately for each member.
+The **order** of each member's 8 laps was randomized in R: `set.seed(404)` is set once, and then each of the four blocks in turn gets its own `sample(8)` (a random permutation of 1 to 8). Because the seed is set only once, the four draws are independent, so every member has a different order.
 
 **Why randomize**: conditions can drift during a session in ways we cannot control: fatigue, falling battery, satellites moving across the sky. If laps ran in a fixed order (say all walks, then all jogs), such drift would be mixed up with pace, and we could not tell whether a change in error came from speed or from time. Random order spreads these drifts evenly over the treatments so they do not systematically favour any one. `set.seed(404)` fixes the random numbers, so anyone re-running the code gets the same order: the design is reproducible.
 
 All four members followed their random order **exactly**.
 
-**Example: Boyi's random order** (full table in `data/randomization_schedule.csv`)
+**Random order in all four blocks** (each cell is lane · H/P = hand/pocket · W/J = walk/jog; **bold** = lap run in light rain; full table in `data/randomization_schedule.csv`)
 
-| Lap | Lane | Placement | Pace |
-|---|---|---|---|
-| 1 | 8 | hand | walk |
-| 2 | 1 | hand | walk |
-| 3 | 1 | hand | jog |
-| 4 | 8 | pocket | jog |
-| 5 | 1 | pocket | walk |
-| 6 | 1 | pocket | jog |
-| 7 | 8 | hand | jog |
-| 8 | 8 | pocket | walk |
+| Lap | Phoebe | Boyi | Jenny | Darren |
+|---|---|---|---|---|
+| 1 | 1 · H · J | 8 · H · W | **1 · P · W** | **1 · H · W** |
+| 2 | 1 · H · W | 1 · H · W | **8 · P · W** | **1 · P · W** |
+| 3 | 8 · H · W | 1 · H · J | 1 · P · J | **8 · H · J** |
+| 4 | 8 · P · J | 8 · P · J | 8 · H · W | **8 · P · J** |
+| 5 | 8 · H · J | 1 · P · W | 8 · P · J | **1 · H · J** |
+| 6 | 8 · P · W | 1 · P · J | **1 · H · W** | **8 · P · W** |
+| 7 | 1 · P · W | 8 · H · J | 8 · H · J | **1 · P · J** |
+| 8 | 1 · P · J | 8 · P · W | 1 · H · J | **8 · H · W** |
+
+How to read it: each column (one member) contains all 8 settings once, which is what "complete block" means; but the four columns are in different orders, which is what "randomized independently within each block" means. The bold cells are the shaded cells on the slide: Darren's whole block was run in light rain, and so were Jenny's laps 1, 2 and 6 (Section 5 explains what this means).
 
 <!-- r: code/00_randomization.R all -->
 
@@ -159,7 +163,8 @@ Being honest about what we did not do matters: if asked, saying clearly "we did 
 
 - **Site**: the Rashpal Dhillon Track & Field Oval at UBC; all four members used the same track, so the site is not a source of variation.
 - **Dates and weather**: Phoebe (partly cloudy) and Boyi (sunny) ran all laps on 12 November; Darren on 13 November (light rain); Jenny ran laps 1, 2 and 6 on 6 November (light rain) and the other five on 12 November (partly cloudy).
-- **Why weather and date don't distort the results**: each member ran almost everything on one day, so weather and date differences fall inside the member block and are absorbed by the block effect. Statistically, weather is **confounded** with block: we cannot separate "phone/person" from "weather", but since we are not studying the block effect, the other comparisons are unaffected.
+- **Day and weather were not blocked separately**: no member ran a set of laps on different days or in different weather, so day and weather are not a blocking factor of their own. Each member ran almost everything on one day, so weather and date differences fall inside the member block and are absorbed by the block effect. Statistically, weather is **confounded** with block: we cannot separate "phone/person" from "weather". For example, Darren's phone had low errors; that could be the phone, or the fact that his whole block was run in the rain.
+- **Why this does not distort the treatment results**: app, lane, placement and pace are all compared within a block, so weather shared by a whole block cancels from those comparisons. What we cannot answer is where the block effect comes from, and the block effect is not what we are studying.
 - **One exception**: Jenny's three rainy laps on 6 November happened to be all walking laps, so within her block weather is partly confounded with pace. This came from the random order by chance; pointing it out shows we understand the design.
 - **Protocol**: open both apps and wait 60 s for a GPS lock; start both at the finish line; walk or jog one lap in the assigned lane, close to the lane's inner line; stop both when crossing the same line; record both distances and screenshot them.
 - **Start times were not recorded**, so checks for trends over time use lap order.
@@ -341,11 +346,13 @@ The largest residual is Jenny's lap 1 Keep reading (+10%, residual +4.5). It is 
 | Walk / jog | 1.88% / 1.92% | p = 0.95 |
 
 
-![Estimated mean error at each factor level with 95% confidence intervals.](../figures/04_main_effects.png){width=100%}
+![Estimated mean error at each factor level with 95% confidence intervals, averaged over our 4 blocks.](../figures/04_main_effects.png){width=100%}
+
+The plot's subtitle says "Averaged over our 4 blocks (fixed-block final model)": these means and intervals average over **our 4 phones**. Since the app difference changes direction between phones, this matters; Section 10.3 covers what can be said about other phones.
 
 - **Answer to Aim 1**: overall +1.90%, with an interval excluding 0: the apps systematically over-record, by about 8 m per 400 m lap. One plausible reason is that GPS points jitter randomly, so the zig-zag line through them is longer than the true path.
 - **Answer to Aim 2**: block and app × block have by far the largest effects (p ≤ 0.002). Lane and pace: no effect detected at our sample size. Placement: weak evidence (pocket about 1.4 percentage points higher than hand, p = 0.08, interval includes 0), not enough to conclude.
-- All 11 interactions among the treatment factors have p > 0.12, none detected. In the interaction plot (`figures/05_interactions.png`) two pairs of lines cross (lane × pace and placement × pace), but the tests are not significant, so the crossing is most likely noise.
+- **Interactions**: aim 2 asks which factors **and interactions** matter. App, lane, placement and pace have 11 interactions among them (6 two-factor, 4 three-factor, 1 four-factor); **none was detected** in the final model, and the smallest p-value is 0.13 (app × lane × pace). The code in Section 8.5 prints this line right after fitting the final model: `Treatment-factor interactions: 11 terms, smallest p = 0.13 (app:lane:pace)`. In the interaction plot (`figures/05_interactions.png`) two pairs of lines cross (lane × pace and placement × pace), but the tests are not significant, so the crossing is most likely noise.
 
 ![The four two-factor interactions of main interest. Parallel lines mean no interaction.](../figures/05_interactions.png){width=100%}
 
@@ -369,6 +376,34 @@ The overall mean moves by only about ±0.24 percentage points and every p-value 
 **Sensitivity analysis** in general: change an uncertain assumption and see whether the conclusion holds. If it does, the conclusion does not depend on that assumption.
 
 <!-- r: code/02_analysis.R 7 -->
+
+### 10.3 Sensitivity analysis: the phones as a random sample
+
+The final model treats block as a **fixed effect**, so the interval 1.12% to 2.68% answers: "on **our 4 phones**, how much do the apps over-record on average?" To ask "how much does **a typical phone** over-record?", we treat the 4 phones as a random sample from all phones and make block a **random effect**:
+
+```r
+lmer(error_pct ~ app * lane * placement * pace +
+       (1 | block) + (1 | block:app) + (1 | lap_id), data = dat)
+```
+
+- `(1 | block)`: each phone has its own overall shift, drawn from a normal distribution; the model estimates its SD (phone-to-phone SD = 2.02 percentage points).
+- `(1 | block:app)`: the app difference may also vary by phone, the random version of app × block in the final model (SD = 1.92).
+- `(1 | lap_id)`: one random intercept per lap as before (SD = 1.45); residual SD = 2.20.
+
+| | Estimate | 95% CI (3 df) |
+|---|---|---|
+| Overall mean error | 1.90% | −2.15% to 5.95% |
+| Strava − Keep | 1.46 points | −3.19 to 6.11 |
+
+**The estimates are unchanged, but the intervals are much wider and both include 0**; the app test goes from p = 0.015 to p = 0.39. The reason: to generalize to all phones, the overall mean and the app effect have to be compared with phone-to-phone variation, and with only 4 phones that comparison has 4 − 1 = 3 degrees of freedom. The t critical value with 3 df is 3.18 (versus 1.96 with unlimited df), and the phones differ a lot, so the intervals are wide.
+
+Lane, placement, pace and their interactions are compared **within each phone**, so their tests are the same as in the final model (placement is still p = 0.08).
+
+**How to read it**: the two models do not contradict each other; they answer different questions. On the 4 phones we tested, the apps did over-record by about 2% on average, but 4 phones are too few to say that every phone over-records. That is exactly what the two sentences under aim 1 on the slide say.
+
+**Why the final model still uses fixed blocks**: as planned, we care about comparing the factors on these 4 phones, and 4 levels are too few to estimate a variance reliably. The random-block model is a sensitivity analysis that shows how far the conclusions can be generalized.
+
+<!-- r: code/02_analysis.R 8 -->
 
 ---
 
@@ -427,10 +462,10 @@ The typical absolute error and interval for all 16 combinations (2 apps × 8 set
 
 ## 12. Conclusions
 
-1. **Bias**: the apps over-record by about 1.9% on average (95% CI 1.1%–2.7%), roughly 8 m per 400 m.
+1. **Bias**: on our 4 phones the apps over-record by about 1.9% on average (95% CI 1.1%–2.7%), roughly 8 m per 400 m. With the phones treated as a random sample the interval is −2.2% to 6.0%: 4 phones are too few to generalize to all phones.
 2. **The phone matters more than the app**: which app reads longer depends on the phone; Strava is longer on three phones and Keep on one.
-3. **Lane, placement, pace**: no clear effect detected at our sample size; the pocket may over-record slightly, but the evidence is weak.
-4. **Accuracy**: Keep has the lower MAPE (2.7% vs 3.6%), but the difference is not significant; there is no single best combination.
+3. **Lane, placement, pace**: no clear effect detected at our sample size; the pocket may over-record slightly, but the evidence is weak. None of the 11 interactions among them was detected either (smallest p = 0.13).
+4. **Accuracy**: Keep has the lower MAPE (mean absolute percentage error, the mean of |e|: 2.7% vs 3.6%), but the difference is not significant; there is no single best combination.
 
 **What it means for an ordinary runner**: on a 400 m lap, seeing 0.41 km is normal. Switching apps will not necessarily make the reading more accurate; the phone may matter more.
 
@@ -439,22 +474,25 @@ The typical absolute error and interval for all 16 combinations (2 apps × 8 set
 ## 13. Limitations and improvements
 
 - **10 m display resolution**: rounding error (±1.1%–1.25%) is about as large as many effects, so small effects cannot be detected. Improvement: export the GPS track files and compute distance from the raw coordinates.
-- **Only 4 phones and one track**: the conclusions cannot be generalized directly to all phones and sites. Improvement: more phone models.
+- **Only 4 phones and one track**: the conclusions cannot be generalized directly to all phones and sites, as the random-block model (Section 10.3) shows. Improvement: more phone models.
 - **Phone position and pace were not standardized**: the placement and pace effects are averages over four personal habits, and lap-to-lap inconsistency within a member adds noise; lap times are missing for one member. Improvement: specify the hand, screen orientation and pocket, set target speeds (e.g. walking 4.5–5.5 km/h, jogging 8–10 km/h), and time every lap.
-- **Weather and date confounded with block**: Jenny's three rainy laps were all walks. Improvement: each member completes all laps on the same day in similar conditions.
+- **Weather and date not blocked separately, so confounded with block**: Darren's whole block was run in light rain, and Jenny's three rainy laps were all walks. Improvement: each member completes all laps on the same day in similar conditions, or runs one set in each kind of weather.
 - **Few replicates per combination**: 4 readings per cell, so comparisons between combinations have low power.
 
 ---
 
 ## 14. What each slide says
 
+The deck has 6 slides: a title slide and 5 content slides. Slide numbers are the ones shown in the bottom-right corner.
+
 | Slide | Core message | Key numbers | Sections here |
 |---|---|---|---|
-| 1 Formulation | Three aims; 4 factors and why; member-phone blocks; signed percentage error | 400.00 / 453.03 m | 1, 2.1, 2.2, 3 |
-| 2 Design (1) | 2⁴ factorial in 4 complete blocks; both apps on the same lap → paired; split-plot | 4 / 32 / 64; df 21 and 24 | 2.1–2.5 |
-| 3 Design (2) | Blocking, randomization, data collection, known constraints | set.seed(404); ±5 m | 2.2, 2.4, 3.4, 5 |
-| 4 Analysis | Planned model → check whether the app effect varies by phone → add app × block → diagnostics | +3.0 / +4.0 / −2.6 / +1.5; χ² = 22.4, p < 0.001 | 8, 9, 10.2 |
-| 5 Conclusions | Answers to the three aims; limitations and next steps | +1.9%; MAPE 2.7% vs 3.6% | 10–13 |
+| 1 Title | Title and team | | |
+| 2 Formulation | Three aims; 4 factors and why; member-phone blocks; day and weather not blocked; signed percentage error | 400.00 / 453.03 m | 1, 2.1, 2.2, 3, 5 |
+| 3 Design (1) | 2⁴ factorial in 4 complete blocks; both apps on the same lap → paired; split-plot | 4 / 32 / 64; df 21 and 24 | 2.1–2.5 |
+| 4 Design (2) | Run order of all 4 blocks (shaded = rain); blocking, randomization, data collection, known constraints | set.seed(404) + one sample(8) per block; ±5 m | 2.2, 2.4, 3.4, 5 |
+| 5 Analysis | Planned model → check whether the app effect varies by phone → add app × block → diagnostics | +3.0 / +4.0 / −2.6 / +1.5; χ² = 22.4, p < 0.001 | 8, 9, 10.2 |
+| 6 Conclusions | Answers to the three aims (with the random-block interval and the MAPE definition); limitations and next steps | +1.9% (−2.2 to 6.0); MAPE 2.7% vs 3.6% | 10–13 |
 
 ---
 
@@ -463,11 +501,13 @@ The typical absolute error and interval for all 16 combinations (2 apps × 8 set
 | Item | Number |
 |---|---|
 | Overall mean error | +1.90% (95% CI 1.12–2.68) |
+| Overall mean error, phones as random sample | 95% CI −2.15 to 5.95 (3 df); app p = 0.39 |
 | Keep / Strava mean error | +1.17% / +2.63% |
 | Strava − Keep (Phoebe / Boyi / Jenny / Darren) | +3.02 / +4.01 / −2.63 / +1.45 percentage points |
 | App × block | LRT χ² = 22.4, df = 3, p < 0.001; F-test p = 0.002 |
 | Block | p < 0.001 |
 | Lane / placement / pace | p = 0.50 / 0.08 / 0.95 |
+| 11 treatment-factor interactions | none detected, smallest p = 0.13 (app × lane × pace) |
 | Lap SD / residual SD | 1.45 / 2.20 percentage points |
 | Diagnostics | Shapiro p = 0.67; lap-order correlation −0.05 (p = 0.71); Bartlett p = 0.96 |
 | Sensitivity ±1 m | Overall mean 1.66%–2.14%, p-values unchanged |

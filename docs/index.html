@@ -230,6 +230,9 @@ means</a></li>
 <li><a href="#en-sensitivity-analysis-what-if-the-true-distance-is-off"
 id="en-toc-sensitivity-analysis-what-if-the-true-distance-is-off">10.2
 Sensitivity analysis: what if the true distance is off?</a></li>
+<li><a href="#en-sensitivity-analysis-the-phones-as-a-random-sample"
+id="en-toc-sensitivity-analysis-the-phones-as-a-random-sample">10.3
+Sensitivity analysis: the phones as a random sample</a></li>
 </ul></li>
 <li><a href="#en-accuracy-aim-3" id="en-toc-accuracy-aim-3">11. Accuracy
 (Aim 3)</a>
@@ -468,6 +471,10 @@ have only 4 blocks, and we care about these 4 specific phones; we are
 not trying to generalize to a population of all phones. Four levels are
 also too few to estimate a variance reliably. So block enters the model
 as an ordinary grouping variable (a fixed effect).</p>
+<p>The price of fixed blocks: the model’s confidence intervals describe
+<strong>our 4 phones</strong> only. To ask about “a typical phone”,
+block has to be refitted as a random effect; Section 10.3 does this as a
+sensitivity analysis.</p>
 <h3 id="en-experimental-units-and-pairing">2.3 Experimental units and
 pairing</h3>
 <p>An <strong>experimental unit</strong> is the smallest unit that
@@ -505,7 +512,10 @@ compared against within-lap variation. The two error sizes differ, and
 the model in Section 8 is built to reflect this.</p>
 <h3 id="en-randomization">2.4 Randomization</h3>
 <p>The <strong>order</strong> of each member’s 8 laps was randomized in
-R with <code>set.seed(404)</code>, separately for each member.</p>
+R: <code>set.seed(404)</code> is set once, and then each of the four
+blocks in turn gets its own <code>sample(8)</code> (a random permutation
+of 1 to 8). Because the seed is set only once, the four draws are
+independent, so every member has a different order.</p>
 <p><strong>Why randomize</strong>: conditions can drift during a session
 in ways we cannot control: fatigue, falling battery, satellites moving
 across the sky. If laps ran in a fixed order (say all walks, then all
@@ -517,68 +527,85 @@ random numbers, so anyone re-running the code gets the same order: the
 design is reproducible.</p>
 <p>All four members followed their random order
 <strong>exactly</strong>.</p>
-<p><strong>Example: Boyi’s random order</strong> (full table in
+<p><strong>Random order in all four blocks</strong> (each cell is lane ·
+H/P = hand/pocket · W/J = walk/jog; <strong>bold</strong> = lap run in
+light rain; full table in
 <code>data/randomization_schedule.csv</code>)</p>
 <table>
 <thead>
 <tr class="header">
 <th>Lap</th>
-<th>Lane</th>
-<th>Placement</th>
-<th>Pace</th>
+<th>Phoebe</th>
+<th>Boyi</th>
+<th>Jenny</th>
+<th>Darren</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>8</td>
-<td>hand</td>
-<td>walk</td>
+<td>1 · H · J</td>
+<td>8 · H · W</td>
+<td><strong>1 · P · W</strong></td>
+<td><strong>1 · H · W</strong></td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>1</td>
-<td>hand</td>
-<td>walk</td>
+<td>1 · H · W</td>
+<td>1 · H · W</td>
+<td><strong>8 · P · W</strong></td>
+<td><strong>1 · P · W</strong></td>
 </tr>
 <tr class="odd">
 <td>3</td>
-<td>1</td>
-<td>hand</td>
-<td>jog</td>
+<td>8 · H · W</td>
+<td>1 · H · J</td>
+<td>1 · P · J</td>
+<td><strong>8 · H · J</strong></td>
 </tr>
 <tr class="even">
 <td>4</td>
-<td>8</td>
-<td>pocket</td>
-<td>jog</td>
+<td>8 · P · J</td>
+<td>8 · P · J</td>
+<td>8 · H · W</td>
+<td><strong>8 · P · J</strong></td>
 </tr>
 <tr class="odd">
 <td>5</td>
-<td>1</td>
-<td>pocket</td>
-<td>walk</td>
+<td>8 · H · J</td>
+<td>1 · P · W</td>
+<td>8 · P · J</td>
+<td><strong>1 · H · J</strong></td>
 </tr>
 <tr class="even">
 <td>6</td>
-<td>1</td>
-<td>pocket</td>
-<td>jog</td>
+<td>8 · P · W</td>
+<td>1 · P · J</td>
+<td><strong>1 · H · W</strong></td>
+<td><strong>8 · P · W</strong></td>
 </tr>
 <tr class="odd">
 <td>7</td>
-<td>8</td>
-<td>hand</td>
-<td>jog</td>
+<td>1 · P · W</td>
+<td>8 · H · J</td>
+<td>8 · H · J</td>
+<td><strong>1 · P · J</strong></td>
 </tr>
 <tr class="even">
 <td>8</td>
-<td>8</td>
-<td>pocket</td>
-<td>walk</td>
+<td>1 · P · J</td>
+<td>8 · P · W</td>
+<td>1 · H · J</td>
+<td><strong>8 · H · W</strong></td>
 </tr>
 </tbody>
 </table>
+<p>How to read it: each column (one member) contains all 8 settings
+once, which is what “complete block” means; but the four columns are in
+different orders, which is what “randomized independently within each
+block” means. The bold cells are the shaded cells on the slide: Darren’s
+whole block was run in light rain, and so were Jenny’s laps 1, 2 and 6
+(Section 5 explains what this means).</p>
 <details class="rcode">
 <summary>
 R code · <code>code/00_randomization.R</code>, lines 1–34
@@ -775,13 +802,20 @@ of variation.</li>
 (sunny) ran all laps on 12 November; Darren on 13 November (light rain);
 Jenny ran laps 1, 2 and 6 on 6 November (light rain) and the other five
 on 12 November (partly cloudy).</li>
-<li><strong>Why weather and date don’t distort the results</strong>:
-each member ran almost everything on one day, so weather and date
-differences fall inside the member block and are absorbed by the block
-effect. Statistically, weather is <strong>confounded</strong> with
-block: we cannot separate “phone/person” from “weather”, but since we
-are not studying the block effect, the other comparisons are
-unaffected.</li>
+<li><strong>Day and weather were not blocked separately</strong>: no
+member ran a set of laps on different days or in different weather, so
+day and weather are not a blocking factor of their own. Each member ran
+almost everything on one day, so weather and date differences fall
+inside the member block and are absorbed by the block effect.
+Statistically, weather is <strong>confounded</strong> with block: we
+cannot separate “phone/person” from “weather”. For example, Darren’s
+phone had low errors; that could be the phone, or the fact that his
+whole block was run in the rain.</li>
+<li><strong>Why this does not distort the treatment results</strong>:
+app, lane, placement and pace are all compared within a block, so
+weather shared by a whole block cancels from those comparisons. What we
+cannot answer is where the block effect comes from, and the block effect
+is not what we are studying.</li>
 <li><strong>One exception</strong>: Jenny’s three rainy laps on 6
 November happened to be all walking laps, so within her block weather is
 partly confounded with pace. This came from the random order by chance;
@@ -1476,10 +1510,15 @@ Narrower intervals mean more precise estimates.</p>
 </table>
 <figure>
 <img src="../figures/04_main_effects.png" style="width:100.0%"
-alt="Estimated mean error at each factor level with 95% confidence intervals." />
+alt="Estimated mean error at each factor level with 95% confidence intervals, averaged over our 4 blocks." />
 <figcaption aria-hidden="true">Estimated mean error at each factor level
-with 95% confidence intervals.</figcaption>
+with 95% confidence intervals, averaged over our 4 blocks.</figcaption>
 </figure>
+<p>The plot’s subtitle says “Averaged over our 4 blocks (fixed-block
+final model)”: these means and intervals average over <strong>our 4
+phones</strong>. Since the app difference changes direction between
+phones, this matters; Section 10.3 covers what can be said about other
+phones.</p>
 <ul>
 <li><strong>Answer to Aim 1</strong>: overall +1.90%, with an interval
 excluding 0: the apps systematically over-record, by about 8 m per 400 m
@@ -1490,11 +1529,16 @@ the largest effects (p ≤ 0.002). Lane and pace: no effect detected at
 our sample size. Placement: weak evidence (pocket about 1.4 percentage
 points higher than hand, p = 0.08, interval includes 0), not enough to
 conclude.</li>
-<li>All 11 interactions among the treatment factors have p &gt; 0.12,
-none detected. In the interaction plot
-(<code>figures/05_interactions.png</code>) two pairs of lines cross
-(lane × pace and placement × pace), but the tests are not significant,
-so the crossing is most likely noise.</li>
+<li><strong>Interactions</strong>: aim 2 asks which factors <strong>and
+interactions</strong> matter. App, lane, placement and pace have 11
+interactions among them (6 two-factor, 4 three-factor, 1 four-factor);
+<strong>none was detected</strong> in the final model, and the smallest
+p-value is 0.13 (app × lane × pace). The code in Section 8.5 prints this
+line right after fitting the final model:
+<code>Treatment-factor interactions: 11 terms, smallest p = 0.13 (app:lane:pace)</code>.
+In the interaction plot (<code>figures/05_interactions.png</code>) two
+pairs of lines cross (lane × pace and placement × pace), but the tests
+are not significant, so the crossing is most likely noise.</li>
 </ul>
 <figure>
 <img src="../figures/05_interactions.png" style="width:100.0%"
@@ -1640,6 +1684,105 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb11-1"><a href="#e
 on GitHub</a>
 </p>
 </details>
+<h3 id="en-sensitivity-analysis-the-phones-as-a-random-sample">10.3
+Sensitivity analysis: the phones as a random sample</h3>
+<p>The final model treats block as a <strong>fixed effect</strong>, so
+the interval 1.12% to 2.68% answers: “on <strong>our 4 phones</strong>,
+how much do the apps over-record on average?” To ask “how much does
+<strong>a typical phone</strong> over-record?”, we treat the 4 phones as
+a random sample from all phones and make block a <strong>random
+effect</strong>:</p>
+<div class="sourceCode" id="en-cb12"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb12-1"><a href="#en-cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(error_pct <span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span></span>
+<span id="en-cb12-2"><a href="#en-cb12-2" aria-hidden="true" tabindex="-1"></a>       (<span class="dv">1</span> <span class="sc">|</span> block) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> block<span class="sc">:</span>app) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id), <span class="at">data =</span> dat)</span></code></pre></div>
+<ul>
+<li><code>(1 | block)</code>: each phone has its own overall shift,
+drawn from a normal distribution; the model estimates its SD
+(phone-to-phone SD = 2.02 percentage points).</li>
+<li><code>(1 | block:app)</code>: the app difference may also vary by
+phone, the random version of app × block in the final model (SD =
+1.92).</li>
+<li><code>(1 | lap_id)</code>: one random intercept per lap as before
+(SD = 1.45); residual SD = 2.20.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Estimate</th>
+<th>95% CI (3 df)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Overall mean error</td>
+<td>1.90%</td>
+<td>−2.15% to 5.95%</td>
+</tr>
+<tr class="even">
+<td>Strava − Keep</td>
+<td>1.46 points</td>
+<td>−3.19 to 6.11</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The estimates are unchanged, but the intervals are much wider
+and both include 0</strong>; the app test goes from p = 0.015 to p =
+0.39. The reason: to generalize to all phones, the overall mean and the
+app effect have to be compared with phone-to-phone variation, and with
+only 4 phones that comparison has 4 − 1 = 3 degrees of freedom. The t
+critical value with 3 df is 3.18 (versus 1.96 with unlimited df), and
+the phones differ a lot, so the intervals are wide.</p>
+<p>Lane, placement, pace and their interactions are compared
+<strong>within each phone</strong>, so their tests are the same as in
+the final model (placement is still p = 0.08).</p>
+<p><strong>How to read it</strong>: the two models do not contradict
+each other; they answer different questions. On the 4 phones we tested,
+the apps did over-record by about 2% on average, but 4 phones are too
+few to say that every phone over-records. That is exactly what the two
+sentences under aim 1 on the slide say.</p>
+<p><strong>Why the final model still uses fixed blocks</strong>: as
+planned, we care about comparing the factors on these 4 phones, and 4
+levels are too few to estimate a variance reliably. The random-block
+model is a sensitivity analysis that shows how far the conclusions can
+be generalized.</p>
+<details class="rcode">
+<summary>
+R code · <code>code/02_analysis.R</code>, lines 245–271
+</summary>
+<div class="sourceCode" id="en-cb13"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb13-1"><a href="#en-cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 8. Sensitivity: blocks as a random sample of phones --------------------</span></span>
+<span id="en-cb13-2"><a href="#en-cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb13-3"><a href="#en-cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The final model treats block as FIXED, so its CIs describe our 4 phones.</span></span>
+<span id="en-cb13-4"><a href="#en-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># To ask about &quot;a typical phone&quot;, treat the phones as a random sample:</span></span>
+<span id="en-cb13-5"><a href="#en-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   (1 | block)      phone-to-phone shift in the error</span></span>
+<span id="en-cb13-6"><a href="#en-cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   (1 | block:app)  phone-to-phone change in the app difference</span></span>
+<span id="en-cb13-7"><a href="#en-cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># The overall mean and the app effect are then tested against phone-to-phone</span></span>
+<span id="en-cb13-8"><a href="#en-cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># variation, with only 4 - 1 = 3 df, so the intervals are much wider.</span></span>
+<span id="en-cb13-9"><a href="#en-cb13-9" aria-hidden="true" tabindex="-1"></a>fit_rb <span class="ot">&lt;-</span> <span class="fu">lmer</span>(error_pct <span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span></span>
+<span id="en-cb13-10"><a href="#en-cb13-10" aria-hidden="true" tabindex="-1"></a>                 (<span class="dv">1</span> <span class="sc">|</span> block) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> block<span class="sc">:</span>app) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id), <span class="at">data =</span> dat)</span>
+<span id="en-cb13-11"><a href="#en-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">VarCorr</span>(fit_rb))</span>
+<span id="en-cb13-12"><a href="#en-cb13-12" aria-hidden="true" tabindex="-1"></a>anova_rb <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_rb)</span>
+<span id="en-cb13-13"><a href="#en-cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_rb)</span>
+<span id="en-cb13-14"><a href="#en-cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb13-15"><a href="#en-cb13-15" aria-hidden="true" tabindex="-1"></a>rb_overall <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_rb, <span class="sc">~</span> <span class="dv">1</span>)))</span>
+<span id="en-cb13-16"><a href="#en-cb13-16" aria-hidden="true" tabindex="-1"></a>rb_app     <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">contrast</span>(<span class="fu">emmeans</span>(fit_rb, <span class="sc">~</span> app), <span class="st">&quot;revpairwise&quot;</span>)))</span>
+<span id="en-cb13-17"><a href="#en-cb13-17" aria-hidden="true" tabindex="-1"></a>rb_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="en-cb13-18"><a href="#en-cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">quantity =</span> <span class="fu">c</span>(<span class="st">&quot;overall mean e (%)&quot;</span>, <span class="st">&quot;Strava - Keep (points)&quot;</span>),</span>
+<span id="en-cb13-19"><a href="#en-cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>emmean,   rb_app<span class="sc">$</span>estimate),</span>
+<span id="en-cb13-20"><a href="#en-cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">df       =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>df,       rb_app<span class="sc">$</span>df),</span>
+<span id="en-cb13-21"><a href="#en-cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower    =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>lower.CL, rb_app<span class="sc">$</span>lower.CL),</span>
+<span id="en-cb13-22"><a href="#en-cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper    =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>upper.CL, rb_app<span class="sc">$</span>upper.CL)</span>
+<span id="en-cb13-23"><a href="#en-cb13-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="en-cb13-24"><a href="#en-cb13-24" aria-hidden="true" tabindex="-1"></a>rb_table[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(rb_table[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="en-cb13-25"><a href="#en-cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rb_table)</span>
+<span id="en-cb13-26"><a href="#en-cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Random-block model: app p = %.2f</span><span class="sc">\n</span><span class="st">&quot;</span>, anova_rb[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
+<span id="en-cb13-27"><a href="#en-cb13-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(rb_table, <span class="st">&quot;results/random_block_sensitivity.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p class="rcode-link">
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L245-L271">View
+on GitHub</a>
+</p>
+</details>
 <hr />
 <h2 id="en-accuracy-aim-3">11. Accuracy (Aim 3)</h2>
 <h3 id="en-mape-with-bootstrap-confidence-intervals">11.1 MAPE with
@@ -1699,41 +1842,41 @@ Darren’s. Once again the phone matters more than the app.</p>
 <summary>
 R code · <code>code/03_absolute_error.R</code>, lines 33–66
 </summary>
-<div class="sourceCode" id="en-cb12"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="en-cb12-1"><a href="#en-cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1. MAPE by app with a bootstrap CI -------------------------------------</span></span>
-<span id="en-cb12-2"><a href="#en-cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb12-3"><a href="#en-cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Resample whole laps (both app readings together) within each block, so every</span></span>
-<span id="en-cb12-4"><a href="#en-cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># bootstrap sample keeps the design: 4 blocks x 8 laps, paired readings.</span></span>
-<span id="en-cb12-5"><a href="#en-cb12-5" aria-hidden="true" tabindex="-1"></a>mape_by_app <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">tapply</span>(d<span class="sc">$</span>abs_e, d<span class="sc">$</span>app, mean)</span>
-<span id="en-cb12-6"><a href="#en-cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb12-7"><a href="#en-cb12-7" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id), dat<span class="sc">$</span>block)</span>
-<span id="en-cb12-8"><a href="#en-cb12-8" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">lapply</span>(laps_in_block, unique)</span>
-<span id="en-cb12-9"><a href="#en-cb12-9" aria-hidden="true" tabindex="-1"></a>rows_of_lap   <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(dat)), <span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id))</span>
-<span id="en-cb12-10"><a href="#en-cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb12-11"><a href="#en-cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
-<span id="en-cb12-12"><a href="#en-cb12-12" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="en-cb12-13"><a href="#en-cb12-13" aria-hidden="true" tabindex="-1"></a>boot <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
-<span id="en-cb12-14"><a href="#en-cb12-14" aria-hidden="true" tabindex="-1"></a>  laps <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(laps_in_block, sample, <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
-<span id="en-cb12-15"><a href="#en-cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mape_by_app</span>(dat[<span class="fu">unlist</span>(rows_of_lap[laps]), ])</span>
-<span id="en-cb12-16"><a href="#en-cb12-16" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="en-cb12-17"><a href="#en-cb12-17" aria-hidden="true" tabindex="-1"></a>boot_diff <span class="ot">&lt;-</span> boot[<span class="st">&quot;Strava&quot;</span>, ] <span class="sc">-</span> boot[<span class="st">&quot;Keep&quot;</span>, ]</span>
-<span id="en-cb12-18"><a href="#en-cb12-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb12-19"><a href="#en-cb12-19" aria-hidden="true" tabindex="-1"></a>mape_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="en-cb12-20"><a href="#en-cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">app      =</span> <span class="fu">c</span>(<span class="st">&quot;Keep&quot;</span>, <span class="st">&quot;Strava&quot;</span>, <span class="st">&quot;Strava - Keep&quot;</span>),</span>
-<span id="en-cb12-21"><a href="#en-cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mape     =</span> <span class="fu">c</span>(<span class="fu">mape_by_app</span>(dat), <span class="fu">diff</span>(<span class="fu">mape_by_app</span>(dat))),</span>
-<span id="en-cb12-22"><a href="#en-cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_lo  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.025</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.025</span>)),</span>
-<span id="en-cb12-23"><a href="#en-cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_hi  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.975</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.975</span>))</span>
-<span id="en-cb12-24"><a href="#en-cb12-24" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="en-cb12-25"><a href="#en-cb12-25" aria-hidden="true" tabindex="-1"></a>mape_table[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_table[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
-<span id="en-cb12-26"><a href="#en-cb12-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_table)</span>
-<span id="en-cb12-27"><a href="#en-cb12-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_table, <span class="st">&quot;results/mape_by_app_bootstrap.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="en-cb12-28"><a href="#en-cb12-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb12-29"><a href="#en-cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co"># MAPE by block and app (descriptive)</span></span>
-<span id="en-cb12-30"><a href="#en-cb12-30" aria-hidden="true" tabindex="-1"></a>mape_block <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(abs_e <span class="sc">~</span> block <span class="sc">+</span> app, <span class="at">data =</span> dat, <span class="at">FUN =</span> mean)</span>
-<span id="en-cb12-31"><a href="#en-cb12-31" aria-hidden="true" tabindex="-1"></a>mape_block<span class="sc">$</span>abs_e <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_block<span class="sc">$</span>abs_e, <span class="dv">2</span>)</span>
-<span id="en-cb12-32"><a href="#en-cb12-32" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(mape_block)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;mape&quot;</span></span>
-<span id="en-cb12-33"><a href="#en-cb12-33" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_block)</span>
-<span id="en-cb12-34"><a href="#en-cb12-34" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_block, <span class="st">&quot;results/mape_by_block_app.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="en-cb14"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb14-1"><a href="#en-cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1. MAPE by app with a bootstrap CI -------------------------------------</span></span>
+<span id="en-cb14-2"><a href="#en-cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb14-3"><a href="#en-cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Resample whole laps (both app readings together) within each block, so every</span></span>
+<span id="en-cb14-4"><a href="#en-cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># bootstrap sample keeps the design: 4 blocks x 8 laps, paired readings.</span></span>
+<span id="en-cb14-5"><a href="#en-cb14-5" aria-hidden="true" tabindex="-1"></a>mape_by_app <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">tapply</span>(d<span class="sc">$</span>abs_e, d<span class="sc">$</span>app, mean)</span>
+<span id="en-cb14-6"><a href="#en-cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb14-7"><a href="#en-cb14-7" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id), dat<span class="sc">$</span>block)</span>
+<span id="en-cb14-8"><a href="#en-cb14-8" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">lapply</span>(laps_in_block, unique)</span>
+<span id="en-cb14-9"><a href="#en-cb14-9" aria-hidden="true" tabindex="-1"></a>rows_of_lap   <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(dat)), <span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id))</span>
+<span id="en-cb14-10"><a href="#en-cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb14-11"><a href="#en-cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
+<span id="en-cb14-12"><a href="#en-cb14-12" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="en-cb14-13"><a href="#en-cb14-13" aria-hidden="true" tabindex="-1"></a>boot <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="en-cb14-14"><a href="#en-cb14-14" aria-hidden="true" tabindex="-1"></a>  laps <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(laps_in_block, sample, <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
+<span id="en-cb14-15"><a href="#en-cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mape_by_app</span>(dat[<span class="fu">unlist</span>(rows_of_lap[laps]), ])</span>
+<span id="en-cb14-16"><a href="#en-cb14-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="en-cb14-17"><a href="#en-cb14-17" aria-hidden="true" tabindex="-1"></a>boot_diff <span class="ot">&lt;-</span> boot[<span class="st">&quot;Strava&quot;</span>, ] <span class="sc">-</span> boot[<span class="st">&quot;Keep&quot;</span>, ]</span>
+<span id="en-cb14-18"><a href="#en-cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb14-19"><a href="#en-cb14-19" aria-hidden="true" tabindex="-1"></a>mape_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="en-cb14-20"><a href="#en-cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">app      =</span> <span class="fu">c</span>(<span class="st">&quot;Keep&quot;</span>, <span class="st">&quot;Strava&quot;</span>, <span class="st">&quot;Strava - Keep&quot;</span>),</span>
+<span id="en-cb14-21"><a href="#en-cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mape     =</span> <span class="fu">c</span>(<span class="fu">mape_by_app</span>(dat), <span class="fu">diff</span>(<span class="fu">mape_by_app</span>(dat))),</span>
+<span id="en-cb14-22"><a href="#en-cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_lo  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.025</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.025</span>)),</span>
+<span id="en-cb14-23"><a href="#en-cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_hi  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.975</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.975</span>))</span>
+<span id="en-cb14-24"><a href="#en-cb14-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="en-cb14-25"><a href="#en-cb14-25" aria-hidden="true" tabindex="-1"></a>mape_table[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_table[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="en-cb14-26"><a href="#en-cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_table)</span>
+<span id="en-cb14-27"><a href="#en-cb14-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_table, <span class="st">&quot;results/mape_by_app_bootstrap.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="en-cb14-28"><a href="#en-cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb14-29"><a href="#en-cb14-29" aria-hidden="true" tabindex="-1"></a><span class="co"># MAPE by block and app (descriptive)</span></span>
+<span id="en-cb14-30"><a href="#en-cb14-30" aria-hidden="true" tabindex="-1"></a>mape_block <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(abs_e <span class="sc">~</span> block <span class="sc">+</span> app, <span class="at">data =</span> dat, <span class="at">FUN =</span> mean)</span>
+<span id="en-cb14-31"><a href="#en-cb14-31" aria-hidden="true" tabindex="-1"></a>mape_block<span class="sc">$</span>abs_e <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_block<span class="sc">$</span>abs_e, <span class="dv">2</span>)</span>
+<span id="en-cb14-32"><a href="#en-cb14-32" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(mape_block)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;mape&quot;</span></span>
+<span id="en-cb14-33"><a href="#en-cb14-33" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_block)</span>
+<span id="en-cb14-34"><a href="#en-cb14-34" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_block, <span class="st">&quot;results/mape_by_block_app.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L33-L66">View
 on GitHub</a>
@@ -1774,40 +1917,40 @@ conclusion.</li>
 <summary>
 R code · <code>code/03_absolute_error.R</code>, lines 68–100
 </summary>
-<div class="sourceCode" id="en-cb13"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="en-cb13-1"><a href="#en-cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2. Model for log(|e| + 0.5) ---------------------------------------------</span></span>
-<span id="en-cb13-2"><a href="#en-cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb13-3"><a href="#en-cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed</span></span>
-<span id="en-cb13-4"><a href="#en-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R).</span></span>
-<span id="en-cb13-5"><a href="#en-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Back-transformed means are &quot;typical&quot; (median-like) absolute errors, so they</span></span>
-<span id="en-cb13-6"><a href="#en-cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># are smaller than MAPE.</span></span>
-<span id="en-cb13-7"><a href="#en-cb13-7" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
-<span id="en-cb13-8"><a href="#en-cb13-8" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="en-cb13-9"><a href="#en-cb13-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
-<span id="en-cb13-10"><a href="#en-cb13-10" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
-<span id="en-cb13-11"><a href="#en-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
-<span id="en-cb13-12"><a href="#en-cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
-<span id="en-cb13-13"><a href="#en-cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb13-14"><a href="#en-cb13-14" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
-<span id="en-cb13-15"><a href="#en-cb13-15" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
-<span id="en-cb13-16"><a href="#en-cb13-16" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
-<span id="en-cb13-17"><a href="#en-cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
-<span id="en-cb13-18"><a href="#en-cb13-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
-<span id="en-cb13-19"><a href="#en-cb13-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
-<span id="en-cb13-20"><a href="#en-cb13-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="en-cb13-21"><a href="#en-cb13-21" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
-<span id="en-cb13-22"><a href="#en-cb13-22" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
-<span id="en-cb13-23"><a href="#en-cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="en-cb13-24"><a href="#en-cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
-<span id="en-cb13-25"><a href="#en-cb13-25" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
-<span id="en-cb13-26"><a href="#en-cb13-26" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="en-cb13-27"><a href="#en-cb13-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb13-28"><a href="#en-cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
-<span id="en-cb13-29"><a href="#en-cb13-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
-<span id="en-cb13-30"><a href="#en-cb13-30" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="en-cb13-31"><a href="#en-cb13-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
-<span id="en-cb13-32"><a href="#en-cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
-<span id="en-cb13-33"><a href="#en-cb13-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="en-cb15"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb15-1"><a href="#en-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2. Model for log(|e| + 0.5) ---------------------------------------------</span></span>
+<span id="en-cb15-2"><a href="#en-cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb15-3"><a href="#en-cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed</span></span>
+<span id="en-cb15-4"><a href="#en-cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R).</span></span>
+<span id="en-cb15-5"><a href="#en-cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Back-transformed means are &quot;typical&quot; (median-like) absolute errors, so they</span></span>
+<span id="en-cb15-6"><a href="#en-cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># are smaller than MAPE.</span></span>
+<span id="en-cb15-7"><a href="#en-cb15-7" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
+<span id="en-cb15-8"><a href="#en-cb15-8" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="en-cb15-9"><a href="#en-cb15-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
+<span id="en-cb15-10"><a href="#en-cb15-10" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
+<span id="en-cb15-11"><a href="#en-cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
+<span id="en-cb15-12"><a href="#en-cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
+<span id="en-cb15-13"><a href="#en-cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb15-14"><a href="#en-cb15-14" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
+<span id="en-cb15-15"><a href="#en-cb15-15" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
+<span id="en-cb15-16"><a href="#en-cb15-16" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
+<span id="en-cb15-17"><a href="#en-cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
+<span id="en-cb15-18"><a href="#en-cb15-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
+<span id="en-cb15-19"><a href="#en-cb15-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
+<span id="en-cb15-20"><a href="#en-cb15-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="en-cb15-21"><a href="#en-cb15-21" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
+<span id="en-cb15-22"><a href="#en-cb15-22" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
+<span id="en-cb15-23"><a href="#en-cb15-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="en-cb15-24"><a href="#en-cb15-24" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
+<span id="en-cb15-25"><a href="#en-cb15-25" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
+<span id="en-cb15-26"><a href="#en-cb15-26" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="en-cb15-27"><a href="#en-cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb15-28"><a href="#en-cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
+<span id="en-cb15-29"><a href="#en-cb15-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
+<span id="en-cb15-30"><a href="#en-cb15-30" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="en-cb15-31"><a href="#en-cb15-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
+<span id="en-cb15-32"><a href="#en-cb15-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
+<span id="en-cb15-33"><a href="#en-cb15-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L68-L100">View
 on GitHub</a>
@@ -1835,20 +1978,20 @@ combinations.</figcaption>
 <summary>
 R code · <code>code/03_absolute_error.R</code>, lines 102–114
 </summary>
-<div class="sourceCode" id="en-cb14"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="en-cb14-1"><a href="#en-cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3. Plot: typical |e| for all 16 treatment combinations ------------------</span></span>
-<span id="en-cb14-2"><a href="#en-cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb14-3"><a href="#en-cb14-3" aria-hidden="true" tabindex="-1"></a>typ_cell<span class="sc">$</span>combo <span class="ot">&lt;-</span> <span class="fu">with</span>(typ_cell, <span class="fu">paste0</span>(<span class="st">&quot;lane &quot;</span>, lane, <span class="st">&quot;, &quot;</span>, placement, <span class="st">&quot;, &quot;</span>, pace))</span>
-<span id="en-cb14-4"><a href="#en-cb14-4" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(typ_cell, <span class="fu">aes</span>(<span class="at">x =</span> typical_abs_e, <span class="at">y =</span> combo, <span class="at">colour =</span> app)) <span class="sc">+</span></span>
-<span id="en-cb14-5"><a href="#en-cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> lower, <span class="at">xmax =</span> upper),</span>
-<span id="en-cb14-6"><a href="#en-cb14-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="en-cb14-7"><a href="#en-cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Typical absolute error |e| (%), back-transformed, 95% CI&quot;</span>,</span>
-<span id="en-cb14-8"><a href="#en-cb14-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">colour =</span> <span class="st">&quot;App&quot;</span>,</span>
-<span id="en-cb14-9"><a href="#en-cb14-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Accuracy of each tested combination&quot;</span>,</span>
-<span id="en-cb14-10"><a href="#en-cb14-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;Intervals overlap widely: no single best combination&quot;</span>) <span class="sc">+</span></span>
-<span id="en-cb14-11"><a href="#en-cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="en-cb14-12"><a href="#en-cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/06_typical_abs_error_by_treatment.png&quot;</span>, p_cell,</span>
-<span id="en-cb14-13"><a href="#en-cb14-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
+<div class="sourceCode" id="en-cb16"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb16-1"><a href="#en-cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3. Plot: typical |e| for all 16 treatment combinations ------------------</span></span>
+<span id="en-cb16-2"><a href="#en-cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb16-3"><a href="#en-cb16-3" aria-hidden="true" tabindex="-1"></a>typ_cell<span class="sc">$</span>combo <span class="ot">&lt;-</span> <span class="fu">with</span>(typ_cell, <span class="fu">paste0</span>(<span class="st">&quot;lane &quot;</span>, lane, <span class="st">&quot;, &quot;</span>, placement, <span class="st">&quot;, &quot;</span>, pace))</span>
+<span id="en-cb16-4"><a href="#en-cb16-4" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(typ_cell, <span class="fu">aes</span>(<span class="at">x =</span> typical_abs_e, <span class="at">y =</span> combo, <span class="at">colour =</span> app)) <span class="sc">+</span></span>
+<span id="en-cb16-5"><a href="#en-cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> lower, <span class="at">xmax =</span> upper),</span>
+<span id="en-cb16-6"><a href="#en-cb16-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="en-cb16-7"><a href="#en-cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Typical absolute error |e| (%), back-transformed, 95% CI&quot;</span>,</span>
+<span id="en-cb16-8"><a href="#en-cb16-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">colour =</span> <span class="st">&quot;App&quot;</span>,</span>
+<span id="en-cb16-9"><a href="#en-cb16-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Accuracy of each tested combination&quot;</span>,</span>
+<span id="en-cb16-10"><a href="#en-cb16-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;Intervals overlap widely: no single best combination&quot;</span>) <span class="sc">+</span></span>
+<span id="en-cb16-11"><a href="#en-cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="en-cb16-12"><a href="#en-cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/06_typical_abs_error_by_treatment.png&quot;</span>, p_cell,</span>
+<span id="en-cb16-13"><a href="#en-cb16-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L102-L114">View
 on GitHub</a>
@@ -1857,17 +2000,20 @@ on GitHub</a>
 <hr />
 <h2 id="en-conclusions">12. Conclusions</h2>
 <ol type="1">
-<li><strong>Bias</strong>: the apps over-record by about 1.9% on average
-(95% CI 1.1%–2.7%), roughly 8 m per 400 m.</li>
+<li><strong>Bias</strong>: on our 4 phones the apps over-record by about
+1.9% on average (95% CI 1.1%–2.7%), roughly 8 m per 400 m. With the
+phones treated as a random sample the interval is −2.2% to 6.0%: 4
+phones are too few to generalize to all phones.</li>
 <li><strong>The phone matters more than the app</strong>: which app
 reads longer depends on the phone; Strava is longer on three phones and
 Keep on one.</li>
 <li><strong>Lane, placement, pace</strong>: no clear effect detected at
 our sample size; the pocket may over-record slightly, but the evidence
-is weak.</li>
-<li><strong>Accuracy</strong>: Keep has the lower MAPE (2.7% vs 3.6%),
-but the difference is not significant; there is no single best
-combination.</li>
+is weak. None of the 11 interactions among them was detected either
+(smallest p = 0.13).</li>
+<li><strong>Accuracy</strong>: Keep has the lower MAPE (mean absolute
+percentage error, the mean of |e|: 2.7% vs 3.6%), but the difference is
+not significant; there is no single best combination.</li>
 </ol>
 <p><strong>What it means for an ordinary runner</strong>: on a 400 m
 lap, seeing 0.41 km is normal. Switching apps will not necessarily make
@@ -1881,22 +2027,26 @@ improvements</h2>
 be detected. Improvement: export the GPS track files and compute
 distance from the raw coordinates.</li>
 <li><strong>Only 4 phones and one track</strong>: the conclusions cannot
-be generalized directly to all phones and sites. Improvement: more phone
-models.</li>
+be generalized directly to all phones and sites, as the random-block
+model (Section 10.3) shows. Improvement: more phone models.</li>
 <li><strong>Phone position and pace were not standardized</strong>: the
 placement and pace effects are averages over four personal habits, and
 lap-to-lap inconsistency within a member adds noise; lap times are
 missing for one member. Improvement: specify the hand, screen
 orientation and pocket, set target speeds (e.g. walking 4.5–5.5 km/h,
 jogging 8–10 km/h), and time every lap.</li>
-<li><strong>Weather and date confounded with block</strong>: Jenny’s
+<li><strong>Weather and date not blocked separately, so confounded with
+block</strong>: Darren’s whole block was run in light rain, and Jenny’s
 three rainy laps were all walks. Improvement: each member completes all
-laps on the same day in similar conditions.</li>
+laps on the same day in similar conditions, or runs one set in each kind
+of weather.</li>
 <li><strong>Few replicates per combination</strong>: 4 readings per
 cell, so comparisons between combinations have low power.</li>
 </ul>
 <hr />
 <h2 id="en-what-each-slide-says">14. What each slide says</h2>
+<p>The deck has 6 slides: a title slide and 5 content slides. Slide
+numbers are the ones shown in the bottom-right corner.</p>
 <table>
 <colgroup>
 <col style="width: 25%" />
@@ -1914,36 +2064,44 @@ cell, so comparisons between combinations have low power.</li>
 </thead>
 <tbody>
 <tr class="odd">
-<td>1 Formulation</td>
-<td>Three aims; 4 factors and why; member-phone blocks; signed
-percentage error</td>
-<td>400.00 / 453.03 m</td>
-<td>1, 2.1, 2.2, 3</td>
+<td>1 Title</td>
+<td>Title and team</td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
-<td>2 Design (1)</td>
+<td>2 Formulation</td>
+<td>Three aims; 4 factors and why; member-phone blocks; day and weather
+not blocked; signed percentage error</td>
+<td>400.00 / 453.03 m</td>
+<td>1, 2.1, 2.2, 3, 5</td>
+</tr>
+<tr class="odd">
+<td>3 Design (1)</td>
 <td>2⁴ factorial in 4 complete blocks; both apps on the same lap →
 paired; split-plot</td>
 <td>4 / 32 / 64; df 21 and 24</td>
 <td>2.1–2.5</td>
 </tr>
-<tr class="odd">
-<td>3 Design (2)</td>
-<td>Blocking, randomization, data collection, known constraints</td>
-<td>set.seed(404); ±5 m</td>
+<tr class="even">
+<td>4 Design (2)</td>
+<td>Run order of all 4 blocks (shaded = rain); blocking, randomization,
+data collection, known constraints</td>
+<td>set.seed(404) + one sample(8) per block; ±5 m</td>
 <td>2.2, 2.4, 3.4, 5</td>
 </tr>
-<tr class="even">
-<td>4 Analysis</td>
+<tr class="odd">
+<td>5 Analysis</td>
 <td>Planned model → check whether the app effect varies by phone → add
 app × block → diagnostics</td>
 <td>+3.0 / +4.0 / −2.6 / +1.5; χ² = 22.4, p &lt; 0.001</td>
 <td>8, 9, 10.2</td>
 </tr>
-<tr class="odd">
-<td>5 Conclusions</td>
-<td>Answers to the three aims; limitations and next steps</td>
-<td>+1.9%; MAPE 2.7% vs 3.6%</td>
+<tr class="even">
+<td>6 Conclusions</td>
+<td>Answers to the three aims (with the random-block interval and the
+MAPE definition); limitations and next steps</td>
+<td>+1.9% (−2.2 to 6.0); MAPE 2.7% vs 3.6%</td>
 <td>10–13</td>
 </tr>
 </tbody>
@@ -1967,24 +2125,32 @@ app × block → diagnostics</td>
 <td>+1.90% (95% CI 1.12–2.68)</td>
 </tr>
 <tr class="even">
+<td>Overall mean error, phones as random sample</td>
+<td>95% CI −2.15 to 5.95 (3 df); app p = 0.39</td>
+</tr>
+<tr class="odd">
 <td>Keep / Strava mean error</td>
 <td>+1.17% / +2.63%</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Strava − Keep (Phoebe / Boyi / Jenny / Darren)</td>
 <td>+3.02 / +4.01 / −2.63 / +1.45 percentage points</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>App × block</td>
 <td>LRT χ² = 22.4, df = 3, p &lt; 0.001; F-test p = 0.002</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Block</td>
 <td>p &lt; 0.001</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Lane / placement / pace</td>
 <td>p = 0.50 / 0.08 / 0.95</td>
+</tr>
+<tr class="even">
+<td>11 treatment-factor interactions</td>
+<td>none detected, smallest p = 0.13 (app × lane × pace)</td>
 </tr>
 <tr class="odd">
 <td>Lap SD / residual SD</td>
@@ -2024,11 +2190,11 @@ href="https://github.com/z-boyi/gps-running-accuracy-doe/tree/main/code"><code>c
 folder. To reproduce them, download or clone the repository, open R or
 RStudio with the repository folder as the working directory, and
 run:</p>
-<div class="sourceCode" id="en-cb15"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="en-cb15-1"><a href="#en-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_randomization.R&quot;</span>)   <span class="co"># randomized run order (seed 404)</span></span>
-<span id="en-cb15-2"><a href="#en-cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_clean_data.R&quot;</span>)      <span class="co"># raw lap log -&gt; data/processed/gps_runs.csv</span></span>
-<span id="en-cb15-3"><a href="#en-cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/02_analysis.R&quot;</span>)        <span class="co"># signed error: mixed model, checks, effects</span></span>
-<span id="en-cb15-4"><a href="#en-cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/03_absolute_error.R&quot;</span>)  <span class="co"># accuracy: MAPE, bootstrap, log|e| model</span></span></code></pre></div>
+<div class="sourceCode" id="en-cb17"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb17-1"><a href="#en-cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_randomization.R&quot;</span>)   <span class="co"># randomized run order (seed 404)</span></span>
+<span id="en-cb17-2"><a href="#en-cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_clean_data.R&quot;</span>)      <span class="co"># raw lap log -&gt; data/processed/gps_runs.csv</span></span>
+<span id="en-cb17-3"><a href="#en-cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/02_analysis.R&quot;</span>)        <span class="co"># signed error: mixed model, checks, effects</span></span>
+<span id="en-cb17-4"><a href="#en-cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/03_absolute_error.R&quot;</span>)  <span class="co"># accuracy: MAPE, bootstrap, log|e| model</span></span></code></pre></div>
 <p>The first script to run installs any missing packages
 (<code>lme4</code>, <code>lmerTest</code>, <code>emmeans</code>,
 <code>pbkrtest</code>, <code>ggplot2</code>):</p>
@@ -2036,21 +2202,21 @@ class="sourceCode r"><code class="sourceCode r"><span id="en-cb15-1"><a href="#e
 <summary>
 R code · <code>code/01_clean_data.R</code>, lines 12–25
 </summary>
-<div class="sourceCode" id="en-cb16"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="en-cb16-1"><a href="#en-cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 0. Packages ------------------------------------------------------------</span></span>
-<span id="en-cb16-2"><a href="#en-cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb16-3"><a href="#en-cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Install a package only if it is missing, so re-running the script is fast</span></span>
-<span id="en-cb16-4"><a href="#en-cb16-4" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;lme4&quot;</span>, <span class="st">&quot;lmerTest&quot;</span>, <span class="st">&quot;emmeans&quot;</span>, <span class="st">&quot;pbkrtest&quot;</span>, <span class="st">&quot;ggplot2&quot;</span>)</span>
-<span id="en-cb16-5"><a href="#en-cb16-5" aria-hidden="true" tabindex="-1"></a>missing  <span class="ot">&lt;-</span> packages[<span class="sc">!</span>packages <span class="sc">%in%</span> <span class="fu">rownames</span>(<span class="fu">installed.packages</span>())]</span>
-<span id="en-cb16-6"><a href="#en-cb16-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="en-cb16-7"><a href="#en-cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(missing, <span class="at">repos =</span> <span class="st">&quot;https://cloud.r-project.org&quot;</span>)</span>
-<span id="en-cb16-8"><a href="#en-cb16-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="en-cb16-9"><a href="#en-cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="en-cb16-10"><a href="#en-cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load them to check that every package installed correctly.</span></span>
-<span id="en-cb16-11"><a href="#en-cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># This script itself only uses base R; each analysis script loads what it needs.</span></span>
-<span id="en-cb16-12"><a href="#en-cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(</span>
-<span id="en-cb16-13"><a href="#en-cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (pkg <span class="cf">in</span> packages) <span class="fu">library</span>(pkg, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
-<span id="en-cb16-14"><a href="#en-cb16-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="en-cb18"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="en-cb18-1"><a href="#en-cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 0. Packages ------------------------------------------------------------</span></span>
+<span id="en-cb18-2"><a href="#en-cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb18-3"><a href="#en-cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Install a package only if it is missing, so re-running the script is fast</span></span>
+<span id="en-cb18-4"><a href="#en-cb18-4" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;lme4&quot;</span>, <span class="st">&quot;lmerTest&quot;</span>, <span class="st">&quot;emmeans&quot;</span>, <span class="st">&quot;pbkrtest&quot;</span>, <span class="st">&quot;ggplot2&quot;</span>)</span>
+<span id="en-cb18-5"><a href="#en-cb18-5" aria-hidden="true" tabindex="-1"></a>missing  <span class="ot">&lt;-</span> packages[<span class="sc">!</span>packages <span class="sc">%in%</span> <span class="fu">rownames</span>(<span class="fu">installed.packages</span>())]</span>
+<span id="en-cb18-6"><a href="#en-cb18-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="en-cb18-7"><a href="#en-cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(missing, <span class="at">repos =</span> <span class="st">&quot;https://cloud.r-project.org&quot;</span>)</span>
+<span id="en-cb18-8"><a href="#en-cb18-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="en-cb18-9"><a href="#en-cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="en-cb18-10"><a href="#en-cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load them to check that every package installed correctly.</span></span>
+<span id="en-cb18-11"><a href="#en-cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co"># This script itself only uses base R; each analysis script loads what it needs.</span></span>
+<span id="en-cb18-12"><a href="#en-cb18-12" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(</span>
+<span id="en-cb18-13"><a href="#en-cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (pkg <span class="cf">in</span> packages) <span class="fu">library</span>(pkg, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
+<span id="en-cb18-14"><a href="#en-cb18-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_clean_data.R#L12-L25">View
 on GitHub</a>
