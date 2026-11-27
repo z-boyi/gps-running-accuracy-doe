@@ -241,3 +241,31 @@ for (shift in c(-1, 0, 1)) {
               shift, summary(emmeans(m, ~ 1))$emmean,
               a["block:app", "Pr(>F)"], a["app", "Pr(>F)"]))
 }
+
+# ---- 8. Sensitivity: blocks as a random sample of phones --------------------
+
+# The final model treats block as FIXED, so its CIs describe our 4 phones.
+# To ask about "a typical phone", treat the phones as a random sample:
+#   (1 | block)      phone-to-phone shift in the error
+#   (1 | block:app)  phone-to-phone change in the app difference
+# The overall mean and the app effect are then tested against phone-to-phone
+# variation, with only 4 - 1 = 3 df, so the intervals are much wider.
+fit_rb <- lmer(error_pct ~ app * lane * placement * pace +
+                 (1 | block) + (1 | block:app) + (1 | lap_id), data = dat)
+print(VarCorr(fit_rb))
+anova_rb <- anova(fit_rb)
+print(anova_rb)
+
+rb_overall <- as.data.frame(confint(emmeans(fit_rb, ~ 1)))
+rb_app     <- as.data.frame(confint(contrast(emmeans(fit_rb, ~ app), "revpairwise")))
+rb_table <- data.frame(
+  quantity = c("overall mean e (%)", "Strava - Keep (points)"),
+  estimate = c(rb_overall$emmean,   rb_app$estimate),
+  df       = c(rb_overall$df,       rb_app$df),
+  lower    = c(rb_overall$lower.CL, rb_app$lower.CL),
+  upper    = c(rb_overall$upper.CL, rb_app$upper.CL)
+)
+rb_table[, -1] <- round(rb_table[, -1], 2)
+print(rb_table)
+cat(sprintf("Random-block model: app p = %.2f\n", anova_rb["app", "Pr(>F)"]))
+write.csv(rb_table, "results/random_block_sensitivity.csv", row.names = FALSE)
