@@ -9,6 +9,7 @@ Response: signed percentage error $e = 100 \times (d_{recorded} - d_{true}) / d_
 - Averaged over all phones and settings, the apps **over-record by 1.90%** (95% CI 1.12% to 2.68%), about 8 m on a 400 m lap.
 - Averaged over the four phones, Keep over-records by 1.17% (0.23% to 2.11%) and Strava by 2.63% (1.69% to 3.57%).
 - But the app difference **depends on the phone** (next section), so "Strava records more than Keep" is not true for every phone.
+- These intervals treat block as fixed, so they describe **our four phones**. Treating the phones as a random sample (see "Sensitivity: blocks as a random sample of phones" below), the 95% CI for a typical phone is −2.2% to 6.0%: four phones are too few to generalize.
 
 ## Model check: is the app effect the same on every phone? (review comment 7)
 
@@ -45,7 +46,7 @@ Lap-to-lap SD 1.45, residual SD 2.20 (percentage points).
 | Placement (pocket 2.59% vs hand 1.21%) | 0.08 |
 | Lane (lane 8 2.16% vs lane 1 1.64%) | 0.50 |
 | Pace (walk 1.88% vs jog 1.92%) | 0.95 |
-| All 11 two-, three- and four-factor treatment interactions | all > 0.12 |
+| All 11 two-, three- and four-factor treatment interactions | all ≥ 0.13 (smallest: app × lane × pace) |
 
 - The phone (block) and the app-on-that-phone combination explain most of the variation.
 - Lane, placement and pace have no clear effect on the signed error. Pocket tends to over-record slightly more than hand (about 1.4 percentage points), but the evidence is weak.
@@ -58,6 +59,24 @@ Lap-to-lap SD 1.45, residual SD 2.20 (percentage points).
 - Residuals vs lap order: no trend over the session (correlation −0.05, p = 0.71).
 - Equal spread across blocks: Bartlett p = 0.96.
 - True lap length shifted by ±1 m: overall mean error moves from 1.90% to 1.66%–2.14%; all test results unchanged.
+
+## Sensitivity: blocks as a random sample of phones
+
+The final model treats block as fixed, so its intervals describe only our four phones. To ask what the data say about a typical phone, `code/02_analysis.R` (section 8) refits the model with the phones as a random sample:
+
+```r
+lmer(e ~ app * lane * placement * pace + (1 | block) + (1 | block:app) + (1 | lap_id))
+```
+
+| Quantity | Estimate | 95% CI (3 df) |
+|---|---|---|
+| Overall mean error | 1.90% | −2.15% to 5.95% |
+| Strava − Keep | 1.46 points | −3.19 to 6.11 |
+
+- Phone-to-phone SD 2.02, phone-to-phone SD of the app difference 1.92, lap-to-lap SD 1.45, residual SD 2.20 (percentage points).
+- The overall mean and the app effect are now tested against phone-to-phone variation with only 4 − 1 = 3 df, so the intervals are much wider and the app effect is no longer detectable (p = 0.39).
+- Lane, placement, pace and their interactions are compared within phones, so their tests are the same as in the final model.
+- So the over-recording is clear on our four phones, but four phones are too few to say how a typical phone behaves.
 
 ## Aim 3: which setting is most accurate? (review comment 5)
 
@@ -77,7 +96,7 @@ Absolute error $|e|$ and MAPE = mean of $|e|$:
 
 ## Conclusions
 
-1. Consumer GPS apps over-record a 400 m track lap by about 2% on average.
+1. On our four phones the apps over-recorded a 400 m track lap by about 2% on average (95% CI 1.1% to 2.7%). Treating the phones as a random sample, the interval for a typical phone is −2.2% to 6.0%, so more phones are needed to generalize.
 2. Which app reads longer depends on the phone: Strava read longer on three phones and shorter on one. The phone matters more than the app.
 3. Lane, placement and pace had no clear effect on the signed error at this sample size.
 4. Keep was slightly more accurate on average (MAPE 2.7% vs 3.6%), but the difference is not statistically clear.
@@ -85,6 +104,6 @@ Absolute error $|e|$ and MAPE = mean of $|e|$:
 ## Limitations
 
 - 10 m display resolution: each reading has up to ±5 m (±1.1%–1.25%) rounding error, similar in size to several effects.
-- Four phones, one track, mostly one day per member: day and weather are confounded with block; Jenny's three rainy laps were all walking.
+- Four phones, one track, mostly one day per member: day and weather were not blocked separately and are confounded with block (Darren's whole block was in light rain; Jenny's three rainy laps were all walking).
 - Phone position and pace were left to each member (see `proposal_v2.md`), so placement and pace effects are averages over personal habits.
 - Four readings per app × combination, so combination-level comparisons have low power.
