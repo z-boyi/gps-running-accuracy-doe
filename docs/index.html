@@ -34,6 +34,24 @@ html[data-current="en"] [data-lang="zh"], html[data-current="zh"] [data-lang="en
 .toc a { color: var(--ink); text-decoration: none; }
 .toc > nav > ul > li > a { font-weight: 600; color: var(--green); }
 .toc a:hover { color: var(--red); }
+
+/* Collapsible table of contents */
+.toc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; }
+.toc-head .toc-title { margin: 0; }
+.toc-all { font: inherit; font-size: .76rem; padding: 2px 8px; border: 1px solid var(--line); border-radius: 5px;
+  background: #fff; color: var(--green); cursor: pointer; white-space: nowrap; }
+.toc-all:hover { border-color: var(--green); }
+.toc nav > ul > li { position: relative; padding-left: 20px; }
+.toc-toggle { position: absolute; left: 0; top: 1px; width: 18px; height: 18px; padding: 0; border: 0; background: none;
+  cursor: pointer; color: var(--muted); border-radius: 4px; }
+.toc-toggle::before { content: ""; display: block; width: 0; height: 0; margin: 5px auto 0 6px;
+  border-left: 6px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+  transition: transform .15s ease; }
+.toc-toggle:hover { color: var(--green); background: var(--tint); }
+.toc li.open > .toc-toggle::before { transform: rotate(90deg); }
+.toc li.has-sub > ul { display: none; }
+.toc li.has-sub.open > ul { display: block; }
+.toc a.active { color: var(--red); font-weight: 600; }
 main { padding: 32px 40px 80px; max-width: 900px; }
 
 h1 { font-family: Cambria, Georgia, "Songti SC", "Noto Serif CJK SC", serif; font-size: 2rem; line-height: 1.3; margin: 0 0 .6em; }
@@ -150,7 +168,7 @@ code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warni
 </header>
 <div class="layout">
   <aside class="toc">
-    <nav data-lang="en"><p class="toc-title">Contents</p><ul>
+    <nav data-lang="en"><div class="toc-head"><p class="toc-title">Contents</p><button type="button" class="toc-all" data-toc-all aria-pressed="false" data-open="Expand all" data-close="Collapse all">Expand all</button></div><ul>
 <li><a href="#en-the-project-in-one-paragraph"
 id="en-toc-the-project-in-one-paragraph">0. The project in one
 paragraph</a></li>
@@ -259,7 +277,7 @@ id="en-toc-key-numbers-at-a-glance">15. Key numbers at a glance</a></li>
 <li><a href="#en-run-the-code-yourself"
 id="en-toc-run-the-code-yourself">16. Run the code yourself</a></li>
 </ul></nav>
-    <nav data-lang="zh"><p class="toc-title">目录</p><ul>
+    <nav data-lang="zh"><div class="toc-head"><p class="toc-title">目录</p><button type="button" class="toc-all" data-toc-all aria-pressed="false" data-open="全部展开" data-close="全部收起">全部展开</button></div><ul>
 <li><a href="#zh-一句话概括" id="zh-toc-一句话概括">0.
 一句话概括</a></li>
 <li><a href="#zh-研究问题从哪里来" id="zh-toc-研究问题从哪里来">1.
@@ -3913,7 +3931,84 @@ GitHub 上查看</a>
   try { saved = localStorage.getItem("lang"); } catch (e) {}
   var browser = (navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
   setLang(fromUrl || saved || browser, false);
+
+  // Collapsible table of contents: each section with subsections gets a
+  // toggle; the section being read opens by itself as you scroll.
+  var navs = document.querySelectorAll(".toc nav");
+  for (var n = 0; n < navs.length; n++) {
+    var items = navs[n].querySelectorAll(":scope > ul > li");
+    for (var k = 0; k < items.length; k++) {
+      var li = items[k];
+      if (!li.querySelector(":scope > ul")) { li.classList.add("no-sub"); continue; }
+      li.classList.add("has-sub");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "toc-toggle";
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute("aria-label", "Show subsections");
+      li.insertBefore(btn, li.firstChild);
+    }
+  }
+  function setOpen(li, open) {
+    li.classList.toggle("open", open);
+    var b = li.querySelector(":scope > .toc-toggle");
+    if (b) b.setAttribute("aria-expanded", open);
+  }
+  function setAllButton(nav) {
+    var all = nav.querySelector("[data-toc-all]");
+    var subs = nav.querySelectorAll("li.has-sub");
+    var openCount = nav.querySelectorAll("li.has-sub.open").length;
+    var allOpen = subs.length > 0 && openCount === subs.length;
+    all.setAttribute("aria-pressed", allOpen);
+    all.textContent = all.getAttribute(allOpen ? "data-close" : "data-open");
+  }
+  var current = null;
+  function spy() {
+    var lang = document.documentElement.getAttribute("data-current");
+    var heads = document.querySelectorAll('article[data-lang="' + lang + '"] h2[id], article[data-lang="' + lang + '"] h3[id]');
+    var id = null;
+    for (var i = 0; i < heads.length; i++) {
+      if (heads[i].getBoundingClientRect().top < 120) id = heads[i].id; else break;
+    }
+    if (id === current) return;
+    current = id;
+    var nav = document.querySelector('.toc nav[data-lang="' + lang + '"]');
+    var old = document.querySelectorAll(".toc a.active");
+    for (var j = 0; j < old.length; j++) old[j].classList.remove("active");
+    if (!id) return;
+    var link = nav.querySelector('a[href="#' + id + '"]');
+    if (!link) return;
+    link.classList.add("active");
+    var top = link.closest(".toc nav > ul > li");
+    if (top && top.classList.contains("has-sub") && !top.classList.contains("open")) {
+      setOpen(top, true);
+      setAllButton(nav);
+    }
+  }
+  var ticking = false;
+  window.addEventListener("scroll", function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { ticking = false; spy(); });
+  }, { passive: true });
+  spy();
   document.addEventListener("click", function (ev) {
+    var tg = ev.target.closest(".toc-toggle");
+    if (tg) {
+      var item = tg.parentNode;
+      setOpen(item, !item.classList.contains("open"));
+      setAllButton(item.closest("nav"));
+      return;
+    }
+    var ta = ev.target.closest("[data-toc-all]");
+    if (ta) {
+      var nv = ta.closest("nav");
+      var openAll = ta.getAttribute("aria-pressed") !== "true";
+      var subs = nv.querySelectorAll("li.has-sub");
+      for (var s = 0; s < subs.length; s++) setOpen(subs[s], openAll);
+      setAllButton(nv);
+      return;
+    }
     var t = ev.target.closest("[data-code-toggle]");
     if (t) {
       var open = t.getAttribute("aria-pressed") !== "true";
@@ -3933,6 +4028,8 @@ GitHub 上查看</a>
     url.hash = "";
     history.replaceState(null, "", url);
     window.scrollTo(0, 0);
+    current = null;
+    spy();
   });
 })();
 </script>

@@ -25,8 +25,8 @@
 </header>
 <div class="layout">
   <aside class="toc">
-    <nav data-lang="en"><p class="toc-title">Contents</p>{{TOC_EN}}</nav>
-    <nav data-lang="zh"><p class="toc-title">目录</p>{{TOC_ZH}}</nav>
+    <nav data-lang="en"><div class="toc-head"><p class="toc-title">Contents</p><button type="button" class="toc-all" data-toc-all aria-pressed="false" data-open="Expand all" data-close="Collapse all">Expand all</button></div>{{TOC_EN}}</nav>
+    <nav data-lang="zh"><div class="toc-head"><p class="toc-title">目录</p><button type="button" class="toc-all" data-toc-all aria-pressed="false" data-open="全部展开" data-close="全部收起">全部展开</button></div>{{TOC_ZH}}</nav>
   </aside>
   <main>
     <article data-lang="en" lang="en"><h1>{{TITLE_EN}}</h1>{{BODY_EN}}</article>
@@ -52,7 +52,84 @@
   try { saved = localStorage.getItem("lang"); } catch (e) {}
   var browser = (navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
   setLang(fromUrl || saved || browser, false);
+
+  // Collapsible table of contents: each section with subsections gets a
+  // toggle; the section being read opens by itself as you scroll.
+  var navs = document.querySelectorAll(".toc nav");
+  for (var n = 0; n < navs.length; n++) {
+    var items = navs[n].querySelectorAll(":scope > ul > li");
+    for (var k = 0; k < items.length; k++) {
+      var li = items[k];
+      if (!li.querySelector(":scope > ul")) { li.classList.add("no-sub"); continue; }
+      li.classList.add("has-sub");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "toc-toggle";
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute("aria-label", "Show subsections");
+      li.insertBefore(btn, li.firstChild);
+    }
+  }
+  function setOpen(li, open) {
+    li.classList.toggle("open", open);
+    var b = li.querySelector(":scope > .toc-toggle");
+    if (b) b.setAttribute("aria-expanded", open);
+  }
+  function setAllButton(nav) {
+    var all = nav.querySelector("[data-toc-all]");
+    var subs = nav.querySelectorAll("li.has-sub");
+    var openCount = nav.querySelectorAll("li.has-sub.open").length;
+    var allOpen = subs.length > 0 && openCount === subs.length;
+    all.setAttribute("aria-pressed", allOpen);
+    all.textContent = all.getAttribute(allOpen ? "data-close" : "data-open");
+  }
+  var current = null;
+  function spy() {
+    var lang = document.documentElement.getAttribute("data-current");
+    var heads = document.querySelectorAll('article[data-lang="' + lang + '"] h2[id], article[data-lang="' + lang + '"] h3[id]');
+    var id = null;
+    for (var i = 0; i < heads.length; i++) {
+      if (heads[i].getBoundingClientRect().top < 120) id = heads[i].id; else break;
+    }
+    if (id === current) return;
+    current = id;
+    var nav = document.querySelector('.toc nav[data-lang="' + lang + '"]');
+    var old = document.querySelectorAll(".toc a.active");
+    for (var j = 0; j < old.length; j++) old[j].classList.remove("active");
+    if (!id) return;
+    var link = nav.querySelector('a[href="#' + id + '"]');
+    if (!link) return;
+    link.classList.add("active");
+    var top = link.closest(".toc nav > ul > li");
+    if (top && top.classList.contains("has-sub") && !top.classList.contains("open")) {
+      setOpen(top, true);
+      setAllButton(nav);
+    }
+  }
+  var ticking = false;
+  window.addEventListener("scroll", function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { ticking = false; spy(); });
+  }, { passive: true });
+  spy();
   document.addEventListener("click", function (ev) {
+    var tg = ev.target.closest(".toc-toggle");
+    if (tg) {
+      var item = tg.parentNode;
+      setOpen(item, !item.classList.contains("open"));
+      setAllButton(item.closest("nav"));
+      return;
+    }
+    var ta = ev.target.closest("[data-toc-all]");
+    if (ta) {
+      var nv = ta.closest("nav");
+      var openAll = ta.getAttribute("aria-pressed") !== "true";
+      var subs = nv.querySelectorAll("li.has-sub");
+      for (var s = 0; s < subs.length; s++) setOpen(subs[s], openAll);
+      setAllButton(nv);
+      return;
+    }
     var t = ev.target.closest("[data-code-toggle]");
     if (t) {
       var open = t.getAttribute("aria-pressed") !== "true";
@@ -72,6 +149,8 @@
     url.hash = "";
     history.replaceState(null, "", url);
     window.scrollTo(0, 0);
+    current = null;
+    spy();
   });
 })();
 </script>
