@@ -273,7 +273,7 @@ In a mixed model the denominator degrees of freedom for F-tests are computed wit
 
 In the model above, `block` is **additive**: it assumes each member's readings are shifted up or down as a whole, so the Strava − Keep difference is the same on every phone. Reviewer comment 7 asked us to check this.
 
-**How we checked**: for each lap, compute Strava − Keep and plot the differences by member (`figures/02_app_difference_by_block.png`, the plot on slide 4).
+**How we checked**: for each lap, compute Strava − Keep and plot the differences by member (`figures/02_app_difference_by_block.png`, the plot on slide 5).
 
 **Result**:
 

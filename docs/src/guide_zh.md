@@ -273,7 +273,7 @@ lmer(e ~ block + app * lane * placement * pace + (1 | lap_id))
 
 上面的模型里，`block` 是**加性**的：它假设每个人只是整体平移，Strava 和 Keep 的差在每部手机上都一样。审稿人第 7 条意见要我们检查这个假设。
 
-**检查方法**：每一圈算 Strava − Keep 的差，按人分开画图（`figures/02_app_difference_by_block.png`，slide 4 左边的图）。
+**检查方法**：每一圈算 Strava − Keep 的差，按人分开画图（`figures/02_app_difference_by_block.png`，也就是 slide 5 左边的图）。
 
 **结果**：
 
