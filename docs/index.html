@@ -319,6 +319,9 @@ id="zh-toc-估计效应和敏感性分析">10. 估计效应和敏感性分析</a
 <li><a href="#zh-敏感性分析真实距离不准会怎样"
 id="zh-toc-敏感性分析真实距离不准会怎样">10.2
 敏感性分析：真实距离不准会怎样</a></li>
+<li><a href="#zh-敏感性分析把手机当成随机样本"
+id="zh-toc-敏感性分析把手机当成随机样本">10.3
+敏感性分析：把手机当成随机样本</a></li>
 </ul></li>
 <li><a href="#zh-准确度分析aim-3" id="zh-toc-准确度分析aim-3">11.
 准确度分析（Aim 3）</a>
@@ -2148,6 +2151,9 @@ confounded）</strong>：任何处理的比较都在每个人内部完整地做�
 个区组，而且关心的就是这 4
 部具体的手机，不打算推广到“所有手机组成的总体”。4
 个水平也很难可靠地估计一个方差。所以把区组作为普通的分组变量（固定效应）放进模型。</p>
+<p>固定区组的代价是：模型给出的置信区间只描述<strong>我们这 4
+部手机</strong>。想知道“一部典型的手机”会怎样，要把区组当成随机效应再拟合一次，这在第
+10.3 节作为敏感性分析来做。</p>
 <h3 id="zh-实验单位和配对">2.3 实验单位和配对</h3>
 <p><strong>实验单位（experimental
 unit）</strong>是接受一个处理、能独立给出结果的最小单元。我们的设计里有<strong>两种大小</strong>的单位：</p>
@@ -2174,75 +2180,91 @@ app</li>
 <p>裂区设计的关键是：整区因素要和“圈与圈之间的变异”比，子区因素要和“圈内的变异”比，两者的误差大小不一样。第
 8 节的模型就是按这个结构建的。</p>
 <h3 id="zh-随机化randomization">2.4 随机化（randomization）</h3>
-<p>每个人跑 8 圈的<strong>顺序</strong>是在 R 里用
-<code>set.seed(404)</code> 随机生成的，四个人各自独立随机。</p>
+<p>每个人跑 8 圈的<strong>顺序</strong>是在 R 里随机生成的：先
+<code>set.seed(404)</code> 设一次随机种子，然后四个区组依次各抽一次
+<code>sample(8)</code>（把 1 到 8
+随机排列）。种子只设一次，四次抽样互相独立，所以每个人的顺序都不一样。</p>
 <p><strong>为什么要随机化</strong>：实验过程中可能有我们控制不了的慢慢变化，比如越跑越累、手机电量下降、卫星位置随时间移动。如果按固定顺序跑（比如先全部走、再全部跑），这些变化就会和
 pace
 混在一起，分不清误差变化是因为速度还是因为时间。随机打乱顺序，这些变化就会平均地分散到各个处理上，不会系统性地偏向某一个。<code>set.seed(404)</code>
 固定了随机数，任何人重新运行代码都会得到同样的顺序，结果可以复现。</p>
 <p>四个人都<strong>完全按随机顺序</strong>跑了。</p>
-<p><strong>例：Boyi 的随机顺序</strong>（完整表格见
+<p><strong>四个区组的随机顺序</strong>（每格写成 lane · H/P = 手持/口袋
+· W/J = 走/跑；<strong>粗体</strong> = 在小雨中跑的圈；完整表格见
 <code>data/randomization_schedule.csv</code>）</p>
 <table>
 <thead>
 <tr class="header">
 <th>Lap</th>
-<th>Lane</th>
-<th>Placement</th>
-<th>Pace</th>
+<th>Phoebe</th>
+<th>Boyi</th>
+<th>Jenny</th>
+<th>Darren</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>8</td>
-<td>hand</td>
-<td>walk</td>
+<td>1 · H · J</td>
+<td>8 · H · W</td>
+<td><strong>1 · P · W</strong></td>
+<td><strong>1 · H · W</strong></td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>1</td>
-<td>hand</td>
-<td>walk</td>
+<td>1 · H · W</td>
+<td>1 · H · W</td>
+<td><strong>8 · P · W</strong></td>
+<td><strong>1 · P · W</strong></td>
 </tr>
 <tr class="odd">
 <td>3</td>
-<td>1</td>
-<td>hand</td>
-<td>jog</td>
+<td>8 · H · W</td>
+<td>1 · H · J</td>
+<td>1 · P · J</td>
+<td><strong>8 · H · J</strong></td>
 </tr>
 <tr class="even">
 <td>4</td>
-<td>8</td>
-<td>pocket</td>
-<td>jog</td>
+<td>8 · P · J</td>
+<td>8 · P · J</td>
+<td>8 · H · W</td>
+<td><strong>8 · P · J</strong></td>
 </tr>
 <tr class="odd">
 <td>5</td>
-<td>1</td>
-<td>pocket</td>
-<td>walk</td>
+<td>8 · H · J</td>
+<td>1 · P · W</td>
+<td>8 · P · J</td>
+<td><strong>1 · H · J</strong></td>
 </tr>
 <tr class="even">
 <td>6</td>
-<td>1</td>
-<td>pocket</td>
-<td>jog</td>
+<td>8 · P · W</td>
+<td>1 · P · J</td>
+<td><strong>1 · H · W</strong></td>
+<td><strong>8 · P · W</strong></td>
 </tr>
 <tr class="odd">
 <td>7</td>
-<td>8</td>
-<td>hand</td>
-<td>jog</td>
+<td>1 · P · W</td>
+<td>8 · H · J</td>
+<td>8 · H · J</td>
+<td><strong>1 · P · J</strong></td>
 </tr>
 <tr class="even">
 <td>8</td>
-<td>8</td>
-<td>pocket</td>
-<td>walk</td>
+<td>1 · P · J</td>
+<td>8 · P · W</td>
+<td>1 · H · J</td>
+<td><strong>8 · H · W</strong></td>
 </tr>
 </tbody>
 </table>
+<p>怎么读这张表：每一列（一个人）里 8
+种设置各出现一次，这是“完全区组”；但四列的顺序都不一样，这是“在每个区组内独立随机化”。粗体格就是幻灯片上的蓝色格：Darren
+整个区组都在小雨里跑，Jenny 的第 1、2、6 圈在小雨里跑（第 5
+节会讲这意味着什么）。</p>
 <details class="rcode">
 <summary>
 R 代码 · <code>code/00_randomization.R</code> 第 1–34 行
@@ -2406,7 +2428,11 @@ Oval，四个人用同一条跑道，所以场地不会带来差异。</li>
 <li><strong>日期和天气</strong>：Phoebe（多云）和 Boyi（晴）都在 11 月
 12 日跑完；Darren 在 11 月 13 日（小雨）；Jenny 的第 1、2、6 圈在 11 月
 6 日（小雨），其余 5 圈在 11 月 12 日（多云）。</li>
-<li><strong>天气和日期为什么不影响结论</strong>：每个人基本在一天内跑完，所以天气和日期的差异都落在“人”这个区组里，被区组效应吸收了。在统计上，这叫天气和区组<strong>混杂（confounded）</strong>：我们分不开“是人/手机的差别还是天气的差别”，但因为我们本来就不研究区组效应，所以不影响其他因素的比较。</li>
+<li><strong>日期和天气没有单独作为区组</strong>：我们没有让每个人在不同的天、不同的天气下各跑一组，所以日期和天气不是一个单独的区组因素。每个人基本在一天内跑完，日期和天气的差异都落在“人”这个区组里，被区组效应吸收了。在统计上，这叫天气和区组<strong>混杂（confounded）</strong>：我们分不开“是人/手机的差别还是天气的差别”。例如
+Darren
+的手机误差偏低，可能是手机的原因，也可能是因为他整组都在下雨。</li>
+<li><strong>为什么它不影响处理效应的结论</strong>：app、lane、placement、pace
+都是在同一个区组内部比较的，整个区组共同的天气会在比较中抵消。受影响的只是“区组效应到底来自什么”这个问题，而我们本来就不研究区组效应。</li>
 <li><strong>一个例外</strong>：Jenny 11 月 6
 日下雨的三圈恰好都是走路，所以在她的区组里，天气和 pace
 部分混杂。这是随机顺序碰巧造成的，主动说出来能体现对设计的理解。</li>
@@ -3045,10 +3071,15 @@ CI）</strong>：真实值很可能落在的范围。如果反复做同样的实
 </table>
 <figure>
 <img src="../figures/04_main_effects.png" style="width:100.0%"
-alt="各因素水平的估计平均误差和 95% 置信区间。" />
+alt="各因素水平的估计平均误差和 95% 置信区间，对我们的 4 个区组取平均。" />
 <figcaption aria-hidden="true">各因素水平的估计平均误差和 95%
-置信区间。</figcaption>
+置信区间，对我们的 4 个区组取平均。</figcaption>
 </figure>
+<p>图的副标题写着 “Averaged over our 4 blocks (fixed-block final
+model)”：这些均值和区间是对<strong>我们这 4
+部手机</strong>取平均得到的。因为 app
+的差别在不同手机上方向不同，这一点要说清楚；推广到其他手机见第 10.3
+节。</p>
 <ul>
 <li><strong>Aim 1 的答案</strong>：总平均 +1.90%，区间不含 0，app
 系统性地多记，大约每 400 m 一圈多 8 m。一个可能的原因是 GPS
@@ -3057,8 +3088,12 @@ alt="各因素水平的估计平均误差和 95% 置信区间。" />
 0.002）。lane 和 pace 在我们的样本量下没有检测到影响；placement
 是弱证据（口袋比手持多记约 1.4 个百分点，p = 0.08，置信区间包含
 0），不能下结论。</li>
-<li>所有 11 个处理因素之间的交互项 p 都大于
-0.12，也没有检测到。交互图（<code>figures/05_interactions.png</code>）里有两对线是交叉的（lane
+<li><strong>交互作用</strong>：目标 2
+问的是“哪些因素<strong>和交互</strong>有影响”。app、lane、placement、pace
+之间一共有 11 个交互项（6 个两因素、4 个三因素、1
+个四因素），在最终模型里<strong>一个都没有检测到</strong>，最小的 p =
+0.13（app × lane × pace）。代码在第 8.5
+节拟合完最终模型后直接打印这一行：<code>Treatment-factor interactions: 11 terms, smallest p = 0.13 (app:lane:pace)</code>。交互图（<code>figures/05_interactions.png</code>）里有两对线是交叉的（lane
 × pace、placement × pace），但检验不显著，交叉很可能只是噪音。</li>
 </ul>
 <figure>
@@ -3197,6 +3232,97 @@ class="sourceCode r"><code class="sourceCode r"><span id="zh-cb11-1"><a href="#z
 GitHub 上查看</a>
 </p>
 </details>
+<h3 id="zh-敏感性分析把手机当成随机样本">10.3
+敏感性分析：把手机当成随机样本</h3>
+<p>最终模型把区组当作<strong>固定效应</strong>，所以 1.12% 到 2.68%
+这个区间回答的是：“在<strong>我们这 4 部手机</strong>上，app
+平均多记多少？”如果想问“<strong>一部典型的手机</strong>会多记多少？”，就要把
+4
+部手机看成从所有手机里随机抽出来的样本，把区组改成<strong>随机效应</strong>：</p>
+<div class="sourceCode" id="zh-cb12"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb12-1"><a href="#zh-cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(error_pct <span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span></span>
+<span id="zh-cb12-2"><a href="#zh-cb12-2" aria-hidden="true" tabindex="-1"></a>       (<span class="dv">1</span> <span class="sc">|</span> block) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> block<span class="sc">:</span>app) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id), <span class="at">data =</span> dat)</span></code></pre></div>
+<ul>
+<li><code>(1 | block)</code>：每部手机有自己的整体偏移，偏移来自一个正态分布，模型估计的是它的标准差（手机间
+SD = 2.02 个百分点）。</li>
+<li><code>(1 | block:app)</code>：每部手机上 app
+的差别也可以不同，对应最终模型里的 app × block（SD = 1.92）。</li>
+<li><code>(1 | lap_id)</code>：和原来一样，每圈一个随机截距（SD =
+1.45），残差 SD = 2.20。</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>估计值</th>
+<th>95% CI（自由度 3）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>总平均误差</td>
+<td>1.90%</td>
+<td>−2.15% 到 5.95%</td>
+</tr>
+<tr class="even">
+<td>Strava − Keep</td>
+<td>1.46 个百分点</td>
+<td>−3.19 到 6.11</td>
+</tr>
+</tbody>
+</table>
+<p><strong>估计值没变，区间宽了很多，而且都包含 0</strong>；app
+的检验也从 p = 0.015 变成 p = 0.39。原因是：要推广到所有手机，总平均和
+app 效应就要和“手机与手机之间的差别”比，而我们只有 4 部手机，自由度只有
+4 − 1 = 3。t 分布在 3 个自由度时临界值是 3.18（无限自由度时是
+1.96），再加上手机之间本来差别就大，区间自然很宽。</p>
+<p>lane、placement、pace
+和它们的交互都是在<strong>同一部手机内部</strong>比较的，所以它们的检验和最终模型一样（placement
+仍然 p = 0.08）。</p>
+<p><strong>怎么解读</strong>：两个模型并不矛盾，回答的是不同的问题。在我们测的
+4 部手机上，app 确实平均多记约 2%；但 4
+部手机太少，不能说“所有手机都会多记”。幻灯片的 Aim 1
+两句话都写了，就是这个意思。</p>
+<p><strong>为什么最终模型仍然用固定区组</strong>：按计划，我们关心的就是这
+4 部手机上各因素的比较；4
+个水平也很难可靠地估计方差。随机区组模型作为敏感性分析，告诉我们结论能推广到多远。</p>
+<details class="rcode">
+<summary>
+R 代码 · <code>code/02_analysis.R</code> 第 245–271 行
+</summary>
+<div class="sourceCode" id="zh-cb13"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb13-1"><a href="#zh-cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 8. Sensitivity: blocks as a random sample of phones --------------------</span></span>
+<span id="zh-cb13-2"><a href="#zh-cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb13-3"><a href="#zh-cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The final model treats block as FIXED, so its CIs describe our 4 phones.</span></span>
+<span id="zh-cb13-4"><a href="#zh-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># To ask about &quot;a typical phone&quot;, treat the phones as a random sample:</span></span>
+<span id="zh-cb13-5"><a href="#zh-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   (1 | block)      phone-to-phone shift in the error</span></span>
+<span id="zh-cb13-6"><a href="#zh-cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   (1 | block:app)  phone-to-phone change in the app difference</span></span>
+<span id="zh-cb13-7"><a href="#zh-cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># The overall mean and the app effect are then tested against phone-to-phone</span></span>
+<span id="zh-cb13-8"><a href="#zh-cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># variation, with only 4 - 1 = 3 df, so the intervals are much wider.</span></span>
+<span id="zh-cb13-9"><a href="#zh-cb13-9" aria-hidden="true" tabindex="-1"></a>fit_rb <span class="ot">&lt;-</span> <span class="fu">lmer</span>(error_pct <span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span></span>
+<span id="zh-cb13-10"><a href="#zh-cb13-10" aria-hidden="true" tabindex="-1"></a>                 (<span class="dv">1</span> <span class="sc">|</span> block) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> block<span class="sc">:</span>app) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id), <span class="at">data =</span> dat)</span>
+<span id="zh-cb13-11"><a href="#zh-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">VarCorr</span>(fit_rb))</span>
+<span id="zh-cb13-12"><a href="#zh-cb13-12" aria-hidden="true" tabindex="-1"></a>anova_rb <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_rb)</span>
+<span id="zh-cb13-13"><a href="#zh-cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_rb)</span>
+<span id="zh-cb13-14"><a href="#zh-cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb13-15"><a href="#zh-cb13-15" aria-hidden="true" tabindex="-1"></a>rb_overall <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_rb, <span class="sc">~</span> <span class="dv">1</span>)))</span>
+<span id="zh-cb13-16"><a href="#zh-cb13-16" aria-hidden="true" tabindex="-1"></a>rb_app     <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">contrast</span>(<span class="fu">emmeans</span>(fit_rb, <span class="sc">~</span> app), <span class="st">&quot;revpairwise&quot;</span>)))</span>
+<span id="zh-cb13-17"><a href="#zh-cb13-17" aria-hidden="true" tabindex="-1"></a>rb_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="zh-cb13-18"><a href="#zh-cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">quantity =</span> <span class="fu">c</span>(<span class="st">&quot;overall mean e (%)&quot;</span>, <span class="st">&quot;Strava - Keep (points)&quot;</span>),</span>
+<span id="zh-cb13-19"><a href="#zh-cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>emmean,   rb_app<span class="sc">$</span>estimate),</span>
+<span id="zh-cb13-20"><a href="#zh-cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">df       =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>df,       rb_app<span class="sc">$</span>df),</span>
+<span id="zh-cb13-21"><a href="#zh-cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower    =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>lower.CL, rb_app<span class="sc">$</span>lower.CL),</span>
+<span id="zh-cb13-22"><a href="#zh-cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper    =</span> <span class="fu">c</span>(rb_overall<span class="sc">$</span>upper.CL, rb_app<span class="sc">$</span>upper.CL)</span>
+<span id="zh-cb13-23"><a href="#zh-cb13-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="zh-cb13-24"><a href="#zh-cb13-24" aria-hidden="true" tabindex="-1"></a>rb_table[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(rb_table[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="zh-cb13-25"><a href="#zh-cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(rb_table)</span>
+<span id="zh-cb13-26"><a href="#zh-cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Random-block model: app p = %.2f</span><span class="sc">\n</span><span class="st">&quot;</span>, anova_rb[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
+<span id="zh-cb13-27"><a href="#zh-cb13-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(rb_table, <span class="st">&quot;results/random_block_sensitivity.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p class="rcode-link">
+<a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/02_analysis.R#L245-L271">在
+GitHub 上查看</a>
+</p>
+</details>
 <hr />
 <h2 id="zh-准确度分析aim-3">11. 准确度分析（Aim 3）</h2>
 <h3 id="zh-mape-和-bootstrap-置信区间">11.1 MAPE 和 bootstrap
@@ -3251,41 +3377,41 @@ GitHub 上查看</a>
 <summary>
 R 代码 · <code>code/03_absolute_error.R</code> 第 33–66 行
 </summary>
-<div class="sourceCode" id="zh-cb12"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="zh-cb12-1"><a href="#zh-cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1. MAPE by app with a bootstrap CI -------------------------------------</span></span>
-<span id="zh-cb12-2"><a href="#zh-cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb12-3"><a href="#zh-cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Resample whole laps (both app readings together) within each block, so every</span></span>
-<span id="zh-cb12-4"><a href="#zh-cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># bootstrap sample keeps the design: 4 blocks x 8 laps, paired readings.</span></span>
-<span id="zh-cb12-5"><a href="#zh-cb12-5" aria-hidden="true" tabindex="-1"></a>mape_by_app <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">tapply</span>(d<span class="sc">$</span>abs_e, d<span class="sc">$</span>app, mean)</span>
-<span id="zh-cb12-6"><a href="#zh-cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb12-7"><a href="#zh-cb12-7" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id), dat<span class="sc">$</span>block)</span>
-<span id="zh-cb12-8"><a href="#zh-cb12-8" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">lapply</span>(laps_in_block, unique)</span>
-<span id="zh-cb12-9"><a href="#zh-cb12-9" aria-hidden="true" tabindex="-1"></a>rows_of_lap   <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(dat)), <span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id))</span>
-<span id="zh-cb12-10"><a href="#zh-cb12-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb12-11"><a href="#zh-cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
-<span id="zh-cb12-12"><a href="#zh-cb12-12" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
-<span id="zh-cb12-13"><a href="#zh-cb12-13" aria-hidden="true" tabindex="-1"></a>boot <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
-<span id="zh-cb12-14"><a href="#zh-cb12-14" aria-hidden="true" tabindex="-1"></a>  laps <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(laps_in_block, sample, <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
-<span id="zh-cb12-15"><a href="#zh-cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mape_by_app</span>(dat[<span class="fu">unlist</span>(rows_of_lap[laps]), ])</span>
-<span id="zh-cb12-16"><a href="#zh-cb12-16" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="zh-cb12-17"><a href="#zh-cb12-17" aria-hidden="true" tabindex="-1"></a>boot_diff <span class="ot">&lt;-</span> boot[<span class="st">&quot;Strava&quot;</span>, ] <span class="sc">-</span> boot[<span class="st">&quot;Keep&quot;</span>, ]</span>
-<span id="zh-cb12-18"><a href="#zh-cb12-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb12-19"><a href="#zh-cb12-19" aria-hidden="true" tabindex="-1"></a>mape_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="zh-cb12-20"><a href="#zh-cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">app      =</span> <span class="fu">c</span>(<span class="st">&quot;Keep&quot;</span>, <span class="st">&quot;Strava&quot;</span>, <span class="st">&quot;Strava - Keep&quot;</span>),</span>
-<span id="zh-cb12-21"><a href="#zh-cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mape     =</span> <span class="fu">c</span>(<span class="fu">mape_by_app</span>(dat), <span class="fu">diff</span>(<span class="fu">mape_by_app</span>(dat))),</span>
-<span id="zh-cb12-22"><a href="#zh-cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_lo  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.025</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.025</span>)),</span>
-<span id="zh-cb12-23"><a href="#zh-cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_hi  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.975</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.975</span>))</span>
-<span id="zh-cb12-24"><a href="#zh-cb12-24" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="zh-cb12-25"><a href="#zh-cb12-25" aria-hidden="true" tabindex="-1"></a>mape_table[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_table[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
-<span id="zh-cb12-26"><a href="#zh-cb12-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_table)</span>
-<span id="zh-cb12-27"><a href="#zh-cb12-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_table, <span class="st">&quot;results/mape_by_app_bootstrap.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="zh-cb12-28"><a href="#zh-cb12-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb12-29"><a href="#zh-cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co"># MAPE by block and app (descriptive)</span></span>
-<span id="zh-cb12-30"><a href="#zh-cb12-30" aria-hidden="true" tabindex="-1"></a>mape_block <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(abs_e <span class="sc">~</span> block <span class="sc">+</span> app, <span class="at">data =</span> dat, <span class="at">FUN =</span> mean)</span>
-<span id="zh-cb12-31"><a href="#zh-cb12-31" aria-hidden="true" tabindex="-1"></a>mape_block<span class="sc">$</span>abs_e <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_block<span class="sc">$</span>abs_e, <span class="dv">2</span>)</span>
-<span id="zh-cb12-32"><a href="#zh-cb12-32" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(mape_block)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;mape&quot;</span></span>
-<span id="zh-cb12-33"><a href="#zh-cb12-33" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_block)</span>
-<span id="zh-cb12-34"><a href="#zh-cb12-34" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_block, <span class="st">&quot;results/mape_by_block_app.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="zh-cb14"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb14-1"><a href="#zh-cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 1. MAPE by app with a bootstrap CI -------------------------------------</span></span>
+<span id="zh-cb14-2"><a href="#zh-cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb14-3"><a href="#zh-cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Resample whole laps (both app readings together) within each block, so every</span></span>
+<span id="zh-cb14-4"><a href="#zh-cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># bootstrap sample keeps the design: 4 blocks x 8 laps, paired readings.</span></span>
+<span id="zh-cb14-5"><a href="#zh-cb14-5" aria-hidden="true" tabindex="-1"></a>mape_by_app <span class="ot">&lt;-</span> <span class="cf">function</span>(d) <span class="fu">tapply</span>(d<span class="sc">$</span>abs_e, d<span class="sc">$</span>app, mean)</span>
+<span id="zh-cb14-6"><a href="#zh-cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb14-7"><a href="#zh-cb14-7" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id), dat<span class="sc">$</span>block)</span>
+<span id="zh-cb14-8"><a href="#zh-cb14-8" aria-hidden="true" tabindex="-1"></a>laps_in_block <span class="ot">&lt;-</span> <span class="fu">lapply</span>(laps_in_block, unique)</span>
+<span id="zh-cb14-9"><a href="#zh-cb14-9" aria-hidden="true" tabindex="-1"></a>rows_of_lap   <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(dat)), <span class="fu">as.character</span>(dat<span class="sc">$</span>lap_id))</span>
+<span id="zh-cb14-10"><a href="#zh-cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb14-11"><a href="#zh-cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
+<span id="zh-cb14-12"><a href="#zh-cb14-12" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="zh-cb14-13"><a href="#zh-cb14-13" aria-hidden="true" tabindex="-1"></a>boot <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="zh-cb14-14"><a href="#zh-cb14-14" aria-hidden="true" tabindex="-1"></a>  laps <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(laps_in_block, sample, <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
+<span id="zh-cb14-15"><a href="#zh-cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mape_by_app</span>(dat[<span class="fu">unlist</span>(rows_of_lap[laps]), ])</span>
+<span id="zh-cb14-16"><a href="#zh-cb14-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="zh-cb14-17"><a href="#zh-cb14-17" aria-hidden="true" tabindex="-1"></a>boot_diff <span class="ot">&lt;-</span> boot[<span class="st">&quot;Strava&quot;</span>, ] <span class="sc">-</span> boot[<span class="st">&quot;Keep&quot;</span>, ]</span>
+<span id="zh-cb14-18"><a href="#zh-cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb14-19"><a href="#zh-cb14-19" aria-hidden="true" tabindex="-1"></a>mape_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="zh-cb14-20"><a href="#zh-cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">app      =</span> <span class="fu">c</span>(<span class="st">&quot;Keep&quot;</span>, <span class="st">&quot;Strava&quot;</span>, <span class="st">&quot;Strava - Keep&quot;</span>),</span>
+<span id="zh-cb14-21"><a href="#zh-cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mape     =</span> <span class="fu">c</span>(<span class="fu">mape_by_app</span>(dat), <span class="fu">diff</span>(<span class="fu">mape_by_app</span>(dat))),</span>
+<span id="zh-cb14-22"><a href="#zh-cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_lo  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.025</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.025</span>)),</span>
+<span id="zh-cb14-23"><a href="#zh-cb14-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">boot_hi  =</span> <span class="fu">c</span>(<span class="fu">apply</span>(boot, <span class="dv">1</span>, quantile, <span class="fl">0.975</span>), <span class="fu">quantile</span>(boot_diff, <span class="fl">0.975</span>))</span>
+<span id="zh-cb14-24"><a href="#zh-cb14-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="zh-cb14-25"><a href="#zh-cb14-25" aria-hidden="true" tabindex="-1"></a>mape_table[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_table[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="zh-cb14-26"><a href="#zh-cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_table)</span>
+<span id="zh-cb14-27"><a href="#zh-cb14-27" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_table, <span class="st">&quot;results/mape_by_app_bootstrap.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="zh-cb14-28"><a href="#zh-cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb14-29"><a href="#zh-cb14-29" aria-hidden="true" tabindex="-1"></a><span class="co"># MAPE by block and app (descriptive)</span></span>
+<span id="zh-cb14-30"><a href="#zh-cb14-30" aria-hidden="true" tabindex="-1"></a>mape_block <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(abs_e <span class="sc">~</span> block <span class="sc">+</span> app, <span class="at">data =</span> dat, <span class="at">FUN =</span> mean)</span>
+<span id="zh-cb14-31"><a href="#zh-cb14-31" aria-hidden="true" tabindex="-1"></a>mape_block<span class="sc">$</span>abs_e <span class="ot">&lt;-</span> <span class="fu">round</span>(mape_block<span class="sc">$</span>abs_e, <span class="dv">2</span>)</span>
+<span id="zh-cb14-32"><a href="#zh-cb14-32" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(mape_block)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">&quot;mape&quot;</span></span>
+<span id="zh-cb14-33"><a href="#zh-cb14-33" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mape_block)</span>
+<span id="zh-cb14-34"><a href="#zh-cb14-34" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(mape_block, <span class="st">&quot;results/mape_by_block_app.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L33-L66">在
 GitHub 上查看</a>
@@ -3317,40 +3443,40 @@ comparisons）</strong>。所以这个结果只作为<strong>探索性发现</st
 <summary>
 R 代码 · <code>code/03_absolute_error.R</code> 第 68–100 行
 </summary>
-<div class="sourceCode" id="zh-cb13"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="zh-cb13-1"><a href="#zh-cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2. Model for log(|e| + 0.5) ---------------------------------------------</span></span>
-<span id="zh-cb13-2"><a href="#zh-cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb13-3"><a href="#zh-cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed</span></span>
-<span id="zh-cb13-4"><a href="#zh-cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R).</span></span>
-<span id="zh-cb13-5"><a href="#zh-cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Back-transformed means are &quot;typical&quot; (median-like) absolute errors, so they</span></span>
-<span id="zh-cb13-6"><a href="#zh-cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># are smaller than MAPE.</span></span>
-<span id="zh-cb13-7"><a href="#zh-cb13-7" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
-<span id="zh-cb13-8"><a href="#zh-cb13-8" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="zh-cb13-9"><a href="#zh-cb13-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
-<span id="zh-cb13-10"><a href="#zh-cb13-10" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
-<span id="zh-cb13-11"><a href="#zh-cb13-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
-<span id="zh-cb13-12"><a href="#zh-cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
-<span id="zh-cb13-13"><a href="#zh-cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb13-14"><a href="#zh-cb13-14" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
-<span id="zh-cb13-15"><a href="#zh-cb13-15" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
-<span id="zh-cb13-16"><a href="#zh-cb13-16" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
-<span id="zh-cb13-17"><a href="#zh-cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
-<span id="zh-cb13-18"><a href="#zh-cb13-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
-<span id="zh-cb13-19"><a href="#zh-cb13-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
-<span id="zh-cb13-20"><a href="#zh-cb13-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="zh-cb13-21"><a href="#zh-cb13-21" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
-<span id="zh-cb13-22"><a href="#zh-cb13-22" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
-<span id="zh-cb13-23"><a href="#zh-cb13-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
-<span id="zh-cb13-24"><a href="#zh-cb13-24" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
-<span id="zh-cb13-25"><a href="#zh-cb13-25" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
-<span id="zh-cb13-26"><a href="#zh-cb13-26" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="zh-cb13-27"><a href="#zh-cb13-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb13-28"><a href="#zh-cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
-<span id="zh-cb13-29"><a href="#zh-cb13-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
-<span id="zh-cb13-30"><a href="#zh-cb13-30" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
-<span id="zh-cb13-31"><a href="#zh-cb13-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
-<span id="zh-cb13-32"><a href="#zh-cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
-<span id="zh-cb13-33"><a href="#zh-cb13-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="zh-cb15"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb15-1"><a href="#zh-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 2. Model for log(|e| + 0.5) ---------------------------------------------</span></span>
+<span id="zh-cb15-2"><a href="#zh-cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb15-3"><a href="#zh-cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># |e| is skewed and often 0, so model log(|e| + 0.5) with the same final mixed</span></span>
+<span id="zh-cb15-4"><a href="#zh-cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># model as the signed error (including app x block, see 02_analysis.R).</span></span>
+<span id="zh-cb15-5"><a href="#zh-cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Back-transformed means are &quot;typical&quot; (median-like) absolute errors, so they</span></span>
+<span id="zh-cb15-6"><a href="#zh-cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># are smaller than MAPE.</span></span>
+<span id="zh-cb15-7"><a href="#zh-cb15-7" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>log_abs <span class="ot">&lt;-</span> <span class="fu">log</span>(dat<span class="sc">$</span>abs_e <span class="sc">+</span> <span class="fl">0.5</span>)</span>
+<span id="zh-cb15-8"><a href="#zh-cb15-8" aria-hidden="true" tabindex="-1"></a>fit_abs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(log_abs <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="zh-cb15-9"><a href="#zh-cb15-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">data =</span> dat)</span>
+<span id="zh-cb15-10"><a href="#zh-cb15-10" aria-hidden="true" tabindex="-1"></a>anova_abs <span class="ot">&lt;-</span> <span class="fu">anova</span>(fit_abs)</span>
+<span id="zh-cb15-11"><a href="#zh-cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(anova_abs)</span>
+<span id="zh-cb15-12"><a href="#zh-cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">round</span>(<span class="fu">as.data.frame</span>(anova_abs), <span class="dv">4</span>), <span class="st">&quot;results/anova_log_abs_error.csv&quot;</span>)</span>
+<span id="zh-cb15-13"><a href="#zh-cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb15-14"><a href="#zh-cb15-14" aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pmax</span>(<span class="fu">exp</span>(x) <span class="sc">-</span> <span class="fl">0.5</span>, <span class="dv">0</span>)   <span class="co"># undo log(|e| + 0.5); |e| &gt;= 0</span></span>
+<span id="zh-cb15-15"><a href="#zh-cb15-15" aria-hidden="true" tabindex="-1"></a>typical <span class="ot">&lt;-</span> <span class="cf">function</span>(spec) {</span>
+<span id="zh-cb15-16"><a href="#zh-cb15-16" aria-hidden="true" tabindex="-1"></a>  em <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">confint</span>(<span class="fu">emmeans</span>(fit_abs, spec)))</span>
+<span id="zh-cb15-17"><a href="#zh-cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(em[, <span class="fu">all.vars</span>(spec), <span class="at">drop =</span> <span class="cn">FALSE</span>],</span>
+<span id="zh-cb15-18"><a href="#zh-cb15-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">typical_abs_e =</span> <span class="fu">back</span>(em<span class="sc">$</span>emmean),</span>
+<span id="zh-cb15-19"><a href="#zh-cb15-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">lower =</span> <span class="fu">back</span>(em<span class="sc">$</span>lower.CL), <span class="at">upper =</span> <span class="fu">back</span>(em<span class="sc">$</span>upper.CL))</span>
+<span id="zh-cb15-20"><a href="#zh-cb15-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="zh-cb15-21"><a href="#zh-cb15-21" aria-hidden="true" tabindex="-1"></a>typ_app  <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app)</span>
+<span id="zh-cb15-22"><a href="#zh-cb15-22" aria-hidden="true" tabindex="-1"></a>typ_cell <span class="ot">&lt;-</span> <span class="fu">typical</span>(<span class="sc">~</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace)</span>
+<span id="zh-cb15-23"><a href="#zh-cb15-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(typ_app, <span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="zh-cb15-24"><a href="#zh-cb15-24" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">transform</span>(typ_cell, <span class="at">typical_abs_e =</span> <span class="fu">round</span>(typical_abs_e, <span class="dv">2</span>),</span>
+<span id="zh-cb15-25"><a href="#zh-cb15-25" aria-hidden="true" tabindex="-1"></a>                    <span class="at">lower =</span> <span class="fu">round</span>(lower, <span class="dv">2</span>), <span class="at">upper =</span> <span class="fu">round</span>(upper, <span class="dv">2</span>)),</span>
+<span id="zh-cb15-26"><a href="#zh-cb15-26" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;results/typical_abs_error_by_treatment.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="zh-cb15-27"><a href="#zh-cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb15-28"><a href="#zh-cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that the conclusion does not hinge on the constant 0.5</span></span>
+<span id="zh-cb15-29"><a href="#zh-cb15-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>)) {</span>
+<span id="zh-cb15-30"><a href="#zh-cb15-30" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(<span class="fu">log</span>(abs_e <span class="sc">+</span> k) <span class="sc">~</span> block <span class="sc">*</span> app <span class="sc">+</span> app <span class="sc">*</span> lane <span class="sc">*</span> placement <span class="sc">*</span> pace <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> lap_id),</span>
+<span id="zh-cb15-31"><a href="#zh-cb15-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">data =</span> dat)</span>
+<span id="zh-cb15-32"><a href="#zh-cb15-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;constant %.2f: app p = %.3f</span><span class="sc">\n</span><span class="st">&quot;</span>, k, <span class="fu">anova</span>(m)[<span class="st">&quot;app&quot;</span>, <span class="st">&quot;Pr(&gt;F)&quot;</span>]))</span>
+<span id="zh-cb15-33"><a href="#zh-cb15-33" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L68-L100">在
 GitHub 上查看</a>
@@ -3372,20 +3498,20 @@ alt="16 种组合的典型绝对误差（log 模型反变换）和 95% 置信区
 <summary>
 R 代码 · <code>code/03_absolute_error.R</code> 第 102–114 行
 </summary>
-<div class="sourceCode" id="zh-cb14"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="zh-cb14-1"><a href="#zh-cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3. Plot: typical |e| for all 16 treatment combinations ------------------</span></span>
-<span id="zh-cb14-2"><a href="#zh-cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb14-3"><a href="#zh-cb14-3" aria-hidden="true" tabindex="-1"></a>typ_cell<span class="sc">$</span>combo <span class="ot">&lt;-</span> <span class="fu">with</span>(typ_cell, <span class="fu">paste0</span>(<span class="st">&quot;lane &quot;</span>, lane, <span class="st">&quot;, &quot;</span>, placement, <span class="st">&quot;, &quot;</span>, pace))</span>
-<span id="zh-cb14-4"><a href="#zh-cb14-4" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(typ_cell, <span class="fu">aes</span>(<span class="at">x =</span> typical_abs_e, <span class="at">y =</span> combo, <span class="at">colour =</span> app)) <span class="sc">+</span></span>
-<span id="zh-cb14-5"><a href="#zh-cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> lower, <span class="at">xmax =</span> upper),</span>
-<span id="zh-cb14-6"><a href="#zh-cb14-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="zh-cb14-7"><a href="#zh-cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Typical absolute error |e| (%), back-transformed, 95% CI&quot;</span>,</span>
-<span id="zh-cb14-8"><a href="#zh-cb14-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">colour =</span> <span class="st">&quot;App&quot;</span>,</span>
-<span id="zh-cb14-9"><a href="#zh-cb14-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Accuracy of each tested combination&quot;</span>,</span>
-<span id="zh-cb14-10"><a href="#zh-cb14-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;Intervals overlap widely: no single best combination&quot;</span>) <span class="sc">+</span></span>
-<span id="zh-cb14-11"><a href="#zh-cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
-<span id="zh-cb14-12"><a href="#zh-cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/06_typical_abs_error_by_treatment.png&quot;</span>, p_cell,</span>
-<span id="zh-cb14-13"><a href="#zh-cb14-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
+<div class="sourceCode" id="zh-cb16"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb16-1"><a href="#zh-cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 3. Plot: typical |e| for all 16 treatment combinations ------------------</span></span>
+<span id="zh-cb16-2"><a href="#zh-cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb16-3"><a href="#zh-cb16-3" aria-hidden="true" tabindex="-1"></a>typ_cell<span class="sc">$</span>combo <span class="ot">&lt;-</span> <span class="fu">with</span>(typ_cell, <span class="fu">paste0</span>(<span class="st">&quot;lane &quot;</span>, lane, <span class="st">&quot;, &quot;</span>, placement, <span class="st">&quot;, &quot;</span>, pace))</span>
+<span id="zh-cb16-4"><a href="#zh-cb16-4" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(typ_cell, <span class="fu">aes</span>(<span class="at">x =</span> typical_abs_e, <span class="at">y =</span> combo, <span class="at">colour =</span> app)) <span class="sc">+</span></span>
+<span id="zh-cb16-5"><a href="#zh-cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> lower, <span class="at">xmax =</span> upper),</span>
+<span id="zh-cb16-6"><a href="#zh-cb16-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
+<span id="zh-cb16-7"><a href="#zh-cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Typical absolute error |e| (%), back-transformed, 95% CI&quot;</span>,</span>
+<span id="zh-cb16-8"><a href="#zh-cb16-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">colour =</span> <span class="st">&quot;App&quot;</span>,</span>
+<span id="zh-cb16-9"><a href="#zh-cb16-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">&quot;Accuracy of each tested combination&quot;</span>,</span>
+<span id="zh-cb16-10"><a href="#zh-cb16-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&quot;Intervals overlap widely: no single best combination&quot;</span>) <span class="sc">+</span></span>
+<span id="zh-cb16-11"><a href="#zh-cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="zh-cb16-12"><a href="#zh-cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;figures/06_typical_abs_error_by_treatment.png&quot;</span>, p_cell,</span>
+<span id="zh-cb16-13"><a href="#zh-cb16-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.5</span>, <span class="at">dpi =</span> <span class="dv">200</span>)</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/03_absolute_error.R#L102-L114">在
 GitHub 上查看</a>
@@ -3394,13 +3520,15 @@ GitHub 上查看</a>
 <hr />
 <h2 id="zh-结论">12. 结论</h2>
 <ol type="1">
-<li><strong>偏差</strong>：app 平均多记约 1.9%（95% CI
-1.1%–2.7%），大约每 400 m 多 8 m。</li>
+<li><strong>偏差</strong>：在我们的 4 部手机上，app 平均多记约 1.9%（95%
+CI 1.1%–2.7%），大约每 400 m 多 8 m。把手机当成随机样本时区间是 −2.2% 到
+6.0%，4 部手机太少，不能推广到所有手机。</li>
 <li><strong>手机比 app 重要</strong>：哪个 app
 记得更长取决于手机，三部手机上 Strava 更长，一部上 Keep 更长。</li>
-<li><strong>跑道、手机位置、速度</strong>：在我们的样本量下没有检测到明显影响；手机放口袋可能多记一点，但证据弱。</li>
-<li><strong>准确度</strong>：Keep 的 MAPE 更低（2.7% 对
-3.6%），但差异不显著；没有唯一的最佳组合。</li>
+<li><strong>跑道、手机位置、速度</strong>：在我们的样本量下没有检测到明显影响；手机放口袋可能多记一点，但证据弱。它们之间的
+11 个交互也都没有检测到（最小 p = 0.13）。</li>
+<li><strong>准确度</strong>：Keep 的 MAPE（平均绝对百分比误差，即 |e|
+的平均值）更低（2.7% 对 3.6%），但差异不显著；没有唯一的最佳组合。</li>
 </ol>
 <p><strong>对普通用户的意义</strong>：跑一圈 400 m，app 显示 0.41 km
 是正常的。换 app 不一定更准，换手机的影响可能更大。</p>
@@ -3411,17 +3539,21 @@ GitHub 上查看</a>
 显示精度</strong>：舍入误差（±1.1%–1.25%）和很多效应差不多大，小效应检测不出来。改进：导出
 GPS 轨迹文件，用原始坐标算更精确的距离。</li>
 <li><strong>只有 4
-部手机、一条跑道</strong>：结论不能直接推广到所有手机和所有场地。改进：更多手机型号。</li>
+部手机、一条跑道</strong>：结论不能直接推广到所有手机和所有场地，随机区组模型（第
+10.3 节）也显示了这一点。改进：更多手机型号。</li>
 <li><strong>手机位置和速度没有标准化</strong>：placement 和 pace
 效应是四个人习惯的平均，同一个人每圈之间的不一致也会增加噪音；还有一个人缺少每圈用时记录。改进：规定用哪只手、屏幕朝向、哪个口袋，并设定目标速度（例如走
 4.5–5.5 km/h，慢跑 8–10 km/h），每圈计时。</li>
-<li><strong>天气和日期与区组混杂</strong>：Jenny
-的三圈雨天都是走路。改进：每个人在同一天、相近条件下完成。</li>
+<li><strong>天气和日期没有单独分区组，和区组混杂</strong>：Darren
+整组都在小雨里跑，Jenny
+的三圈雨天都是走路。改进：每个人在同一天、相近条件下完成，或者让每个人在不同天气下各跑一组。</li>
 <li><strong>每种组合重复次数少</strong>：每格 4
 个读数，组合层面的比较功效低。</li>
 </ul>
 <hr />
 <h2 id="zh-每页-slide-讲什么">14. 每页 slide 讲什么</h2>
+<p>幻灯片一共 6 页：标题页 + 5
+张内容页。页码是幻灯片右下角显示的页码。</p>
 <table>
 <colgroup>
 <col style="width: 25%" />
@@ -3439,33 +3571,41 @@ GPS 轨迹文件，用原始坐标算更精确的距离。</li>
 </thead>
 <tbody>
 <tr class="odd">
-<td>1 Formulation</td>
-<td>三个目标；4 个因素及理由；按人分区组；带符号百分比误差</td>
-<td>400.00 / 453.03 m</td>
-<td>第 1、2.1、2.2、3 节</td>
+<td>1 标题页</td>
+<td>题目和组员</td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
-<td>2 Design (1)</td>
+<td>2 Formulation</td>
+<td>三个目标；4
+个因素及理由；按人分区组；日期和天气没有单独分区组；带符号百分比误差</td>
+<td>400.00 / 453.03 m</td>
+<td>第 1、2.1、2.2、3、5 节</td>
+</tr>
+<tr class="odd">
+<td>3 Design (1)</td>
 <td>2⁴ 析因 + 4 个完全区组；两个 app 同时测 → 配对；裂区结构</td>
 <td>4 / 32 / 64；df 21 和 24</td>
 <td>第 2.1–2.5 节</td>
 </tr>
-<tr class="odd">
-<td>3 Design (2)</td>
-<td>区组、随机化、数据采集、已知限制</td>
-<td>set.seed(404)；±5 m</td>
+<tr class="even">
+<td>4 Design (2)</td>
+<td>四个区组的随机顺序（蓝色 =
+雨天）；区组、随机化、数据采集、已知限制</td>
+<td>set.seed(404) + 每组一次 sample(8)；±5 m</td>
 <td>第 2.2、2.4、3.4、5 节</td>
 </tr>
-<tr class="even">
-<td>4 Analysis</td>
+<tr class="odd">
+<td>5 Analysis</td>
 <td>计划模型 → 检查 app 效应是否随手机变化 → 加 app × block → 诊断</td>
 <td>+3.0 / +4.0 / −2.6 / +1.5；χ² = 22.4, p &lt; 0.001</td>
 <td>第 8、9、10.2 节</td>
 </tr>
-<tr class="odd">
-<td>5 Conclusions</td>
-<td>三个 Aim 的答案；局限和改进</td>
-<td>+1.9%；MAPE 2.7% vs 3.6%</td>
+<tr class="even">
+<td>6 Conclusions</td>
+<td>三个 Aim 的答案（含随机区组区间和 MAPE 定义）；局限和改进</td>
+<td>+1.9%（−2.2 到 6.0）；MAPE 2.7% vs 3.6%</td>
 <td>第 10–13 节</td>
 </tr>
 </tbody>
@@ -3489,24 +3629,32 @@ GPS 轨迹文件，用原始坐标算更精确的距离。</li>
 <td>+1.90%（95% CI 1.12–2.68）</td>
 </tr>
 <tr class="even">
+<td>总平均误差，手机当随机样本</td>
+<td>95% CI −2.15 到 5.95（df = 3）；app p = 0.39</td>
+</tr>
+<tr class="odd">
 <td>Keep / Strava 平均误差</td>
 <td>+1.17% / +2.63%</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Strava − Keep（Phoebe / Boyi / Jenny / Darren）</td>
 <td>+3.02 / +4.01 / −2.63 / +1.45 个百分点</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>app × block</td>
 <td>LRT χ² = 22.4, df = 3, p &lt; 0.001；F 检验 p = 0.002</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>区组</td>
 <td>p &lt; 0.001</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>lane / placement / pace</td>
 <td>p = 0.50 / 0.08 / 0.95</td>
+</tr>
+<tr class="even">
+<td>11 个处理因素交互</td>
+<td>都没检测到，最小 p = 0.13（app × lane × pace）</td>
 </tr>
 <tr class="odd">
 <td>圈间 SD / 残差 SD</td>
@@ -3544,32 +3692,32 @@ GPS 轨迹文件，用原始坐标算更精确的距离。</li>
 href="https://github.com/z-boyi/gps-running-accuracy-doe/tree/main/code"><code>code/</code></a>
 文件夹里的四个 R 脚本。想重现结果：下载或 clone 这个 repo，在 R 或
 RStudio 里把 repo 文件夹设为工作目录，然后运行：</p>
-<div class="sourceCode" id="zh-cb15"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="zh-cb15-1"><a href="#zh-cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_randomization.R&quot;</span>)   <span class="co"># 随机顺序（seed 404）</span></span>
-<span id="zh-cb15-2"><a href="#zh-cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_clean_data.R&quot;</span>)      <span class="co"># 原始记录 -&gt; data/processed/gps_runs.csv</span></span>
-<span id="zh-cb15-3"><a href="#zh-cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/02_analysis.R&quot;</span>)        <span class="co"># 带符号误差：混合模型、诊断、效应</span></span>
-<span id="zh-cb15-4"><a href="#zh-cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/03_absolute_error.R&quot;</span>)  <span class="co"># 准确度：MAPE、bootstrap、log|e| 模型</span></span></code></pre></div>
+<div class="sourceCode" id="zh-cb17"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb17-1"><a href="#zh-cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/00_randomization.R&quot;</span>)   <span class="co"># 随机顺序（seed 404）</span></span>
+<span id="zh-cb17-2"><a href="#zh-cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/01_clean_data.R&quot;</span>)      <span class="co"># 原始记录 -&gt; data/processed/gps_runs.csv</span></span>
+<span id="zh-cb17-3"><a href="#zh-cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/02_analysis.R&quot;</span>)        <span class="co"># 带符号误差：混合模型、诊断、效应</span></span>
+<span id="zh-cb17-4"><a href="#zh-cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;code/03_absolute_error.R&quot;</span>)  <span class="co"># 准确度：MAPE、bootstrap、log|e| 模型</span></span></code></pre></div>
 <p>整理数据的脚本会先自动安装缺少的 R
 包（<code>lme4</code>、<code>lmerTest</code>、<code>emmeans</code>、<code>pbkrtest</code>、<code>ggplot2</code>）：</p>
 <details class="rcode">
 <summary>
 R 代码 · <code>code/01_clean_data.R</code> 第 12–25 行
 </summary>
-<div class="sourceCode" id="zh-cb16"><pre
-class="sourceCode r"><code class="sourceCode r"><span id="zh-cb16-1"><a href="#zh-cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 0. Packages ------------------------------------------------------------</span></span>
-<span id="zh-cb16-2"><a href="#zh-cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb16-3"><a href="#zh-cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Install a package only if it is missing, so re-running the script is fast</span></span>
-<span id="zh-cb16-4"><a href="#zh-cb16-4" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;lme4&quot;</span>, <span class="st">&quot;lmerTest&quot;</span>, <span class="st">&quot;emmeans&quot;</span>, <span class="st">&quot;pbkrtest&quot;</span>, <span class="st">&quot;ggplot2&quot;</span>)</span>
-<span id="zh-cb16-5"><a href="#zh-cb16-5" aria-hidden="true" tabindex="-1"></a>missing  <span class="ot">&lt;-</span> packages[<span class="sc">!</span>packages <span class="sc">%in%</span> <span class="fu">rownames</span>(<span class="fu">installed.packages</span>())]</span>
-<span id="zh-cb16-6"><a href="#zh-cb16-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="zh-cb16-7"><a href="#zh-cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(missing, <span class="at">repos =</span> <span class="st">&quot;https://cloud.r-project.org&quot;</span>)</span>
-<span id="zh-cb16-8"><a href="#zh-cb16-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="zh-cb16-9"><a href="#zh-cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="zh-cb16-10"><a href="#zh-cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load them to check that every package installed correctly.</span></span>
-<span id="zh-cb16-11"><a href="#zh-cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># This script itself only uses base R; each analysis script loads what it needs.</span></span>
-<span id="zh-cb16-12"><a href="#zh-cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(</span>
-<span id="zh-cb16-13"><a href="#zh-cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (pkg <span class="cf">in</span> packages) <span class="fu">library</span>(pkg, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
-<span id="zh-cb16-14"><a href="#zh-cb16-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="zh-cb18"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="zh-cb18-1"><a href="#zh-cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- 0. Packages ------------------------------------------------------------</span></span>
+<span id="zh-cb18-2"><a href="#zh-cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb18-3"><a href="#zh-cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Install a package only if it is missing, so re-running the script is fast</span></span>
+<span id="zh-cb18-4"><a href="#zh-cb18-4" aria-hidden="true" tabindex="-1"></a>packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;lme4&quot;</span>, <span class="st">&quot;lmerTest&quot;</span>, <span class="st">&quot;emmeans&quot;</span>, <span class="st">&quot;pbkrtest&quot;</span>, <span class="st">&quot;ggplot2&quot;</span>)</span>
+<span id="zh-cb18-5"><a href="#zh-cb18-5" aria-hidden="true" tabindex="-1"></a>missing  <span class="ot">&lt;-</span> packages[<span class="sc">!</span>packages <span class="sc">%in%</span> <span class="fu">rownames</span>(<span class="fu">installed.packages</span>())]</span>
+<span id="zh-cb18-6"><a href="#zh-cb18-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(missing) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="zh-cb18-7"><a href="#zh-cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(missing, <span class="at">repos =</span> <span class="st">&quot;https://cloud.r-project.org&quot;</span>)</span>
+<span id="zh-cb18-8"><a href="#zh-cb18-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="zh-cb18-9"><a href="#zh-cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="zh-cb18-10"><a href="#zh-cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load them to check that every package installed correctly.</span></span>
+<span id="zh-cb18-11"><a href="#zh-cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co"># This script itself only uses base R; each analysis script loads what it needs.</span></span>
+<span id="zh-cb18-12"><a href="#zh-cb18-12" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(</span>
+<span id="zh-cb18-13"><a href="#zh-cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (pkg <span class="cf">in</span> packages) <span class="fu">library</span>(pkg, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span>
+<span id="zh-cb18-14"><a href="#zh-cb18-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p class="rcode-link">
 <a href="https://github.com/z-boyi/gps-running-accuracy-doe/blob/main/code/01_clean_data.R#L12-L25">在
 GitHub 上查看</a>
